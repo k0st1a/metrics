@@ -17,7 +17,7 @@ func Counter(res http.ResponseWriter, req *http.Request) {
 	valueIndex := re.SubexpIndex("Value")
 	matches := re.FindStringSubmatch(req.URL.Path)
 
-	logger.Println("matches:%+v", matches)
+	logger.Println("matches:", matches)
 
 	if matches == nil {
 		res.WriteHeader(http.StatusBadRequest)
@@ -47,7 +47,7 @@ func Gauge(res http.ResponseWriter, req *http.Request) {
 	valueIndex := re.SubexpIndex("Value")
 	matches := re.FindStringSubmatch(req.URL.Path)
 
-	logger.Println("matches:%+v", matches)
+	logger.Println("matches:", matches)
 
 	if matches == nil {
 		res.WriteHeader(http.StatusBadRequest)
