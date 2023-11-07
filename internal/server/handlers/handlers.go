@@ -10,7 +10,7 @@ import (
 
 func Counter(res http.ResponseWriter, req *http.Request) {
 
-	logger.LogHttpRequest(req)
+	logger.LogHTTPRequest(req)
 
 	re := regexp.MustCompile(`^/update/counter/(?P<Name>[^/]*)(?:/)?(?P<Value>[^/]*)?$`)
 	nameIndex := re.SubexpIndex("Name")
@@ -40,7 +40,7 @@ func Counter(res http.ResponseWriter, req *http.Request) {
 
 func Gauge(res http.ResponseWriter, req *http.Request) {
 
-	logger.LogHttpRequest(req)
+	logger.LogHTTPRequest(req)
 
 	re := regexp.MustCompile(`^/update/gauge/(?P<Name>[^/]*)(?:/)?(?P<Value>[^/]*)$`)
 	nameIndex := re.SubexpIndex("Name")
@@ -70,7 +70,7 @@ func Gauge(res http.ResponseWriter, req *http.Request) {
 
 func Stub(res http.ResponseWriter, req *http.Request) {
 
-	logger.LogHttpRequest(req)
+	logger.LogHTTPRequest(req)
 	logger.Println("stub")
 
 	res.WriteHeader(http.StatusBadRequest)

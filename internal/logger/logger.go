@@ -9,7 +9,7 @@ import (
 
 var MyLog *log.Logger
 
-func LogHttpRequest(req *http.Request) {
+func LogHTTPRequest(req *http.Request) {
 	MyLog.Println("Method:", req.Method)
 	MyLog.Println("Body:", req.Body)
 	MyLog.Println("URL.Path:", req.URL.Path)
