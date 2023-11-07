@@ -21,7 +21,7 @@ func LogHTTPRequest(req *http.Request) {
 }
 
 func Println(v ...any) {
-	fmt.Println(v)
+	fmt.Println(v...)
 }
 
 func Run() {
