@@ -47,24 +47,30 @@ func Gauge(res http.ResponseWriter, req *http.Request) {
 	valueIndex := re.SubexpIndex("Value")
 	matches := re.FindStringSubmatch(req.URL.Path)
 
+	logger.Println("URL:", req.URL.Path)
 	logger.Println("matches:", matches)
 
 	if matches == nil {
-		res.WriteHeader(http.StatusBadRequest)
+		http.Error(res, "bad gauge request", http.StatusBadRequest)
 		return
 	}
 
 	if matches[nameIndex] == "" {
-		res.WriteHeader(http.StatusNotFound)
+		http.Error(res, "gauge name is empty", http.StatusNotFound)
 		return
 	}
 
+	if matches[valueIndex] == "" {
+		http.Error(res, "gauge value is empty", http.StatusBadRequest)
+		return
+	}
 	_, err := strconv.ParseFloat(matches[valueIndex], 64)
 	if err != nil {
-		res.WriteHeader(http.StatusBadRequest)
+		http.Error(res, "gauge value is bad", http.StatusBadRequest)
 		return
 	}
 
+	res.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	res.WriteHeader(http.StatusOK)
 }
 
