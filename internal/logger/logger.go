@@ -1,6 +1,7 @@
 package logger
 
 import (
+	"fmt"
 	"log"
 	"net/http"
 	"os"
@@ -21,6 +22,7 @@ func LogHTTPRequest(req *http.Request) {
 }
 
 func Println(v ...any) {
+	fmt.Println(v...)
 	MyLog.Println(v...)
 }
 
