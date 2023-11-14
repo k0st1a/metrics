@@ -1,7 +1,7 @@
 package agent
 
 import (
-	"github.com/k0st1a/metrics/internal/agent/client"
+	"github.com/k0st1a/metrics/internal/agent/report"
 	"github.com/k0st1a/metrics/internal/metrics"
 	"net/http"
 )
@@ -13,5 +13,5 @@ func Run() {
 	var myClient *http.Client = &http.Client{}
 
 	go metrics.RunUpdateMetrics(myMetrics, pollInternal)
-	client.RunReportMetrics(myClient, myMetrics, reportInterval)
+	report.RunReportMetrics(myClient, myMetrics, reportInterval)
 }
