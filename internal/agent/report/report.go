@@ -23,7 +23,7 @@ func reportMetrics(client *http.Client, metrics *metrics.MyStats) {
 }
 
 func ReportMetric(client *http.Client, metricType, name, value string) {
-	var url string = `http://localhost:8080/update/` + metricType + `/` + name + `/` + value
+	var url = `http://localhost:8080/update/` + metricType + `/` + name + `/` + value
 	req, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
 		panic(err)

@@ -7,10 +7,10 @@ import (
 )
 
 func Run() {
-	var myMetrics *metrics.MyStats = &metrics.MyStats{}
+	var myMetrics = &metrics.MyStats{}
+	var myClient = &http.Client{}
 	var pollInternal = 2
 	var reportInterval = 10
-	var myClient *http.Client = &http.Client{}
 
 	go metrics.RunUpdateMetrics(myMetrics, pollInternal)
 	report.RunReportMetrics(myClient, myMetrics, reportInterval)
