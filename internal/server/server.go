@@ -3,24 +3,16 @@ package server
 import (
 	"net/http"
 
+	"github.com/k0st1a/metrics/internal/handlers"
 	"github.com/k0st1a/metrics/internal/logger"
-	"github.com/k0st1a/metrics/internal/server/handlers"
+	"github.com/k0st1a/metrics/internal/storage"
 )
 
 func Run() {
-	mux := http.NewServeMux()
-	logger.Println("Mux started")
+	logger.Println("Run storage")
+	storage.Run()
 
-	mux.HandleFunc("/", handlers.Stub)
-	logger.Println("Stab handler added")
-
-	mux.HandleFunc("/update/gauge/", handlers.Gauge)
-	logger.Println("Gauge handler added")
-
-	mux.HandleFunc("/update/counter/", handlers.Counter)
-	logger.Println("Counter handler added")
-
-	err := http.ListenAndServe(`localhost:8080`, mux)
+	err := http.ListenAndServe(":8080", handlers.BuildRouter())
 	if err != nil {
 		panic(err)
 	}
