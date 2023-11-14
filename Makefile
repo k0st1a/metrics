@@ -8,6 +8,8 @@ ITERS := $(addprefix iter,${NUMBERS})
 METRICSTEST = ./metricstest
 METRICSTEST_ARGS = -test.v -source-path=.
 
+STATICTEST = ./statictest
+
 .PHONY:build
 build:
 	go build -C ./cmd/agent/ -o agent
@@ -20,7 +22,7 @@ clean:
 
 .PHONY:statictest
 statictest:
-	go vet -vettool=$$(which statictest) ./...
+	go vet -vettool=${STATICTEST} ./...
 
 
 test: build statictest
