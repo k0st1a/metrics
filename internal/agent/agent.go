@@ -2,7 +2,7 @@ package agent
 
 import (
 	"github.com/k0st1a/metrics/internal/agent/client"
-	"github.com/k0st1a/metrics/internal/agent/metrics"
+	"github.com/k0st1a/metrics/internal/metrics"
 	"net/http"
 )
 
