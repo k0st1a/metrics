@@ -22,6 +22,10 @@ clean:
 statictest:
 	go vet -vettool=$$(which statictest) ./...
 
+
+test: build statictest
+	go test -v ./...
+
 .PHONY: ${ITERS}
 ${ITERS}: iter%: build statictest;
 	for i in $(shell seq 1 $*) ; do \
