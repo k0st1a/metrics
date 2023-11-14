@@ -1,7 +1,7 @@
 package client
 
 import (
-	"github.com/k0st1a/metrics/internal/agent/metrics"
+	"github.com/k0st1a/metrics/internal/metrics"
 	"io"
 	"net/http"
 	"os"
