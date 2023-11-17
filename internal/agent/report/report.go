@@ -8,22 +8,22 @@ import (
 	"time"
 )
 
-func RunReportMetrics(client *http.Client, metrics *metrics.MyStats, reportInterval int) {
+func RunReportMetrics(addr string, client *http.Client, metrics *metrics.MyStats, reportInterval int) {
 	for {
 		time.Sleep(time.Duration(reportInterval) * time.Second)
-		reportMetrics(client, metrics)
+		reportMetrics(addr, client, metrics)
 	}
 }
 
-func reportMetrics(client *http.Client, metrics *metrics.MyStats) {
+func reportMetrics(addr string, client *http.Client, metrics *metrics.MyStats) {
 	prepared := metrics.Prepare()
 	for name, info := range prepared {
-		ReportMetric(client, info.Type, name, info.Value)
+		ReportMetric(addr, client, info.Type, name, info.Value)
 	}
 }
 
-func ReportMetric(client *http.Client, metricType, name, value string) {
-	var url = `http://localhost:8080/update/` + metricType + `/` + name + `/` + value
+func ReportMetric(addr string, client *http.Client, metricType, name, value string) {
+	var url = `http://` + addr + `/update/` + metricType + `/` + name + `/` + value
 	req, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
 		panic(err)
