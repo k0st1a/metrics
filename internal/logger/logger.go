@@ -26,6 +26,11 @@ func Println(v ...any) {
 	MyLog.Println(v...)
 }
 
+func Printf(s string, v ...any) {
+	//fmt.Printf(s, v...)
+	//MyLog.Printf(s, v...)
+}
+
 func Run() {
 	MyLogFile, err := os.OpenFile("./server.log", os.O_WRONLY|os.O_CREATE|os.O_TRUNC, 0666)
 	if err != nil {
