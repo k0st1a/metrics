@@ -5,32 +5,27 @@ import (
 	"flag"
 	"strconv"
 	"strings"
-
-	"github.com/k0st1a/metrics/internal/logger"
 )
-
-var serverAddr string
-var pollInternal int
-var reportInterval int
 
 type NetAddress struct {
 	host string
 	port int
 }
 
-func parseFlags() error {
-	addr := &NetAddress{host: "localhost", port: 8080}
+func parseFlags(cfg *Config) error {
+	addr := &NetAddress{}
+	addr.Set(cfg.ServerAddr)
+
 	// если интерфейс не реализован,
 	// здесь будет ошибка компиляции
 	_ = flag.Value(addr)
-	flag.Var(addr, "a", "server network address")
+	flag.Var(addr, "a", "server network address in a form host:port")
 
-	flag.IntVar(&pollInternal, "p", 2, "metrics polling rate to the server")
-	flag.IntVar(&reportInterval, "r", 10, "frequency of sending metrics to the server")
+	flag.IntVar(&(cfg.PollInterval), "p", 2, "metrics polling rate to the server")
+	flag.IntVar(&(cfg.ReportInterval), "r", 10, "frequency of sending metrics to the server")
 
 	flag.Parse()
-	logger.Printf("Host:%s Port:%d\n", addr.host, addr.port)
-	serverAddr = addr.String()
+	cfg.ServerAddr = addr.String()
 
 	if len(flag.Args()) != 0 {
 		return errors.New("unknown args")
