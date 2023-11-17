@@ -9,13 +9,26 @@ import (
 )
 
 func Run() {
-	parseFlags()
+	cfg := NewConfig()
+	logger.Println("Config:", cfg)
+
+	err := parseFlags(&cfg)
+	if err != nil {
+		panic(err)
+	}
+	logger.Println("Config after parseFlags:", cfg)
+
+	err = parseEnv(&cfg)
+	if err != nil {
+		panic(err)
+	}
+	logger.Println("Config after parseEnv:", cfg)
 
 	logger.Println("Storage running")
 	storage.Run()
 	logger.Println("Storage runned")
 
-	err := http.ListenAndServe(flagRunAddr, handlers.BuildRouter())
+	err = http.ListenAndServe(cfg.ServerAddr, handlers.BuildRouter())
 	if err != nil {
 		panic(err)
 	}
