@@ -9,10 +9,13 @@ import (
 )
 
 func Run() {
-	logger.Println("Run storage")
-	storage.Run()
+	parseFlags()
 
-	err := http.ListenAndServe(":8080", handlers.BuildRouter())
+	logger.Println("Storage running")
+	storage.Run()
+	logger.Println("Storage runned")
+
+	err := http.ListenAndServe(flagRunAddr, handlers.BuildRouter())
 	if err != nil {
 		panic(err)
 	}
