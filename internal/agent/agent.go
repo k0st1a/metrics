@@ -9,9 +9,9 @@ import (
 func Run() {
 	var myMetrics = &metrics.MyStats{}
 	var myClient = &http.Client{}
-	var pollInternal = 2
-	var reportInterval = 10
+
+	parseFlags()
 
 	go metrics.RunUpdateMetrics(myMetrics, pollInternal)
-	report.RunReportMetrics(myClient, myMetrics, reportInterval)
+	report.RunReportMetrics(serverAddr, myClient, myMetrics, reportInterval)
 }
