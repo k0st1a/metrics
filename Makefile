@@ -5,7 +5,6 @@ ITERS := $(addprefix iter,${NUMBERS})
 .DEFAULT_GOAL := build
 .SILENT: ${ITERS}
 
-METRICSTEST = ./metricstest
 METRICSTEST_ARGS = -test.v -source-path=.
 
 STATICTEST = ./statictest
@@ -33,20 +32,20 @@ ${ITERS}: iter%: build statictest;
 	for i in $(shell seq 1 $*) ; do \
 		METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration$$i[AB]?$$" ; \
 		if [ $$i -eq 1 ]; then \
-			${METRICSTEST} $$METRICSTEST_ARGS \
+			metricstest $$METRICSTEST_ARGS \
 						-binary-path=cmd/server/server ; \
 		elif [ $$i -eq 2 ]; then \
-			${METRICSTEST} $$METRICSTEST_ARGS  \
+			metricstest $$METRICSTEST_ARGS  \
 						-agent-binary-path=cmd/agent/agent ; \
 		elif [ $$i -eq 3 ]; then \
-			${METRICSTEST} $$METRICSTEST_ARGS \
+			metricstest $$METRICSTEST_ARGS \
 						-binary-path=cmd/server/server \
 						-agent-binary-path=cmd/agent/agent ; \
 		elif [ $$i -ge 4 ] && [ $$i -le 7 ]; then \
 			SERVER_PORT=$$(random unused-port) ; \
 			ADDRESS="localhost:$${SERVER_PORT}" ; \
 			TEMP_FILE=$$(random tempfile) ; \
-			${METRICSTEST} $$METRICSTEST_ARGS \
+			metricstest $$METRICSTEST_ARGS \
 						-binary-path=cmd/server/server \
 						-agent-binary-path=cmd/agent/agent \
 						-server-port=$$SERVER_PORT ; \
@@ -54,7 +53,7 @@ ${ITERS}: iter%: build statictest;
 			SERVER_PORT=$$(random unused-port) ; \
 			ADDRESS="localhost:$${SERVER_PORT}" ; \
 			TEMP_FILE=$$(random tempfile) ; \
-			${METRICSTEST} $$METRICSTEST_ARGS \
+			metricstest $$METRICSTEST_ARGS \
 						-binary-path=cmd/server/server \
 						-agent-binary-path=cmd/agent/agent \
 						-server-port=$$SERVER_PORT \
@@ -63,7 +62,7 @@ ${ITERS}: iter%: build statictest;
 			SERVER_PORT=$$(random unused-port) ; \
 			ADDRESS="localhost:$${SERVER_PORT}" ; \
 			TEMP_FILE=$$(random tempfile) ; \
-			${METRICSTEST} $$METRICSTEST_ARGS \
+			metricstest $$METRICSTEST_ARGS \
 						-binary-path=cmd/server/server \
 						-agent-binary-path=cmd/agent/agent \
 						-server-port=$$SERVER_PORT \
@@ -72,7 +71,7 @@ ${ITERS}: iter%: build statictest;
 			SERVER_PORT=$$(random unused-port) ; \
 			ADDRESS="localhost:$${SERVER_PORT}" ; \
 			TEMP_FILE=$$(random tempfile) ; \
-			${METRICSTEST} $$METRICSTEST_ARGS \
+			metricstest $$METRICSTEST_ARGS \
 						-binary-path=cmd/server/server \
 						-agent-binary-path=cmd/agent/agent \
 						-server-port=$$SERVER_PORT \
