@@ -2,6 +2,7 @@ package gauge
 
 import (
 	"strconv"
+	"strings"
 
 	"github.com/k0st1a/metrics/internal/storage"
 )
@@ -30,5 +31,13 @@ func parser(s string) (float64, error) {
 }
 
 func stringer(f float64) string {
-	return strconv.FormatFloat(f, 'g', -1, 64)
+	s := strconv.FormatFloat(f, 'g', -1, 64)
+	return addDotIfNo(s)
+}
+
+func addDotIfNo(s string) string {
+	if strings.ContainsRune(s, 46) { // 46 - ascii code of dot
+		return s
+	}
+	return s + "."
 }
