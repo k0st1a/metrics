@@ -30,9 +30,11 @@ func RunUpdateMetrics(metrics *MyStats, pollInternal int) {
 	}
 }
 
-func (metrics *MyStats) Prepare() map[string]MetricInfo {
+func (metrics *MyStats) IncreasePollCount() {
 	metrics.PollCount += 1
+}
 
+func (metrics *MyStats) Compose() map[string]MetricInfo {
 	return map[string]MetricInfo{
 		"Alloc":         MetricInfo{Type: "gauge", Value: strconv.FormatUint(metrics.MemStats.Alloc, 10)},
 		"BuckHashSys":   MetricInfo{Type: "gauge", Value: strconv.FormatUint(metrics.MemStats.BuckHashSys, 10)},
