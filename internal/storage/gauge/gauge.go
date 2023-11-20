@@ -2,9 +2,9 @@ package gauge
 
 import (
 	"strconv"
-	"strings"
 
 	"github.com/k0st1a/metrics/internal/storage"
+	"github.com/k0st1a/metrics/internal/utils"
 )
 
 func Store(name, value string) error {
@@ -32,12 +32,5 @@ func parser(s string) (float64, error) {
 
 func stringer(f float64) string {
 	s := strconv.FormatFloat(f, 'g', -1, 64)
-	return addDotIfNo(s)
-}
-
-func addDotIfNo(s string) string {
-	if strings.ContainsRune(s, 46) { // 46 - ascii code of dot
-		return s
-	}
-	return s + "."
+	return utils.AddDotIfNo(s)
 }

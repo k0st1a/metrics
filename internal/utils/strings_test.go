@@ -1,4 +1,4 @@
-package gauge
+package utils
 
 import (
 	"testing"
@@ -26,7 +26,7 @@ func TestAddDotIfNo(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			assert.Equal(t, test.expectedStr, addDotIfNo(test.str))
+			assert.Equal(t, test.expectedStr, AddDotIfNo(test.str))
 		})
 	}
 }
