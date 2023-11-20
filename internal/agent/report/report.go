@@ -16,7 +16,8 @@ func RunReportMetrics(addr string, client *http.Client, metrics *metrics.MyStats
 }
 
 func reportMetrics(addr string, client *http.Client, metrics *metrics.MyStats) {
-	prepared := metrics.Prepare()
+	metrics.IncreasePollCount()
+	prepared := metrics.Compose()
 	for name, info := range prepared {
 		ReportMetric(addr, client, info.Type, name, info.Value)
 	}
