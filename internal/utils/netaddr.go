@@ -2,34 +2,32 @@ package utils
 
 import (
 	"errors"
+	"net"
 	"strconv"
-	"strings"
 )
 
 type NetAddress struct {
 	host string
-	port int
+	port uint16
 }
 
 func (a *NetAddress) String() string {
-	return a.host + ":" + strconv.Itoa(a.port)
+	return a.host + ":" + strconv.FormatUint(uint64(a.port), 10)
 }
 
 func (a *NetAddress) Set(flagValue string) error {
-	pl := strings.Split(flagValue, ":")
-	if len(pl) != 2 {
-		return errors.New("need address in a form host:port")
-	}
-
-	port, err := strconv.Atoi(pl[1])
-	switch {
-	case err != nil:
+	host, port, err := net.SplitHostPort(flagValue)
+	if err != nil {
 		return err
-	case port < 0:
-		return errors.New("port must be non negarive")
 	}
 
-	a.host = pl[0]
-	a.port = port
+	port16, err := strconv.ParseUint(port, 10, 16)
+	if err != nil {
+		return errors.New("invalid port " + strconv.Quote(port) + " parsing " + strconv.Quote(flagValue)) // from netip.ParseAddrPort
+	}
+
+	a.host = host
+	a.port = uint16(port16)
+
 	return nil
 }
