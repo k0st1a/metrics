@@ -9,8 +9,9 @@ import (
 )
 
 func RunReportMetrics(addr string, client *http.Client, metrics *metrics.MyStats, reportInterval int) {
-	for {
-		time.Sleep(time.Duration(reportInterval) * time.Second)
+	ticker := time.NewTicker(time.Duration(reportInterval) * time.Second)
+
+	for range ticker.C {
 		reportMetrics(addr, client, metrics)
 	}
 }
