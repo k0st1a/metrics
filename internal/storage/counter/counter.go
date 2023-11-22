@@ -2,11 +2,14 @@ package counter
 
 import (
 	"strconv"
-
-	"github.com/k0st1a/metrics/internal/storage"
 )
 
-func Store(name, value string) error {
+type Storage interface {
+	GetCounter(string) (int64, bool)
+	StoreCounter(string, int64)
+}
+
+func Store(name, value string, storage Storage) error {
 	v, err := parser(value)
 	if err != nil {
 		return err
@@ -22,7 +25,7 @@ func Store(name, value string) error {
 	return nil
 }
 
-func Get(name string) (string, bool) {
+func Get(name string, storage Storage) (string, bool) {
 	v, ok := storage.GetCounter(name)
 	if !ok {
 		return "", ok

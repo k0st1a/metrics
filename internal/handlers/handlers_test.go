@@ -13,8 +13,6 @@ import (
 
 func TestPostMetricHandler(t *testing.T) {
 
-	storage.RunStorage()
-
 	tests := []struct {
 		name               string
 		reqMethod          string
@@ -60,7 +58,10 @@ func TestPostMetricHandler(t *testing.T) {
 		},
 	}
 
-	testServer := httptest.NewServer(BuildRouter())
+	storage := storage.NewStorage()
+	handler := NewHandler(storage)
+
+	testServer := httptest.NewServer(BuildRouter(handler))
 	defer testServer.Close()
 
 	testClient := &http.Client{}
