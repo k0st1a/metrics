@@ -1,11 +1,11 @@
 package report
 
 import (
-	"github.com/k0st1a/metrics/internal/metrics"
-	"io"
 	"net/http"
-	"os"
 	"time"
+
+	"github.com/k0st1a/metrics/internal/metrics"
+	"github.com/rs/zerolog/log"
 )
 
 func RunReportMetrics(addr string, client *http.Client, metrics *metrics.MyStats, reportInterval int) {
@@ -28,7 +28,8 @@ func ReportMetric(addr string, client *http.Client, metricType, name, value stri
 	var url = `http://` + addr + `/update/` + metricType + `/` + name + `/` + value
 	req, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
-		panic(err)
+		log.Error().Err(err)
+		return
 	}
 
 	req.Header.Set("Content-Type", "text/plain")
@@ -36,8 +37,8 @@ func ReportMetric(addr string, client *http.Client, metricType, name, value stri
 
 	response, err := client.Do(req)
 	if err != nil {
-		panic(err)
+		log.Error().Err(err)
+		return
 	}
-	io.Copy(os.Stdout, response.Body) // вывод ответа в консоль
-	response.Body.Close()
+	defer response.Body.Close()
 }
