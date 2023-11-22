@@ -3,11 +3,15 @@ package gauge
 import (
 	"strconv"
 
-	"github.com/k0st1a/metrics/internal/storage"
 	"github.com/k0st1a/metrics/internal/utils"
 )
 
-func Store(name, value string) error {
+type Storage interface {
+	GetGauge(string) (float64, bool)
+	StoreGauge(string, float64)
+}
+
+func Store(name, value string, storage Storage) error {
 	v, err := parser(value)
 	if err != nil {
 		return err
@@ -17,7 +21,7 @@ func Store(name, value string) error {
 	return nil
 }
 
-func Get(name string) (string, bool) {
+func Get(name string, storage Storage) (string, bool) {
 	v, ok := storage.GetGauge(name)
 	if !ok {
 		return "", ok

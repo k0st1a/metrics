@@ -14,9 +14,10 @@ func Run() error {
 		return err
 	}
 
-	storage.RunStorage()
+	storage := storage.NewStorage()
+	handler := handlers.NewHandler(storage)
 
-	err = http.ListenAndServe(cfg.ServerAddr, handlers.BuildRouter())
+	err = http.ListenAndServe(cfg.ServerAddr, handlers.BuildRouter(handler))
 	if err != nil {
 		return err
 	}

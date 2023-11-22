@@ -2,27 +2,29 @@ package storage
 
 import "github.com/rs/zerolog/log"
 
-var gauge map[string]float64
-var counter map[string]int64
-
-func RunStorage() {
-	log.Debug().Msg("RunStorage")
-
-	gauge = make(map[string]float64)
-	counter = make(map[string]int64)
+type MemStorage struct {
+	gauge   map[string]float64
+	counter map[string]int64
 }
 
-func StoreGauge(name string, value float64) {
+func NewStorage() *MemStorage {
+	return &MemStorage{
+		gauge:   make(map[string]float64),
+		counter: make(map[string]int64),
+	}
+}
+
+func (s *MemStorage) StoreGauge(name string, value float64) {
 	log.Debug().
 		Str("name:", name).
 		Float64("value", value).
 		Msg("StoreGauge")
 
-	gauge[name] = value
+	s.gauge[name] = value
 }
 
-func GetGauge(name string) (float64, bool) {
-	v, ok := gauge[name]
+func (s *MemStorage) GetGauge(name string) (float64, bool) {
+	v, ok := s.gauge[name]
 	log.Debug().
 		Str("name:", name).
 		Float64("value:", v).
@@ -31,17 +33,17 @@ func GetGauge(name string) (float64, bool) {
 	return v, ok
 }
 
-func StoreCounter(name string, value int64) {
+func (s *MemStorage) StoreCounter(name string, value int64) {
 	log.Debug().
 		Str("name", name).
 		Int64("value", value).
 		Msg("StoreCounter")
 
-	counter[name] = value
+	s.counter[name] = value
 }
 
-func GetCounter(name string) (int64, bool) {
-	v, ok := counter[name]
+func (s *MemStorage) GetCounter(name string) (int64, bool) {
+	v, ok := s.counter[name]
 	log.Debug().
 		Str("name", name).
 		Int64("value", v).

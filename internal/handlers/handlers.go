@@ -11,34 +11,51 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-func BuildRouter() chi.Router {
+type storageService interface {
+	GetGauge(string) (float64, bool)
+	StoreGauge(string, float64)
+	GetCounter(string) (int64, bool)
+	StoreCounter(string, int64)
+}
+
+type handler struct {
+	storage storageService
+}
+
+func NewHandler(s storageService) *handler {
+	return &handler{
+		storage: s,
+	}
+}
+
+func BuildRouter(h *handler) chi.Router {
 	log.Debug().Msg("Make router")
 	r := chi.NewRouter()
 
 	log.Debug().Msg("POST handlers adding")
 	r.Route("/update/", func(r chi.Router) {
-		r.Post("/counter/{name}/{value}", PostCounterHandler)
-		r.Post("/counter/", NotFoundHandler)
-		r.Post("/gauge/{name}/{value}", PostGaugeHandler)
-		r.Post("/gauge/", NotFoundHandler)
+		r.Post("/counter/{name}/{value}", h.PostCounterHandler)
+		r.Post("/counter/", h.NotFoundHandler)
+		r.Post("/gauge/{name}/{value}", h.PostGaugeHandler)
+		r.Post("/gauge/", h.NotFoundHandler)
 	})
 	log.Debug().Msg("POST handlers added")
 
 	log.Debug().Msg("GET handlers adding")
 	r.Route("/value/", func(r chi.Router) {
-		r.Get("/counter/{name}", GetCounterHandler)
-		r.Get("/gauge/{name}", GetGaugeHandler)
+		r.Get("/counter/{name}", h.GetCounterHandler)
+		r.Get("/gauge/{name}", h.GetGaugeHandler)
 	})
 	log.Debug().Msg("GET handlers added")
 
 	log.Debug().Msg("Custom NotFound handler adding")
-	r.NotFound(BadRequestHandler)
+	r.NotFound(h.BadRequestHandler)
 	log.Debug().Msg("Custom NotFound handler added")
 
 	return r
 }
 
-func BadRequestHandler(rw http.ResponseWriter, r *http.Request) {
+func (h *handler) BadRequestHandler(rw http.ResponseWriter, r *http.Request) {
 	log.Debug().
 		Str("RequestURI", r.RequestURI).
 		Msg("")
@@ -46,7 +63,7 @@ func BadRequestHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusBadRequest)
 }
 
-func NotFoundHandler(rw http.ResponseWriter, r *http.Request) {
+func (h *handler) NotFoundHandler(rw http.ResponseWriter, r *http.Request) {
 	log.Debug().
 		Str("RequestURI", r.RequestURI).
 		Msg("")
@@ -54,7 +71,7 @@ func NotFoundHandler(rw http.ResponseWriter, r *http.Request) {
 	http.Error(rw, "metric value is empty", http.StatusNotFound)
 }
 
-func PostCounterHandler(rw http.ResponseWriter, r *http.Request) {
+func (h *handler) PostCounterHandler(rw http.ResponseWriter, r *http.Request) {
 	name := strings.ToLower(chi.URLParam(r, "name"))
 	log.Debug().
 		Str("RequestURI", r.RequestURI).
@@ -72,7 +89,7 @@ func PostCounterHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := counter.Store(name, value)
+	err := counter.Store(name, value, h.storage)
 	if err != nil {
 		http.Error(rw, "metric value is bad", http.StatusBadRequest)
 		return
@@ -82,7 +99,7 @@ func PostCounterHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
-func GetCounterHandler(rw http.ResponseWriter, r *http.Request) {
+func (h *handler) GetCounterHandler(rw http.ResponseWriter, r *http.Request) {
 	name := strings.ToLower(chi.URLParam(r, "name"))
 	log.Debug().
 		Str("RequestURI", r.RequestURI).
@@ -94,7 +111,7 @@ func GetCounterHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	value, ok := counter.Get(name)
+	value, ok := counter.Get(name, h.storage)
 	if !ok {
 		http.Error(rw, "metric not found", http.StatusNotFound)
 		return
@@ -105,7 +122,7 @@ func GetCounterHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
-func PostGaugeHandler(rw http.ResponseWriter, r *http.Request) {
+func (h *handler) PostGaugeHandler(rw http.ResponseWriter, r *http.Request) {
 	name := strings.ToLower(chi.URLParam(r, "name"))
 	log.Debug().
 		Str("RequestURI", r.RequestURI).
@@ -123,7 +140,7 @@ func PostGaugeHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := gauge.Store(name, value)
+	err := gauge.Store(name, value, h.storage)
 	if err != nil {
 		http.Error(rw, "metric value is bad", http.StatusBadRequest)
 		return
@@ -133,7 +150,7 @@ func PostGaugeHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
-func GetGaugeHandler(rw http.ResponseWriter, r *http.Request) {
+func (h *handler) GetGaugeHandler(rw http.ResponseWriter, r *http.Request) {
 	name := strings.ToLower(chi.URLParam(r, "name"))
 	log.Debug().
 		Str("RequestURI", r.RequestURI).
@@ -145,7 +162,7 @@ func GetGaugeHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	value, ok := gauge.Get(name)
+	value, ok := gauge.Get(name, h.storage)
 	if !ok {
 		http.Error(rw, "metric not found", http.StatusNotFound)
 		return
