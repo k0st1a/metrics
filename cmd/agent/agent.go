@@ -8,6 +8,6 @@ import (
 func main() {
 	err := agent.Run()
 	if err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Msg("")
 	}
 }
