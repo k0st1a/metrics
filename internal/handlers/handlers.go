@@ -6,55 +6,60 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/k0st1a/metrics/internal/logger"
 	"github.com/k0st1a/metrics/internal/storage/counter"
 	"github.com/k0st1a/metrics/internal/storage/gauge"
+	"github.com/rs/zerolog/log"
 )
 
 func BuildRouter() chi.Router {
-	logger.Println("Make router")
+	log.Debug().Msg("Make router")
 	r := chi.NewRouter()
 
-	logger.Println("POST handlers adding")
+	log.Debug().Msg("POST handlers adding")
 	r.Route("/update/", func(r chi.Router) {
 		r.Post("/counter/{name}/{value}", PostCounterHandler)
 		r.Post("/counter/", NotFoundHandler)
 		r.Post("/gauge/{name}/{value}", PostGaugeHandler)
 		r.Post("/gauge/", NotFoundHandler)
 	})
-	logger.Println("POST handlers added")
+	log.Debug().Msg("POST handlers added")
 
-	logger.Println("GET handlers adding")
+	log.Debug().Msg("GET handlers adding")
 	r.Route("/value/", func(r chi.Router) {
 		r.Get("/counter/{name}", GetCounterHandler)
 		r.Get("/gauge/{name}", GetGaugeHandler)
 	})
-	logger.Println("GET handlers added")
+	log.Debug().Msg("GET handlers added")
 
-	logger.Println("Custom NotFound handler adding")
+	log.Debug().Msg("Custom NotFound handler adding")
 	r.NotFound(BadRequestHandler)
-	logger.Println("Custom NotFound handler added")
+	log.Debug().Msg("Custom NotFound handler added")
 
 	return r
 }
 
 func BadRequestHandler(rw http.ResponseWriter, r *http.Request) {
-	logger.Println("\nRequestURI:", r.RequestURI)
+	log.Debug().
+		Str("RequestURI", r.RequestURI).
+		Msg("")
 
 	rw.WriteHeader(http.StatusBadRequest)
 }
 
 func NotFoundHandler(rw http.ResponseWriter, r *http.Request) {
-	logger.Println("\nRequestURI:", r.RequestURI)
+	log.Debug().
+		Str("RequestURI", r.RequestURI).
+		Msg("")
 
 	http.Error(rw, "metric value is empty", http.StatusNotFound)
 }
 
 func PostCounterHandler(rw http.ResponseWriter, r *http.Request) {
-	logger.Println("\nRequestURI:", r.RequestURI)
-
 	name := strings.ToLower(chi.URLParam(r, "name"))
-	logger.Println("name:", name)
+	log.Debug().
+		Str("RequestURI", r.RequestURI).
+		Str("name", name).
+		Msg("")
 
 	if name == "" {
 		http.Error(rw, "metric name is empty", http.StatusNotFound)
@@ -78,10 +83,11 @@ func PostCounterHandler(rw http.ResponseWriter, r *http.Request) {
 }
 
 func GetCounterHandler(rw http.ResponseWriter, r *http.Request) {
-	logger.Println("\nRequestURI:", r.RequestURI)
-
 	name := strings.ToLower(chi.URLParam(r, "name"))
-	logger.Println("name:", name)
+	log.Debug().
+		Str("RequestURI", r.RequestURI).
+		Str("name", name).
+		Msg("")
 
 	if name == "" {
 		http.Error(rw, "metric name is empty", http.StatusNotFound)
@@ -100,10 +106,11 @@ func GetCounterHandler(rw http.ResponseWriter, r *http.Request) {
 }
 
 func PostGaugeHandler(rw http.ResponseWriter, r *http.Request) {
-	logger.Println("\nRequestURI:", r.RequestURI)
-
 	name := strings.ToLower(chi.URLParam(r, "name"))
-	logger.Println("name:", name)
+	log.Debug().
+		Str("RequestURI", r.RequestURI).
+		Str("name", name).
+		Msg("")
 
 	if name == "" {
 		http.Error(rw, "metric name is empty", http.StatusNotFound)
@@ -127,10 +134,11 @@ func PostGaugeHandler(rw http.ResponseWriter, r *http.Request) {
 }
 
 func GetGaugeHandler(rw http.ResponseWriter, r *http.Request) {
-	logger.Println("\nRequestURI:", r.RequestURI)
-
 	name := strings.ToLower(chi.URLParam(r, "name"))
-	logger.Println("name:", name)
+	log.Debug().
+		Str("RequestURI", r.RequestURI).
+		Str("name", name).
+		Msg("")
 
 	if name == "" {
 		http.Error(rw, "metric name is empty", http.StatusNotFound)
