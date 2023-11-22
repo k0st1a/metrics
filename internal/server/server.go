@@ -4,32 +4,22 @@ import (
 	"net/http"
 
 	"github.com/k0st1a/metrics/internal/handlers"
-	"github.com/k0st1a/metrics/internal/logger"
 	"github.com/k0st1a/metrics/internal/storage"
 )
 
-func Run() {
+func Run() error {
 	cfg := NewConfig()
-	logger.Println("Config:", cfg)
-
-	err := parseFlags(&cfg)
+	err := collectConfig(&cfg)
 	if err != nil {
-		panic(err)
+		return err
 	}
-	logger.Println("Config after parseFlags:", cfg)
 
-	err = parseEnv(&cfg)
-	if err != nil {
-		panic(err)
-	}
-	logger.Println("Config after parseEnv:", cfg)
-
-	logger.Println("Storage running")
-	storage.Run()
-	logger.Println("Storage runned")
+	storage.RunStorage()
 
 	err = http.ListenAndServe(cfg.ServerAddr, handlers.BuildRouter())
 	if err != nil {
-		panic(err)
+		return err
 	}
+
+	return nil
 }
