@@ -1,17 +1,13 @@
 package main
 
 import (
-	"fmt"
-
-	"github.com/k0st1a/metrics/internal/logger"
 	"github.com/k0st1a/metrics/internal/server"
+	"github.com/rs/zerolog/log"
 )
 
 func main() {
-	fmt.Println("Running logger")
-	logger.Run()
-	defer logger.Close()
-
-	fmt.Println("Running server")
-	server.Run()
+	err := server.Run()
+	if err != nil {
+		log.Error().Err(err).Msg("")
+	}
 }
