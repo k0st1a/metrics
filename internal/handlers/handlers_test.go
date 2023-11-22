@@ -1,13 +1,11 @@
 package handlers
 
 import (
-	"fmt"
 	"io"
 	"net/http"
 	"net/http/httptest"
 	"testing"
 
-	"github.com/k0st1a/metrics/internal/logger"
 	"github.com/k0st1a/metrics/internal/storage"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -15,12 +13,7 @@ import (
 
 func TestPostMetricHandler(t *testing.T) {
 
-	fmt.Println("Runn logger")
-	logger.Run()
-	defer logger.Close()
-
-	logger.Println("Run storage")
-	storage.Run()
+	storage.RunStorage()
 
 	tests := []struct {
 		name               string
