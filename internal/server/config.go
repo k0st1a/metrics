@@ -13,8 +13,8 @@ type Config struct {
 	ServerAddr string `env:"ADDRESS"`
 }
 
-func NewConfig() Config {
-	return Config{
+func newConfig() *Config {
+	return &Config{
 		ServerAddr: "localhost:8080",
 	}
 }
@@ -46,26 +46,22 @@ func parseFlags(cfg *Config) error {
 	return nil
 }
 
-func collectConfig(cfg *Config) error {
-	log.Debug().
-		Str("cfg.ServerAddr", cfg.ServerAddr).
-		Msg("")
+func collectConfig() (cfg *Config, err error) {
+	cfg = newConfig()
 
-	err := parseFlags(cfg)
+	err = parseFlags(cfg)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	log.Debug().
-		Str("cfg.ServerAddr", cfg.ServerAddr).
-		Msg("After parseFlags")
 
 	err = parseEnv(cfg)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	log.Debug().
-		Str("cfg.ServerAddr", cfg.ServerAddr).
-		Msg("After parseEnv")
 
-	return nil
+	return cfg, nil
+}
+
+func printConfig(cfg *Config) {
+	log.Debug().Str("cfg.ServerAddr", cfg.ServerAddr).Msg("")
 }

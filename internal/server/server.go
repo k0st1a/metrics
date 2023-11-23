@@ -8,11 +8,12 @@ import (
 )
 
 func Run() error {
-	cfg := NewConfig()
-	err := collectConfig(&cfg)
+	cfg, err := collectConfig()
 	if err != nil {
 		return err
 	}
+
+	printConfig(cfg)
 
 	storage := storage.NewStorage()
 	handler := handlers.NewHandler(storage)
