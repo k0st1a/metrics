@@ -1,7 +1,6 @@
 package utils
 
 import (
-	"errors"
 	"testing"
 
 	"github.com/stretchr/testify/assert"
@@ -40,12 +39,12 @@ func TestNetAddressString(t *testing.T) {
 
 func TestNetAddressSet(t *testing.T) {
 	tests := []struct {
-		name          string
-		addr          NetAddress
-		value         string
-		expectedAddr  NetAddress
-		isError       bool
-		expectedError error
+		name         string
+		addr         NetAddress
+		value        string
+		expectedAddr NetAddress
+		isError      bool
+		errString    string
 	}{
 		{
 			name:  "set localhost:8080",
@@ -58,25 +57,25 @@ func TestNetAddressSet(t *testing.T) {
 			isError: false,
 		},
 		{
-			name:          "error of set with no port",
-			addr:          NetAddress{},
-			value:         "localhost",
-			isError:       true,
-			expectedError: errors.New("need address in a form host:port"),
+			name:      "error of set with no port",
+			addr:      NetAddress{},
+			value:     "localhost",
+			isError:   true,
+			errString: "host:port split error:address localhost: missing port in address",
 		},
 		{
-			name:          "error of set with bad port",
-			addr:          NetAddress{},
-			value:         "localhost:bad-port-number",
-			isError:       true,
-			expectedError: errors.New("port must be non negarive"),
+			name:      "error of set with bad port",
+			addr:      NetAddress{},
+			value:     "localhost:bad-port-number",
+			isError:   true,
+			errString: "port parsing error:strconv.ParseUint: parsing \"bad-port-number\": invalid syntax",
 		},
 	}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			if test.isError {
-				assert.Error(t, test.expectedError, test.addr.Set(test.value))
+				assert.EqualError(t, test.addr.Set(test.value), test.errString)
 			} else {
 				test.addr.Set(test.value)
 				assert.Equal(t, test.expectedAddr, test.addr)
