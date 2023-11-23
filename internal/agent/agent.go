@@ -10,11 +10,12 @@ func Run() error {
 	var myMetrics = &metrics.MyStats{}
 	var myClient = &http.Client{}
 
-	cfg := NewConfig()
-	err := collectConfig(&cfg)
+	cfg, err := collectConfig()
 	if err != nil {
 		return err
 	}
+
+	printConfig(cfg)
 
 	go metrics.RunUpdateMetrics(myMetrics, cfg.PollInterval)
 	report.RunReportMetrics(cfg.ServerAddr, myClient, myMetrics, cfg.ReportInterval)

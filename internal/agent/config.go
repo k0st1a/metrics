@@ -15,8 +15,8 @@ type Config struct {
 	ReportInterval int    `env:"REPORT_INTERVAL"`
 }
 
-func NewConfig() Config {
-	return Config{
+func newConfig() *Config {
+	return &Config{
 		ServerAddr:     "localhost:8080",
 		PollInterval:   2,
 		ReportInterval: 10,
@@ -53,32 +53,26 @@ func parseFlags(cfg *Config) error {
 	return nil
 }
 
-func collectConfig(cfg *Config) error {
+func collectConfig() (cfg *Config, err error) {
+	cfg = newConfig()
+
+	err = parseFlags(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	err = parseEnv(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	return cfg, nil
+}
+
+func printConfig(cfg *Config) {
 	log.Debug().
 		Str("cfg.ServerAddr", cfg.ServerAddr).
 		Int("cfg.PollInterval", cfg.PollInterval).
 		Int("cfg.ReportInterval", cfg.ReportInterval).
 		Msg("")
-
-	err := parseFlags(cfg)
-	if err != nil {
-		return err
-	}
-	log.Debug().
-		Str("cfg.ServerAddr", cfg.ServerAddr).
-		Int("cfg.PollInterval", cfg.PollInterval).
-		Int("cfg.ReportInterval", cfg.ReportInterval).
-		Msg("After parseFlags")
-
-	err = parseEnv(cfg)
-	if err != nil {
-		return err
-	}
-	log.Debug().
-		Str("cfg.ServerAddr", cfg.ServerAddr).
-		Int("cfg.PollInterval", cfg.PollInterval).
-		Int("cfg.ReportInterval", cfg.ReportInterval).
-		Msg("After parseEnv")
-
-	return nil
 }
