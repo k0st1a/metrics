@@ -2,6 +2,7 @@ package report
 
 import (
 	"net/http"
+	"net/url"
 	"time"
 
 	"github.com/k0st1a/metrics/internal/metrics"
@@ -25,7 +26,12 @@ func reportMetrics(addr string, client *http.Client, metrics *metrics.MyStats) {
 }
 
 func reportMetric(addr string, client *http.Client, metricType, name, value string) {
-	var url = `http://` + addr + `/update/` + metricType + `/` + name + `/` + value
+	url, err := url.JoinPath("http://", addr, "/update/", metricType, "/", name, "/", value)
+	if err != nil {
+		log.Error().Err(err)
+		return
+	}
+
 	req, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
 		log.Error().Err(err)
