@@ -1,7 +1,7 @@
 package utils
 
 import (
-	"errors"
+	"fmt"
 	"net"
 	"strconv"
 )
@@ -18,12 +18,12 @@ func (a *NetAddress) String() string {
 func (a *NetAddress) Set(flagValue string) error {
 	host, port, err := net.SplitHostPort(flagValue)
 	if err != nil {
-		return err
+		return fmt.Errorf("host:port split error:%w", err)
 	}
 
 	port16, err := strconv.ParseUint(port, 10, 16)
 	if err != nil {
-		return errors.New("invalid port " + strconv.Quote(port) + " parsing " + strconv.Quote(flagValue)) // from netip.ParseAddrPort
+		return fmt.Errorf("port parsing error:%w", err)
 	}
 
 	a.host = host
