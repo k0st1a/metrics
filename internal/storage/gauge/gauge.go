@@ -1,6 +1,7 @@
 package gauge
 
 import (
+	"fmt"
 	"strconv"
 
 	"github.com/k0st1a/metrics/internal/utils"
@@ -14,7 +15,7 @@ type Storage interface {
 func Store(name, value string, storage Storage) error {
 	v, err := parser(value)
 	if err != nil {
-		return err
+		return fmt.Errorf("gauge parse error:%w", err)
 	}
 
 	storage.StoreGauge(name, v)
