@@ -1,8 +1,8 @@
 package agent
 
 import (
-	"errors"
 	"flag"
+	"fmt"
 
 	"github.com/caarlos0/env/v10"
 	"github.com/k0st1a/metrics/internal/utils"
@@ -26,7 +26,7 @@ func newConfig() *Config {
 func parseEnv(cfg *Config) error {
 	err := env.Parse(cfg)
 	if err != nil {
-		return err
+		return fmt.Errorf("env parse error:%w", err)
 	}
 	return nil
 }
@@ -47,7 +47,7 @@ func parseFlags(cfg *Config) error {
 	cfg.ServerAddr = addr.String()
 
 	if len(flag.Args()) != 0 {
-		return errors.New("unknown args")
+		return fmt.Errorf("unknown args")
 	}
 
 	return nil

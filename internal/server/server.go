@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 
 	"github.com/k0st1a/metrics/internal/handlers"
@@ -20,7 +21,7 @@ func Run() error {
 
 	err = http.ListenAndServe(cfg.ServerAddr, handlers.BuildRouter(handler))
 	if err != nil {
-		return err
+		return fmt.Errorf("listen and serve error:%w", err)
 	}
 
 	return nil
