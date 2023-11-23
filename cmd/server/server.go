@@ -8,6 +8,6 @@ import (
 func main() {
 	err := server.Run()
 	if err != nil {
-		log.Error().Err(err).Msg("")
+		log.Fatal().Err(err).Msg("")
 	}
 }
