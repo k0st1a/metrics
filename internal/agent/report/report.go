@@ -20,11 +20,11 @@ func reportMetrics(addr string, client *http.Client, metrics *metrics.MyStats) {
 	metrics.IncreasePollCount()
 	prepared := metrics.Compose()
 	for name, info := range prepared {
-		ReportMetric(addr, client, info.Type, name, info.Value)
+		reportMetric(addr, client, info.Type, name, info.Value)
 	}
 }
 
-func ReportMetric(addr string, client *http.Client, metricType, name, value string) {
+func reportMetric(addr string, client *http.Client, metricType, name, value string) {
 	var url = `http://` + addr + `/update/` + metricType + `/` + name + `/` + value
 	req, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
