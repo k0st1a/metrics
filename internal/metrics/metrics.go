@@ -23,10 +23,11 @@ func (metrics *MyStats) update() {
 	metrics.RandomValue = rand.Float64()
 }
 
-func RunUpdateMetrics(metrics *MyStats, pollInternal int) {
-	for {
+func RunUpdateMetrics(metrics *MyStats, pollInterval int) {
+	ticker := time.NewTicker(time.Duration(pollInterval) * time.Second)
+
+	for range ticker.C {
 		metrics.update()
-		time.Sleep(time.Duration(pollInternal) * time.Second)
 	}
 }
 
