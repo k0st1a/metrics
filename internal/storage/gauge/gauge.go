@@ -32,7 +32,12 @@ func Get(name string, storage Storage) (string, bool) {
 }
 
 func parser(s string) (float64, error) {
-	return strconv.ParseFloat(s, 64)
+	v, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return v, fmt.Errorf("parse float error:%w", err)
+	}
+
+	return v, err
 }
 
 func stringer(f float64) string {

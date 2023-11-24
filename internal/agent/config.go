@@ -33,7 +33,10 @@ func parseEnv(cfg *Config) error {
 
 func parseFlags(cfg *Config) error {
 	addr := &utils.NetAddress{}
-	addr.Set(cfg.ServerAddr)
+	err := addr.Set(cfg.ServerAddr)
+	if err != nil {
+		return err
+	}
 
 	// если интерфейс не реализован,
 	// здесь будет ошибка компиляции

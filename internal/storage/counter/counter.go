@@ -35,7 +35,12 @@ func Get(name string, storage Storage) (string, bool) {
 }
 
 func parser(s string) (int64, error) {
-	return strconv.ParseInt(s, 10, 64)
+	v, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return v, fmt.Errorf("parse int error:%w", err)
+	}
+
+	return v, err
 }
 
 func stringer(i int64) string {
