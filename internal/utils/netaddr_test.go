@@ -77,7 +77,8 @@ func TestNetAddressSet(t *testing.T) {
 			if test.isError {
 				assert.EqualError(t, test.addr.Set(test.value), test.errString)
 			} else {
-				test.addr.Set(test.value)
+				err := test.addr.Set(test.value)
+				assert.NoError(t, err)
 				assert.Equal(t, test.expectedAddr, test.addr)
 			}
 		})
