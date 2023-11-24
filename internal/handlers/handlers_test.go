@@ -12,7 +12,6 @@ import (
 )
 
 func TestPostMetricHandler(t *testing.T) {
-
 	tests := []struct {
 		name               string
 		reqMethod          string
@@ -82,7 +81,10 @@ func TestPostMetricHandler(t *testing.T) {
 			if err != nil {
 				t.Fatal(err)
 			}
-			defer resp.Body.Close()
+			defer func() {
+				err := resp.Body.Close()
+				assert.NoError(t, err)
+			}
 
 			assert.Equal(t, test.expectedBody, string(respBody))
 			require.Equal(t, test.expectedStatusCode, resp.StatusCode)

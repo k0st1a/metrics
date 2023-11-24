@@ -32,7 +32,7 @@ func RunUpdateMetrics(metrics *MyStats, pollInterval int) {
 }
 
 func (metrics *MyStats) IncreasePollCount() {
-	metrics.PollCount += 1
+	metrics.PollCount++
 }
 
 func (metrics *MyStats) Compose() map[string]MetricInfo {

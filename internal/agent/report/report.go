@@ -28,13 +28,13 @@ func reportMetrics(addr string, client *http.Client, metrics *metrics.MyStats) {
 func reportMetric(addr string, client *http.Client, metricType, name, value string) {
 	url, err := url.JoinPath("http://", addr, "/update/", metricType, "/", name, "/", value)
 	if err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Msg("")
 		return
 	}
 
 	req, err := http.NewRequest(http.MethodPost, url, nil)
 	if err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Msg("")
 		return
 	}
 
@@ -43,8 +43,13 @@ func reportMetric(addr string, client *http.Client, metricType, name, value stri
 
 	response, err := client.Do(req)
 	if err != nil {
-		log.Error().Err(err)
+		log.Error().Err(err).Msg("")
 		return
 	}
-	defer response.Body.Close()
+	defer func() {
+		err = response.Body.Close()
+		if err != nil {
+			log.Error().Err(err).Msg("")
+		}
+	}()
 }
