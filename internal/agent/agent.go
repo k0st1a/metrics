@@ -1,9 +1,10 @@
 package agent
 
 import (
+	"net/http"
+
 	"github.com/k0st1a/metrics/internal/agent/report"
 	"github.com/k0st1a/metrics/internal/metrics"
-	"net/http"
 )
 
 func Run() error {
