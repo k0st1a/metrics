@@ -118,7 +118,11 @@ func (h *handler) GetCounterHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	io.WriteString(rw, value)
+	_, err := io.WriteString(rw, value)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+	}
+
 	rw.WriteHeader(http.StatusOK)
 }
 
@@ -169,6 +173,11 @@ func (h *handler) GetGaugeHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	io.WriteString(rw, value)
+	_, err := io.WriteString(rw, value)
+	if err != nil {
+		log.Error().Err(err).Msg("")
+		return
+	}
+
 	rw.WriteHeader(http.StatusOK)
 }
