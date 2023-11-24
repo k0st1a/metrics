@@ -37,7 +37,7 @@ func parser(s string) (float64, error) {
 		return v, fmt.Errorf("parse float error:%w", err)
 	}
 
-	return v, err
+	return v, nil
 }
 
 func stringer(f float64) string {
