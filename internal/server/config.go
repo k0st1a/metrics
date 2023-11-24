@@ -31,7 +31,7 @@ func parseFlags(cfg *Config) error {
 	addr := &utils.NetAddress{}
 	err := addr.Set(cfg.ServerAddr)
 	if err != nil {
-		return err
+		return fmt.Errorf("addr set error:%w", err)
 	}
 
 	// если интерфейс не реализован,

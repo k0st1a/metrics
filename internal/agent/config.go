@@ -9,6 +9,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const (
+	defaultPollInterval   = 2
+	defaultReportInterval = 10
+	defaultServerAddr     = "localhost:8080"
+)
+
 type Config struct {
 	ServerAddr     string `env:"ADDRESS"`
 	PollInterval   int    `env:"POLL_INTERVAL"`
@@ -17,9 +23,9 @@ type Config struct {
 
 func newConfig() *Config {
 	return &Config{
-		ServerAddr:     "localhost:8080",
-		PollInterval:   2,
-		ReportInterval: 10,
+		ServerAddr:     defaultServerAddr,
+		PollInterval:   defaultPollInterval,
+		ReportInterval: defaultReportInterval,
 	}
 }
 
@@ -28,6 +34,7 @@ func parseEnv(cfg *Config) error {
 	if err != nil {
 		return fmt.Errorf("env parse error:%w", err)
 	}
+
 	return nil
 }
 
@@ -35,7 +42,7 @@ func parseFlags(cfg *Config) error {
 	addr := &utils.NetAddress{}
 	err := addr.Set(cfg.ServerAddr)
 	if err != nil {
-		return err
+		return fmt.Errorf("addr set error:%w", err)
 	}
 
 	// если интерфейс не реализован,
@@ -43,8 +50,8 @@ func parseFlags(cfg *Config) error {
 	_ = flag.Value(addr)
 	flag.Var(addr, "a", "server network address in a form host:port")
 
-	flag.IntVar(&(cfg.PollInterval), "p", 2, "metrics polling rate to the server")
-	flag.IntVar(&(cfg.ReportInterval), "r", 10, "frequency of sending metrics to the server")
+	flag.IntVar(&(cfg.PollInterval), "p", defaultPollInterval, "metrics polling rate to the server")
+	flag.IntVar(&(cfg.ReportInterval), "r", defaultReportInterval, "frequency of sending metrics to the server")
 
 	flag.Parse()
 	cfg.ServerAddr = addr.String()

@@ -1,6 +1,7 @@
 package counter
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -40,7 +41,7 @@ func parser(s string) (int64, error) {
 		return v, fmt.Errorf("parse int error:%w", err)
 	}
 
-	return v, err
+	return v, nil
 }
 
 func stringer(i int64) string {
