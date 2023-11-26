@@ -11,6 +11,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const (
+	emptyMetricName  = "metric name is empty"
+	emptyMetricValue = "metric value is empty"
+	badMetricValue   = "metric value is bad"
+	notFoundMetric   = "metric not found"
+)
+
 type storageService interface {
 	GetGauge(string) (float64, bool)
 	StoreGauge(string, float64)
@@ -68,7 +75,7 @@ func (h *handler) NotFoundHandler(rw http.ResponseWriter, r *http.Request) {
 		Str("RequestURI", r.RequestURI).
 		Msg("")
 
-	http.Error(rw, "metric value is empty", http.StatusNotFound)
+	http.Error(rw, emptyMetricValue, http.StatusNotFound)
 }
 
 func (h *handler) PostCounterHandler(rw http.ResponseWriter, r *http.Request) {
@@ -79,19 +86,19 @@ func (h *handler) PostCounterHandler(rw http.ResponseWriter, r *http.Request) {
 		Msg("")
 
 	if name == "" {
-		http.Error(rw, "metric name is empty", http.StatusNotFound)
+		http.Error(rw, emptyMetricName, http.StatusNotFound)
 		return
 	}
 
 	value := strings.ToLower(chi.URLParam(r, "value"))
 	if value == "" {
-		http.Error(rw, "metric value is empty", http.StatusBadRequest)
+		http.Error(rw, emptyMetricValue, http.StatusBadRequest)
 		return
 	}
 
 	err := counter.Store(name, value, h.storage)
 	if err != nil {
-		http.Error(rw, "metric value is bad", http.StatusBadRequest)
+		http.Error(rw, badMetricValue, http.StatusBadRequest)
 		return
 	}
 
@@ -107,20 +114,20 @@ func (h *handler) GetCounterHandler(rw http.ResponseWriter, r *http.Request) {
 		Msg("")
 
 	if name == "" {
-		http.Error(rw, "metric name is empty", http.StatusNotFound)
+		http.Error(rw, emptyMetricName, http.StatusNotFound)
 		return
 	}
 
 	value, ok := counter.Get(name, h.storage)
 	if !ok {
-		http.Error(rw, "metric not found", http.StatusNotFound)
+		http.Error(rw, notFoundMetric, http.StatusNotFound)
 		return
 	}
 
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
 	_, err := io.WriteString(rw, value)
 	if err != nil {
-		log.Error().Err(err).Msg("")
+		log.Error().Err(err).Msg("io.WriteString error")
 	}
 
 	rw.WriteHeader(http.StatusOK)
@@ -134,19 +141,19 @@ func (h *handler) PostGaugeHandler(rw http.ResponseWriter, r *http.Request) {
 		Msg("")
 
 	if name == "" {
-		http.Error(rw, "metric name is empty", http.StatusNotFound)
+		http.Error(rw, emptyMetricName, http.StatusNotFound)
 		return
 	}
 
 	value := strings.ToLower(chi.URLParam(r, "value"))
 	if value == "" {
-		http.Error(rw, "metric value is empty", http.StatusBadRequest)
+		http.Error(rw, emptyMetricValue, http.StatusBadRequest)
 		return
 	}
 
 	err := gauge.Store(name, value, h.storage)
 	if err != nil {
-		http.Error(rw, "metric value is bad", http.StatusBadRequest)
+		http.Error(rw, badMetricValue, http.StatusBadRequest)
 		return
 	}
 
@@ -162,13 +169,13 @@ func (h *handler) GetGaugeHandler(rw http.ResponseWriter, r *http.Request) {
 		Msg("")
 
 	if name == "" {
-		http.Error(rw, "metric name is empty", http.StatusNotFound)
+		http.Error(rw, emptyMetricName, http.StatusNotFound)
 		return
 	}
 
 	value, ok := gauge.Get(name, h.storage)
 	if !ok {
-		http.Error(rw, "metric not found", http.StatusNotFound)
+		http.Error(rw, notFoundMetric, http.StatusNotFound)
 		return
 	}
 
