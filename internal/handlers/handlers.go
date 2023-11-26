@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"io"
 	"net/http"
 	"strings"
 
@@ -125,9 +124,9 @@ func (h *handler) GetCounterHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	_, err := io.WriteString(rw, value)
+	_, err := rw.Write([]byte(value))
 	if err != nil {
-		log.Error().Err(err).Msg("io.WriteString error")
+		log.Error().Err(err).Msg("rw.Write error")
 	}
 
 	rw.WriteHeader(http.StatusOK)
@@ -180,9 +179,9 @@ func (h *handler) GetGaugeHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
-	_, err := io.WriteString(rw, value)
+	_, err := rw.Write([]byte(value))
 	if err != nil {
-		log.Error().Err(err).Msg("")
+		log.Error().Err(err).Msg("rw.Write error")
 		return
 	}
 
