@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/k0st1a/metrics/internal/middleware/logging"
 	"github.com/rs/zerolog/log"
 )
 
@@ -33,6 +34,8 @@ func NewHandler(s storageService) *handler {
 func BuildRouter(counter, gauge *handler) chi.Router {
 	log.Debug().Msg("Make router")
 	r := chi.NewRouter()
+
+	r.Use(logging.Logging)
 
 	log.Debug().Msg("POST handlers adding")
 	r.Route("/update/", func(r chi.Router) {
