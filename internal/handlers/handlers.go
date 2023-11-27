@@ -58,27 +58,15 @@ func BuildRouter(counter, gauge *handler) chi.Router {
 }
 
 func BadRequestHandler(rw http.ResponseWriter, r *http.Request) {
-	log.Debug().
-		Str("RequestURI", r.RequestURI).
-		Msg("")
-
 	rw.WriteHeader(http.StatusBadRequest)
 }
 
 func NotFoundHandler(rw http.ResponseWriter, r *http.Request) {
-	log.Debug().
-		Str("RequestURI", r.RequestURI).
-		Msg("")
-
 	http.Error(rw, emptyMetricValue, http.StatusNotFound)
 }
 
 func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 	name := strings.ToLower(chi.URLParam(r, "name"))
-	log.Debug().
-		Str("RequestURI", r.RequestURI).
-		Str("name", name).
-		Msg("")
 
 	if name == "" {
 		http.Error(rw, emptyMetricName, http.StatusNotFound)
@@ -103,10 +91,6 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 
 func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 	name := strings.ToLower(chi.URLParam(r, "name"))
-	log.Debug().
-		Str("RequestURI", r.RequestURI).
-		Str("name", name).
-		Msg("")
 
 	if name == "" {
 		http.Error(rw, emptyMetricName, http.StatusNotFound)
