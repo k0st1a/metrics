@@ -10,18 +10,28 @@ type Storage interface {
 	StoreGauge(string, float64)
 }
 
-func Store(name, value string, storage Storage) error {
+type gaugeStorage struct {
+	storage Storage
+}
+
+func NewGaugeStorage(s Storage) gaugeStorage {
+	return gaugeStorage{
+		storage: s,
+	}
+}
+
+func (s gaugeStorage) Store(name, value string) error {
 	v, err := parser(value)
 	if err != nil {
 		return fmt.Errorf("gauge parse error:%w", err)
 	}
 
-	storage.StoreGauge(name, v)
+	s.storage.StoreGauge(name, v)
 	return nil
 }
 
-func Get(name string, storage Storage) (string, bool) {
-	v, ok := storage.GetGauge(name)
+func (s gaugeStorage) Get(name string) (string, bool) {
+	v, ok := s.storage.GetGauge(name)
 	if !ok {
 		return "", ok
 	}

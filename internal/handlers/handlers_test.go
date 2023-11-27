@@ -7,6 +7,8 @@ import (
 	"testing"
 
 	"github.com/k0st1a/metrics/internal/storage"
+	"github.com/k0st1a/metrics/internal/storage/counter"
+	"github.com/k0st1a/metrics/internal/storage/gauge"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -57,10 +59,13 @@ func TestPostMetricHandler(t *testing.T) {
 		},
 	}
 
-	storage := storage.NewStorage()
-	handler := NewHandler(storage)
+	s := storage.NewStorage()
+	gs := gauge.NewGaugeStorage(s)
+	cs := counter.NewCounterStorage(s)
+	csh := NewHandler(cs)
+	gsh := NewHandler(gs)
 
-	testServer := httptest.NewServer(BuildRouter(handler))
+	testServer := httptest.NewServer(BuildRouter(csh, gsh))
 	defer testServer.Close()
 
 	testClient := &http.Client{}
