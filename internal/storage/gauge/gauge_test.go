@@ -20,7 +20,7 @@ func TestStringer(t *testing.T) {
 		{
 			name:        "no dot in value",
 			value:       88888,
-			expectedStr: "88888.",
+			expectedStr: "88888",
 		},
 	}
 
