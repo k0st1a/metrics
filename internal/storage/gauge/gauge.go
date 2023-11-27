@@ -3,8 +3,6 @@ package gauge
 import (
 	"fmt"
 	"strconv"
-
-	"github.com/k0st1a/metrics/internal/utils"
 )
 
 type Storage interface {
@@ -41,6 +39,5 @@ func parser(s string) (float64, error) {
 }
 
 func stringer(f float64) string {
-	s := strconv.FormatFloat(f, 'g', -1, 64)
-	return utils.AddDotIfNo(s)
+	return strconv.FormatFloat(f, 'f', -1, 64)
 }
