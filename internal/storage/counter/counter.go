@@ -10,24 +10,34 @@ type Storage interface {
 	StoreCounter(string, int64)
 }
 
-func Store(name, value string, storage Storage) error {
+type counterStorage struct {
+	storage Storage
+}
+
+func NewCounterStorage(s Storage) counterStorage {
+	return counterStorage{
+		storage: s,
+	}
+}
+
+func (s counterStorage) Store(name, value string) error {
 	v, err := parser(value)
 	if err != nil {
 		return err
 	}
 
-	c, ok := storage.GetCounter(name)
+	c, ok := s.storage.GetCounter(name)
 	if ok {
-		storage.StoreCounter(name, c+v)
+		s.storage.StoreCounter(name, c+v)
 		return nil
 	}
 
-	storage.StoreCounter(name, v)
+	s.storage.StoreCounter(name, v)
 	return nil
 }
 
-func Get(name string, storage Storage) (string, bool) {
-	v, ok := storage.GetCounter(name)
+func (s counterStorage) Get(name string) (string, bool) {
+	v, ok := s.storage.GetCounter(name)
 	if !ok {
 		return "", ok
 	}
