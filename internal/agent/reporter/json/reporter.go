@@ -2,7 +2,7 @@ package json
 
 import (
 	"bytes"
-	"io"
+	"fmt"
 	"net/http"
 	"net/url"
 
@@ -18,8 +18,7 @@ type reporter struct {
 func NewReporter(a string) (*reporter, error) {
 	url, err := url.JoinPath("http://", a, "/update/")
 	if err != nil {
-		log.Error().Err(err).Msg("url.JoinPath error")
-		return nil, err
+		return nil, fmt.Errorf("url.JoinPath error:%w", err)
 	}
 
 	return &reporter{
@@ -42,7 +41,6 @@ func (r reporter) doReportMetrics(c *http.Client, m *models.Metrics) {
 	}
 
 	req, err := http.NewRequest(http.MethodPost, r.url, bytes.NewBuffer(b))
-	//log.Info().Msgf("req:%+v", req)
 	if err != nil {
 		log.Error().Err(err).Msg("http.NewRequest error")
 		return
@@ -62,7 +60,11 @@ func (r reporter) doReportMetrics(c *http.Client, m *models.Metrics) {
 		}
 	}()
 
-	io.ReadAll(resp.Body)
+	err = resp.Body.Close()
+	if err != nil {
+		log.Error().Err(err).Msg("resp.Body.Close error")
+		return
+	}
 }
 
 func myStats2Metrics(m *metrics.MyStats) []models.Metrics {
