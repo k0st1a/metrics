@@ -36,6 +36,18 @@ miter7: build statictest
 				-agent-binary-path=cmd/agent/agent \
 				-server-port=$$SERVER_PORT ;
 
+.PHONY: miter8
+miter8: build statictest
+	METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration8" ; \
+	SERVER_PORT=$$(random unused-port) ; \
+	ADDRESS="localhost:$${SERVER_PORT}" ; \
+	TEMP_FILE=$$(random tempfile) ; \
+	metricstest $$METRICSTEST_ARGS \
+				-binary-path=cmd/server/server \
+				-agent-binary-path=cmd/agent/agent \
+				-server-port=$$SERVER_PORT \
+				-file-storage-path=$$TEMP_FILE ;
+
 .PHONY: ${ITERS}
 ${ITERS}: iter%: build statictest;
 	for i in $(shell seq 1 $*) ; do \
