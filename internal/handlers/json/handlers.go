@@ -144,7 +144,6 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	rw.Header().Set("Content-Type", "application/json")
-	rw.Header().Set("Agent-Type", "my-agent-type")
 
 	_, err = rw.Write(data2)
 	if err != nil {
