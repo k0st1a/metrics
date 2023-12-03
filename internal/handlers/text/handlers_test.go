@@ -1,4 +1,4 @@
-package handlers
+package text
 
 import (
 	"io"
@@ -6,9 +6,11 @@ import (
 	"net/http/httptest"
 	"testing"
 
+	"github.com/k0st1a/metrics/internal/handlers"
 	"github.com/k0st1a/metrics/internal/storage"
 	"github.com/k0st1a/metrics/internal/storage/counter"
 	"github.com/k0st1a/metrics/internal/storage/gauge"
+
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -59,14 +61,17 @@ func TestPostMetricHandler(t *testing.T) {
 		},
 	}
 
+	r := handlers.NewRouter()
+
 	s := storage.NewStorage()
 	gs := gauge.NewGaugeStorage(s)
 	cs := counter.NewCounterStorage(s)
 	csh := NewHandler(cs)
 	gsh := NewHandler(gs)
-	mh := NewHandler2(s)
 
-	testServer := httptest.NewServer(BuildRouter(csh, gsh, mh))
+	BuildRouter(r, csh, gsh)
+
+	testServer := httptest.NewServer(r)
 	defer testServer.Close()
 
 	testClient := &http.Client{}
