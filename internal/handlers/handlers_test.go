@@ -64,8 +64,9 @@ func TestPostMetricHandler(t *testing.T) {
 	cs := counter.NewCounterStorage(s)
 	csh := NewHandler(cs)
 	gsh := NewHandler(gs)
+	mh := NewHandler2(s)
 
-	testServer := httptest.NewServer(BuildRouter(csh, gsh))
+	testServer := httptest.NewServer(BuildRouter(csh, gsh, mh))
 	defer testServer.Close()
 
 	testClient := &http.Client{}
