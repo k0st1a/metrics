@@ -25,6 +25,17 @@ statictest:
 test: build statictest
 	go test -v ./...
 
+.PHONY: miter7
+miter7: build statictest
+	METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration7" ; \
+	SERVER_PORT=$$(random unused-port) ; \
+	ADDRESS="localhost:$${SERVER_PORT}" ; \
+	TEMP_FILE=$$(random tempfile) ; \
+	metricstest $$METRICSTEST_ARGS \
+				-binary-path=cmd/server/server \
+				-agent-binary-path=cmd/agent/agent \
+				-server-port=$$SERVER_PORT ;
+
 .PHONY: ${ITERS}
 ${ITERS}: iter%: build statictest;
 	for i in $(shell seq 1 $*) ; do \
