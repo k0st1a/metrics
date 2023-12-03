@@ -11,30 +11,30 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type jsonReporter struct {
+type reporter struct {
 	url string
 }
 
-func NewJSONReporter(a string) (*jsonReporter, error) {
+func NewReporter(a string) (*reporter, error) {
 	url, err := url.JoinPath("http://", a, "/update/")
 	if err != nil {
 		log.Error().Err(err).Msg("url.JoinPath error")
 		return nil, err
 	}
 
-	return &jsonReporter{
+	return &reporter{
 		url: url,
 	}, nil
 }
 
-func (r jsonReporter) DoReportsMetrics(c *http.Client, m *metrics.MyStats) {
+func (r reporter) DoReportsMetrics(c *http.Client, m *metrics.MyStats) {
 	s := myStats2Metrics(m)
 	for _, v := range s {
 		r.doReportMetrics(c, &v)
 	}
 }
 
-func (r jsonReporter) doReportMetrics(c *http.Client, m *models.Metrics) {
+func (r reporter) doReportMetrics(c *http.Client, m *models.Metrics) {
 	b, err := models.Serialize(m)
 	if err != nil {
 		log.Error().Err(err).Msg("models.Serialize")
