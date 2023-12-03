@@ -23,8 +23,9 @@ func Run() error {
 	cs := counter.NewCounterStorage(s)
 	csh := handlers.NewHandler(cs)
 	gsh := handlers.NewHandler(gs)
+	mh := handlers.NewHandler2(s)
 
-	err = http.ListenAndServe(cfg.ServerAddr, handlers.BuildRouter(csh, gsh))
+	err = http.ListenAndServe(cfg.ServerAddr, handlers.BuildRouter(csh, gsh, mh))
 	if err != nil {
 		return fmt.Errorf("listen and serve error:%w", err)
 	}
