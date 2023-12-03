@@ -1,15 +1,17 @@
 package agent
 
 import (
+	"fmt"
 	"net/http"
 
-	"github.com/k0st1a/metrics/internal/agent/report"
+	"github.com/k0st1a/metrics/internal/agent/reporter"
+	"github.com/k0st1a/metrics/internal/agent/reporter/json"
 	"github.com/k0st1a/metrics/internal/metrics"
 )
 
 func Run() error {
-	var myMetrics = &metrics.MyStats{}
-	var myClient = &http.Client{}
+	var ms = &metrics.MyStats{}
+	var c = &http.Client{}
 
 	cfg, err := collectConfig()
 	if err != nil {
@@ -18,8 +20,14 @@ func Run() error {
 
 	printConfig(cfg)
 
-	go metrics.RunUpdateMetrics(myMetrics, cfg.PollInterval)
-	report.RunReportMetrics(cfg.ServerAddr, myClient, myMetrics, cfg.ReportInterval)
+	tr, err := json.NewJSONReporter(cfg.ServerAddr)
+	if err != nil {
+		return fmt.Errorf("text.NewReporter error:%w", err)
+	}
+	r := reporter.NewReporter(tr)
+
+	go metrics.RunUpdateMetrics(ms, cfg.PollInterval)
+	r.RunReportMetrics(c, ms, cfg.ReportInterval)
 
 	return nil
 }
