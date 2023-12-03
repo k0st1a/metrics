@@ -1,9 +1,11 @@
 package logging
 
 import (
-	"github.com/rs/zerolog/log"
+	"fmt"
 	"net/http"
 	"time"
+
+	"github.com/rs/zerolog/log"
 )
 
 type responseData struct {
@@ -30,7 +32,7 @@ func (lr logging) Header() http.Header {
 func (lr logging) Write(data []byte) (int, error) {
 	size, err := lr.rw.Write(data)
 	lr.rd.contentSize = size
-	return size, err
+	return size, fmt.Errorf("lr.rw.Write error:%w", err)
 }
 
 func (lr logging) WriteHeader(statusCode int) {

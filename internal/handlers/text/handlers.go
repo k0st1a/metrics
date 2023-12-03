@@ -14,8 +14,6 @@ const (
 	emptyMetricValue = "metric value is empty"
 	badMetricValue   = "metric value is bad"
 	notFoundMetric   = "metric not found"
-
-	badContentType = "bad Content-Type"
 )
 
 type storageService interface {
