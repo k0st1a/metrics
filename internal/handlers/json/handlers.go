@@ -72,12 +72,7 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 
 	switch m.MType {
 	case "counter":
-		v, ok := h.storage.GetCounter(m.ID)
-		if ok {
-			h.storage.StoreCounter(m.ID, *m.Delta+v)
-		} else {
-			h.storage.StoreCounter(m.ID, *m.Delta)
-		}
+		AddCounter(h.storage, m.ID, *m.Delta)
 	case "gauge":
 		h.storage.StoreGauge(m.ID, *m.Value)
 	default:
@@ -155,5 +150,14 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		log.Error().Err(err).Msg("rw.Write error")
 		return
+	}
+}
+
+func AddCounter(s storageMetricService, name string, value int64) {
+	v, ok := s.GetCounter(name)
+	if ok {
+		s.StoreCounter(name, value+v)
+	} else {
+		s.StoreCounter(name, value)
 	}
 }
