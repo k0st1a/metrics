@@ -9,24 +9,24 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type textReporter struct {
+type reporter struct {
 	addr string
 }
 
-func NewTextReporter(a string) (*textReporter, error) {
-	return &textReporter{
+func NewReporter(a string) (*reporter, error) {
+	return &reporter{
 		addr: a,
 	}, nil
 }
 
-func (r textReporter) DoReportsMetrics(c *http.Client, m *metrics.MyStats) {
+func (r reporter) DoReportsMetrics(c *http.Client, m *metrics.MyStats) {
 	s := myStats2metricsInfo(m)
 	for _, v := range s {
 		r.doReportMetrics(c, v)
 	}
 }
 
-func (r textReporter) doReportMetrics(c *http.Client, m metricInfo) {
+func (r reporter) doReportMetrics(c *http.Client, m metricInfo) {
 	url, err := url.JoinPath("http://", r.addr, "/update/", m.mtype, "/", m.name, "/", m.value)
 	if err != nil {
 		log.Error().Err(err).Msg("url.JoinPath error")

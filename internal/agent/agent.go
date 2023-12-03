@@ -20,7 +20,7 @@ func Run() error {
 
 	printConfig(cfg)
 
-	tr, err := json.NewJSONReporter(cfg.ServerAddr)
+	tr, err := json.NewReporter(cfg.ServerAddr)
 	if err != nil {
 		return fmt.Errorf("text.NewReporter error:%w", err)
 	}
