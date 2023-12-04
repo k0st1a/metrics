@@ -1,10 +1,13 @@
 package text
 
 import (
+	"fmt"
 	"net/http"
+	"strconv"
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/k0st1a/metrics/internal/handlers/json"
 	"github.com/rs/zerolog/log"
 )
 
@@ -17,28 +20,30 @@ const (
 )
 
 type storageService interface {
-	Get(string) (string, bool)
-	Store(string, string) error
+	GetGauge(string) (float64, bool)
+	StoreGauge(string, float64)
+
+	GetCounter(string) (int64, bool)
+	StoreCounter(string, int64)
 }
 
 type handler struct {
-	storage storageService
+	s storageService
 }
 
 func NewHandler(s storageService) *handler {
 	return &handler{
-		storage: s,
+		s: s,
 	}
 }
 
-func BuildRouter(r *chi.Mux, counter, gauge *handler) {
-	r.Post("/update/counter/{name}/{value}", counter.PostMetricHandler)
+func BuildRouter(r *chi.Mux, h *handler) {
+	r.Post("/update/{type}/{name}/{value}", h.PostMetricHandler)
 	r.Post("/update/counter/", NotFoundHandler)
-	r.Post("/update/gauge/{name}/{value}", gauge.PostMetricHandler)
 	r.Post("/update/gauge/", NotFoundHandler)
 
-	r.Get("/value/counter/{name}", counter.GetMetricHandler)
-	r.Get("/value/gauge/{name}", gauge.GetMetricHandler)
+	r.Get("/value/{type}/{name}", h.GetMetricHandler)
+	r.Get("/value/{type}/{name}", h.GetMetricHandler)
 
 	r.NotFound(BadRequestHandler)
 }
@@ -52,8 +57,13 @@ func NotFoundHandler(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
-	name := strings.ToLower(chi.URLParam(r, "name"))
+	mtype := strings.ToLower(chi.URLParam(r, "type"))
+	if !checkType(mtype) {
+		http.Error(rw, badMetricType, http.StatusBadRequest)
+		return
+	}
 
+	name := strings.ToLower(chi.URLParam(r, "name"))
 	if name == "" {
 		http.Error(rw, emptyMetricName, http.StatusNotFound)
 		return
@@ -65,10 +75,23 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	err := h.storage.Store(name, value)
-	if err != nil {
-		http.Error(rw, badMetricValue, http.StatusBadRequest)
-		return
+	switch mtype {
+	case "counter":
+		c, err := str2counter(value)
+		if err != nil {
+			http.Error(rw, badMetricValue, http.StatusBadRequest)
+			return
+		} else {
+			json.AddCounter(h.s, name, c)
+		}
+	case "gauge":
+		g, err := str2gauge(value)
+		if err != nil {
+			http.Error(rw, badMetricValue, http.StatusBadRequest)
+			return
+		} else {
+			h.s.StoreGauge(name, g)
+		}
 	}
 
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
@@ -76,20 +99,39 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 }
 
 func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
-	name := strings.ToLower(chi.URLParam(r, "name"))
+	mtype := strings.ToLower(chi.URLParam(r, "type"))
+	if !checkType(mtype) {
+		http.Error(rw, badMetricType, http.StatusBadRequest)
+		return
+	}
 
+	name := strings.ToLower(chi.URLParam(r, "name"))
 	if name == "" {
 		http.Error(rw, emptyMetricName, http.StatusNotFound)
 		return
 	}
 
-	value, ok := h.storage.Get(name)
-	if !ok {
-		http.Error(rw, notFoundMetric, http.StatusNotFound)
-		return
+	var value string
+
+	switch mtype {
+	case "counter":
+		c, ok := h.s.GetCounter(name)
+		if !ok {
+			http.Error(rw, notFoundMetric, http.StatusNotFound)
+			return
+		}
+		value = counter2str(c)
+	case "gauge":
+		g, ok := h.s.GetGauge(name)
+		if !ok {
+			http.Error(rw, notFoundMetric, http.StatusNotFound)
+			return
+		}
+		value = gauge2str(g)
 	}
 
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
+
 	_, err := rw.Write([]byte(value))
 	if err != nil {
 		log.Error().Err(err).Msg("rw.Write error")
@@ -97,4 +139,41 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 
 	rw.WriteHeader(http.StatusOK)
+}
+
+func checkType(t string) bool {
+	switch t {
+	case "counter":
+		return true
+	case "gauge":
+		return true
+	default:
+		return false
+	}
+}
+
+func str2counter(s string) (int64, error) {
+	v, err := strconv.ParseInt(s, 10, 64)
+	if err != nil {
+		return v, fmt.Errorf("parse int error:%w", err)
+	}
+
+	return v, nil
+}
+
+func counter2str(i int64) string {
+	return strconv.FormatInt(i, 10)
+}
+
+func str2gauge(s string) (float64, error) {
+	v, err := strconv.ParseFloat(s, 64)
+	if err != nil {
+		return v, fmt.Errorf("parse float error:%w", err)
+	}
+
+	return v, nil
+}
+
+func gauge2str(f float64) string {
+	return strconv.FormatFloat(f, 'f', -1, 64)
 }
