@@ -13,7 +13,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestPostMetricHandler(t *testing.T) {
+func TestMetricHandler(t *testing.T) {
 	tests := []struct {
 		name               string
 		reqMethod          string
@@ -23,39 +23,52 @@ func TestPostMetricHandler(t *testing.T) {
 	}{
 		{
 			name:               "check update gauge metric with name GaugeName with value 123.3",
+			reqMethod:          http.MethodPost,
 			reqPath:            "/update/gauge/GaugeName/123.3",
 			expectedStatusCode: 200,
 			expectedBody:       "",
 		},
 		{
 			name:               "check update gauge metric with name GaugeName with value bad_value",
+			reqMethod:          http.MethodPost,
 			reqPath:            "/update/gauge/GaugeName/bad_value",
 			expectedStatusCode: 400,
 			expectedBody:       "metric value is bad\n",
 		},
 		{
 			name:               "check update gauge metric with name GaugeName without value",
+			reqMethod:          http.MethodPost,
 			reqPath:            "/update/gauge/GaugeName/",
 			expectedStatusCode: 400,
 			expectedBody:       "",
 		},
 		{
 			name:               "check update gauge metric without name",
+			reqMethod:          http.MethodPost,
 			reqPath:            "/update/gauge/",
 			expectedStatusCode: 404,
 			expectedBody:       "metric value is empty\n",
 		},
 		{
 			name:               "check bad gauge request",
+			reqMethod:          http.MethodPost,
 			reqPath:            "/update/gauges",
 			expectedStatusCode: 400,
 			expectedBody:       "",
 		},
 		{
 			name:               "check unknown metric type",
+			reqMethod:          http.MethodPost,
 			reqPath:            "/update/unknown/testCounter/100",
 			expectedStatusCode: 400,
 			expectedBody:       "metric type is bad\n",
+		},
+		{
+			name:               "check get all metrics",
+			reqMethod:          http.MethodGet,
+			reqPath:            "/",
+			expectedStatusCode: 200,
+			expectedBody:       "Current metrics in form type/name/value:\ngauge/gaugename/123.3\n",
 		},
 	}
 
@@ -73,7 +86,7 @@ func TestPostMetricHandler(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			req, err := http.NewRequest(http.MethodPost, testServer.URL+test.reqPath, nil)
+			req, err := http.NewRequest(test.reqMethod, testServer.URL+test.reqPath, nil)
 			if err != nil {
 				t.Fatal(err)
 			}

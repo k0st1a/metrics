@@ -51,3 +51,7 @@ func (s *MemStorage) GetCounter(name string) (int64, bool) {
 
 	return v, ok
 }
+
+func (s *MemStorage) GetAll() (map[string]int64, map[string]float64) {
+	return s.counter, s.gauge
+}
