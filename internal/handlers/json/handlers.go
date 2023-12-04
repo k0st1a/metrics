@@ -16,7 +16,7 @@ const (
 	badContentType = "bad Content-Type"
 )
 
-type storageMetricService interface {
+type storageService interface {
 	GetGauge(string) (float64, bool)
 	StoreGauge(string, float64)
 
@@ -25,10 +25,10 @@ type storageMetricService interface {
 }
 
 type handler struct {
-	storage storageMetricService
+	storage storageService
 }
 
-func NewHandler(s storageMetricService) *handler {
+func NewHandler(s storageService) *handler {
 	return &handler{
 		storage: s,
 	}
@@ -152,7 +152,7 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func AddCounter(s storageMetricService, name string, value int64) {
+func AddCounter(s storageService, name string, value int64) {
 	v, ok := s.GetCounter(name)
 	if ok {
 		s.StoreCounter(name, value+v)
