@@ -100,7 +100,7 @@ func (h *handler) GetAllHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	//rw.WriteHeader(http.StatusOK)
+	rw.WriteHeader(http.StatusOK)
 }
 
 func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
