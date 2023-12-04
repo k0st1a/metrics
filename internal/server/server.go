@@ -8,8 +8,6 @@ import (
 	"github.com/k0st1a/metrics/internal/handlers/json"
 	"github.com/k0st1a/metrics/internal/handlers/text"
 	"github.com/k0st1a/metrics/internal/storage"
-	"github.com/k0st1a/metrics/internal/storage/counter"
-	"github.com/k0st1a/metrics/internal/storage/gauge"
 )
 
 func Run() error {
@@ -23,16 +21,11 @@ func Run() error {
 	r := handlers.NewRouter()
 
 	s := storage.NewStorage()
-	gs := gauge.NewGaugeStorage(s)
-	cs := counter.NewCounterStorage(s)
+	th := text.NewHandler(s)
+	jh := json.NewHandler(s)
 
-	csh := text.NewHandler(cs)
-	gsh := text.NewHandler(gs)
-
-	mh := json.NewHandler(s)
-
-	text.BuildRouter(r, csh, gsh)
-	json.BuildRouter(r, mh)
+	text.BuildRouter(r, th)
+	json.BuildRouter(r, jh)
 
 	err = http.ListenAndServe(cfg.ServerAddr, r)
 	if err != nil {
