@@ -8,8 +8,6 @@ import (
 
 	"github.com/k0st1a/metrics/internal/handlers"
 	"github.com/k0st1a/metrics/internal/storage"
-	"github.com/k0st1a/metrics/internal/storage/counter"
-	"github.com/k0st1a/metrics/internal/storage/gauge"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -57,19 +55,16 @@ func TestPostMetricHandler(t *testing.T) {
 			name:               "check unknown metric type",
 			reqPath:            "/update/unknown/testCounter/100",
 			expectedStatusCode: 400,
-			expectedBody:       "",
+			expectedBody:       "metric type is bad\n",
 		},
 	}
 
 	r := handlers.NewRouter()
 
 	s := storage.NewStorage()
-	gs := gauge.NewGaugeStorage(s)
-	cs := counter.NewCounterStorage(s)
-	csh := NewHandler(cs)
-	gsh := NewHandler(gs)
+	th := NewHandler(s)
 
-	BuildRouter(r, csh, gsh)
+	BuildRouter(r, th)
 
 	testServer := httptest.NewServer(r)
 	defer testServer.Close()
