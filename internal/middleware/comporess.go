@@ -20,7 +20,7 @@ func newCompress(rw http.ResponseWriter) *compress {
 }
 
 func (c *compress) close() {
-	c.w.Close()
+	_ = c.w.Close()
 }
 
 func (c compress) Header() http.Header {
