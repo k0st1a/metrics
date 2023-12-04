@@ -2,6 +2,7 @@ package text
 
 import (
 	"fmt"
+	"html/template"
 	"net/http"
 	"strconv"
 	"strings"
@@ -10,6 +11,12 @@ import (
 	"github.com/k0st1a/metrics/internal/handlers/json"
 	"github.com/rs/zerolog/log"
 )
+
+type metricInfo struct {
+	Type  string
+	Name  string
+	Value string
+}
 
 const (
 	badMetricType    = "metric type is bad"
@@ -25,6 +32,8 @@ type storageService interface {
 
 	GetCounter(string) (int64, bool)
 	StoreCounter(string, int64)
+
+	GetAll() (map[string]int64, map[string]float64)
 }
 
 type handler struct {
@@ -42,6 +51,7 @@ func BuildRouter(r *chi.Mux, h *handler) {
 	r.Post("/update/counter/", NotFoundHandler)
 	r.Post("/update/gauge/", NotFoundHandler)
 
+	r.Get("/", h.GetAllHandler)
 	r.Get("/value/{type}/{name}", h.GetMetricHandler)
 	r.Get("/value/{type}/{name}", h.GetMetricHandler)
 
@@ -54,6 +64,43 @@ func BadRequestHandler(rw http.ResponseWriter, r *http.Request) {
 
 func NotFoundHandler(rw http.ResponseWriter, r *http.Request) {
 	http.Error(rw, emptyMetricValue, http.StatusNotFound)
+}
+
+func (h *handler) GetAllHandler(rw http.ResponseWriter, r *http.Request) {
+	const htmlTemplate = `Current metrics in form type/name/value:
+{{range .}}{{.Type}}/{{.Name}}/{{.Value}}
+{{end}}`
+
+	c, g := h.s.GetAll()
+	log.Info().Msgf("c:%v, g:%v", c, g)
+
+	m := make([]metricInfo, 0)
+
+	for n, v := range c {
+		m = append(m, metricInfo{Type: "counter", Name: n, Value: counter2str(v)})
+	}
+
+	for n, v := range g {
+		m = append(m, metricInfo{Type: "gauge", Name: n, Value: gauge2str(v)})
+	}
+
+	t := template.New("myTemplate")
+
+	t, err := t.Parse(htmlTemplate)
+	if err != nil {
+		log.Error().Err(err).Msg("t.Parse error")
+		return
+	}
+
+	rw.Header().Set("Content-Type", "text/html")
+
+	err = t.Execute(rw, m)
+	if err != nil {
+		log.Error().Err(err).Msg("t.Execute error")
+		return
+	}
+
+	//rw.WriteHeader(http.StatusOK)
 }
 
 func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
