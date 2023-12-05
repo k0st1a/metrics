@@ -3,19 +3,24 @@ package middleware
 import (
 	"compress/gzip"
 	"fmt"
+	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
 )
 
 type compress struct {
-	rw http.ResponseWriter
-	w  io.WriteCloser
+	rw     http.ResponseWriter
+	w      io.WriteCloser
+	uri    string
+	method string
 }
 
-func newCompress(rw http.ResponseWriter) *compress {
+func newCompress(rw http.ResponseWriter, r *http.Request) *compress {
 	return &compress{
-		rw: rw,
-		w:  gzip.NewWriter(rw),
+		rw:     rw,
+		w:      gzip.NewWriter(rw),
+		uri:    r.RequestURI,
+		method: r.Method,
 	}
 }
 
@@ -29,7 +34,9 @@ func (c compress) Header() http.Header {
 
 func (c compress) Write(data []byte) (int, error) {
 	ct := c.Header().Get("Content-Type")
-	if !isNeedCompress(ct) {
+	in := isNeedCompress(ct)
+	log.Debug().Msgf("Is need compress for Content-Type:%v?(%v) method:%v, uri:%v", ct, in, c.method, c.uri)
+	if !in {
 		n, err := c.rw.Write(data)
 		if err != nil {
 			return n, fmt.Errorf("c.rw.Write error:%w", err)
@@ -52,11 +59,8 @@ func (c compress) WriteHeader(statusCode int) {
 
 func Compress(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-		ct := r.Header.Get("Content-Type")
-
-		ac := r.Header.Get("Accept-Encoding")
-		if isNeedCompress(ct) && ac == "gzip" {
-			c := newCompress(rw)
+		if r.Header.Get("Accept-Encoding") == "gzip" {
+			c := newCompress(rw, r)
 			next.ServeHTTP(c, r)
 			defer func() {
 				c.close()

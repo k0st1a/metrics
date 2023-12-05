@@ -72,7 +72,6 @@ func (h *handler) GetAllHandler(rw http.ResponseWriter, r *http.Request) {
 {{end}}`
 
 	c, g := h.s.GetAll()
-	log.Info().Msgf("c:%v, g:%v", c, g)
 
 	m := make([]metricInfo, 0)
 
