@@ -82,7 +82,10 @@ func TestMetricHandler(t *testing.T) {
 	testServer := httptest.NewServer(r)
 	defer testServer.Close()
 
-	testClient := &http.Client{}
+	testClient := &http.Client{
+		Transport: &http.Transport{
+			DisableCompression: true,
+		}}
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
