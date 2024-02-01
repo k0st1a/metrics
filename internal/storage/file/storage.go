@@ -30,7 +30,7 @@ type fileStorage struct {
 
 func NewStorage(path string, interval int, restore bool) Storage {
 	if path == "" {
-		return inmemorystorage.NewStorage()
+		return inmemory.NewStorage()
 	}
 
 	var s Storage
@@ -40,12 +40,12 @@ func NewStorage(path string, interval int, restore bool) Storage {
 		if err != nil {
 			log.Error().Err(err).Msg("io.Read Error")
 		} else {
-			s = inmemorystorage.NewStorageWith(c, g)
+			s = inmemory.NewStorageWith(c, g)
 		}
 	}
 
 	if s == nil {
-		s = inmemorystorage.NewStorage()
+		s = inmemory.NewStorage()
 	}
 
 	w := io.NewWriter(path)
