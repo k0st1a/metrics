@@ -11,17 +11,24 @@ import (
 
 type Config struct {
 	ServerAddr      string `env:"ADDRESS"`
-	StoreInterval   int    `env:"STORE_INTERVAL"`
 	FileStoragePath string `env:"FILE_STORAGE_PATH"`
+	StoreInterval   int    `env:"STORE_INTERVAL"`
 	Restore         bool   `env:"RESTORE"`
 }
 
+const (
+	defaultServerAddr      = "localhost:8080"
+	defaultStoreInterval   = 300
+	defaultFileStoragePath = "/tmp/metrics-db.json"
+	defaultRestore         = true
+)
+
 func newConfig() *Config {
 	return &Config{
-		ServerAddr:      "localhost:8080",
-		StoreInterval:   300,
-		FileStoragePath: "/tmp/metrics-db.json",
-		Restore:         true,
+		ServerAddr:      defaultServerAddr,
+		StoreInterval:   defaultStoreInterval,
+		FileStoragePath: defaultFileStoragePath,
+		Restore:         defaultRestore,
 	}
 }
 
