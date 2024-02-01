@@ -3,9 +3,10 @@ package middleware
 import (
 	"compress/gzip"
 	"fmt"
-	"github.com/rs/zerolog/log"
 	"io"
 	"net/http"
+
+	"github.com/rs/zerolog/log"
 )
 
 type compress struct {
