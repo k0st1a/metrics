@@ -19,12 +19,12 @@ type Storage interface {
 }
 
 type Writer interface {
-	Write(io.Storage) error
+	Write(io.StorageGeter) error
 }
 
 type fileStorage struct {
 	storage Storage
-	writer  Writer
+	writer  io.Writer
 	mutex   sync.Mutex
 }
 
