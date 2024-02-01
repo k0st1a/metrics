@@ -34,7 +34,7 @@ func (f *file) Write(s StorageGeter) error {
 		return fmt.Errorf("model.Serialize error:%w", err)
 	}
 
-	err = os.WriteFile(f.path, p, 0666)
+	err = os.WriteFile(f.path, p, 0600)
 	if err != nil {
 		return fmt.Errorf("os.WriteFile error:%w", err)
 	}
