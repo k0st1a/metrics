@@ -9,10 +9,10 @@ import (
 
 //go:generate easyjson -all model.go
 type Metric struct {
-	Name  string   `json:"id"`              // имя метрики
-	MType string   `json:"type"`            // тип метрики, принимающий значение gauge или counter
 	Delta *int64   `json:"delta,omitempty"` // значение метрики в случае counter
 	Value *float64 `json:"value,omitempty"` // значение метрики в случае gauge
+	Name  string   `json:"id"`              // имя метрики
+	MType string   `json:"type"`            // тип метрики, принимающий значение gauge или counter
 }
 
 type Metrics struct {
