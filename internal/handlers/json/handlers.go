@@ -72,8 +72,10 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 
 	switch m.MType {
 	case "counter":
+		log.Printf("Post Update counter, name(%v), value(%v)", m.ID, *m.Delta)
 		AddCounter(h.storage, m.ID, *m.Delta)
 	case "gauge":
+		log.Printf("Post Update gauge, name(%v), value(%v)", m.ID, *m.Value)
 		h.storage.StoreGauge(m.ID, *m.Value)
 	default:
 		http.Error(rw, badMetricType, http.StatusBadRequest)
@@ -118,6 +120,7 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 	case "counter":
 		c, ok := h.storage.GetCounter(m.ID)
 		if !ok {
+			log.Printf("Post Value, counter, name(%v), value(%v), 404", m.ID, c)
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
 			return
 		}
@@ -126,6 +129,7 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 	case "gauge":
 		g, ok := h.storage.GetGauge(m.ID)
 		if !ok {
+			log.Printf("Post Value, gauge, name(%v), value(%v), 404", m.ID, g)
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
 			return
 		}
