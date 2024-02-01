@@ -24,6 +24,8 @@ func NewWriter(p string) Writer {
 	return &file{path: p}
 }
 
+const FileMode = 0600
+
 func (f *file) Write(s StorageGeter) error {
 	log.Printf("Write storage to file:%v", f.path)
 
@@ -34,7 +36,7 @@ func (f *file) Write(s StorageGeter) error {
 		return fmt.Errorf("model.Serialize error:%w", err)
 	}
 
-	err = os.WriteFile(f.path, p, 0600)
+	err = os.WriteFile(f.path, p, FileMode)
 	if err != nil {
 		return fmt.Errorf("os.WriteFile error:%w", err)
 	}
