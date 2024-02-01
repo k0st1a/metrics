@@ -74,7 +74,7 @@ func TestMetricHandler(t *testing.T) {
 
 	r := handlers.NewRouter()
 
-	s := storage.NewStorage()
+	s := storage.NewStorage("", 300, true)
 	th := NewHandler(s)
 
 	BuildRouter(r, th)

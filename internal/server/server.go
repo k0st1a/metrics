@@ -8,9 +8,12 @@ import (
 	"github.com/k0st1a/metrics/internal/handlers/json"
 	"github.com/k0st1a/metrics/internal/handlers/text"
 	"github.com/k0st1a/metrics/internal/storage"
+	"github.com/rs/zerolog/log"
 )
 
 func Run() error {
+	log.Debug().Msg("Run server")
+
 	cfg, err := collectConfig()
 	if err != nil {
 		return err
@@ -20,7 +23,7 @@ func Run() error {
 
 	r := handlers.NewRouter()
 
-	s := storage.NewStorage()
+	s := storage.NewStorage(cfg.FileStoragePath, cfg.StoreInterval, cfg.Restore)
 	th := text.NewHandler(s)
 	jh := json.NewHandler(s)
 
