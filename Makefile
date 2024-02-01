@@ -47,6 +47,17 @@ miter8: build statictest
 				-server-port=8080 \
 				-file-storage-path=$$TEMP_FILE ;
 
+.PHONY: miter9
+miter9: build statictest
+	METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration9" ; \
+			ADDRESS="localhost:8080" ;\
+			TEMP_FILE="/tmp/metrics-db.json" ; \
+			metricstest $$METRICSTEST_ARGS \
+						-binary-path=cmd/server/server \
+						-agent-binary-path=cmd/agent/agent \
+						-server-port=8080 \
+						-file-storage-path=$$TEMP_FILE ;
+
 .PHONY: ${ITERS}
 ${ITERS}: iter%: build statictest;
 	for i in $(shell seq 1 $*) ; do \
