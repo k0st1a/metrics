@@ -1,4 +1,4 @@
-package filestorage
+package file
 
 import (
 	"sync"
@@ -9,7 +9,7 @@ import (
 )
 
 type Storage interface {
-	GetGauge(name string) (bool float64, ok bool)
+	GetGauge(name string) (value float64, ok bool)
 	StoreGauge(name string, value float64)
 
 	GetCounter(name string) (value int64, ok bool)

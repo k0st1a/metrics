@@ -16,11 +16,11 @@ type Storage interface {
 	GetAll() (map[string]int64, map[string]float64)
 }
 
-func NewStorage(file string, interval int, restore bool) Storage {
-	if file == "" {
+func NewStorage(path string, interval int, restore bool) Storage {
+	if path == "" {
 		log.Debug().Msg("Using memory storage")
-		return inmemorystorage.NewStorage()
+		return inmemory.NewStorage()
 	}
 	log.Debug().Msg("Using file storage")
-	return filestorage.NewStorage(file, interval, restore)
+	return file.NewStorage(path, interval, restore)
 }

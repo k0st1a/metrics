@@ -1,4 +1,4 @@
-package inmemorystorage
+package inmemory
 
 import "github.com/rs/zerolog/log"
 
