@@ -8,14 +8,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Storage interface {
-	StoreGauge(name string, value float64)
-	StoreCounter(name string, value int64)
+type StorageGeter interface {
 	GetAll() (counters map[string]int64, gauges map[string]float64)
 }
 
 type Writer interface {
-	Write(s Storage) error
+	Write(StorageGeter) error
 }
 
 type file struct {
@@ -26,7 +24,7 @@ func NewWriter(p string) Writer {
 	return &file{path: p}
 }
 
-func (f *file) Write(s Storage) error {
+func (f *file) Write(s StorageGeter) error {
 	log.Printf("Write storage to file:%v", f.path)
 
 	c, g := s.GetAll()

@@ -12,10 +12,10 @@ type IntervalWriter interface {
 
 type intervalWriter struct {
 	writer  Writer
-	storage Storage
+	storage StorageGeter
 }
 
-func NewIntervalWriter(w Writer, s Storage) IntervalWriter {
+func NewIntervalWriter(w Writer, s StorageGeter) IntervalWriter {
 	log.Debug().Msg("NewIntervalWriter")
 	return &intervalWriter{
 		writer:  w,
