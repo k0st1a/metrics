@@ -51,9 +51,15 @@ func parseFlags(cfg *Config) error {
 	// здесь будет ошибка компиляции
 	_ = flag.Value(addr)
 	flag.Var(addr, "a", "server network address")
-	flag.IntVar(&cfg.StoreInterval, "i", cfg.StoreInterval, "Интервал времени в секундах, по истечении которого текущие показания сервера сохраняются на диск (значение 0 делает запись синхронной). Соответствует переменной окружения STORE_INTERVAL")
-	flag.StringVar(&cfg.FileStoragePath, "f", cfg.FileStoragePath, "Полное имя файла, куда сохраняются текущие значения (пустое значение отключает функцию записи на диск). Соответствует переменной окружения FILE_STORAGE_PATH")
-	flag.BoolVar(&cfg.Restore, "r", cfg.Restore, "Загружать или нет ранее сохранённые значения из указанного файла при старте сервера. Соответствует переменной окружения RESTORE")
+	flag.IntVar(&cfg.StoreInterval, "i", cfg.StoreInterval,
+		"Интервал времени в секундах, по истечении которого текущие показания сервера сохраняются на диск "+
+			"(значение 0 делает запись синхронной). Соответствует переменной окружения STORE_INTERVAL")
+	flag.StringVar(&cfg.FileStoragePath, "f", cfg.FileStoragePath,
+		"Полное имя файла, куда сохраняются текущие значения (пустое значение отключает функцию записи на диск). "+
+			"Соответствует переменной окружения FILE_STORAGE_PATH")
+	flag.BoolVar(&cfg.Restore, "r", cfg.Restore,
+		"Загружать или нет ранее сохранённые значения из указанного файла при старте сервера."+
+			"Соответствует переменной окружения RESTORE")
 	flag.Parse()
 
 	if len(flag.Args()) != 0 {
