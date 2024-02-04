@@ -22,7 +22,7 @@ func Run() error {
 
 	tr, err := json.NewReporter(cfg.ServerAddr)
 	if err != nil {
-		return fmt.Errorf("text.NewReporter error:%w", err)
+		return fmt.Errorf("json.NewReporter error:%w", err)
 	}
 	r := reporter.NewReporter(tr)
 
