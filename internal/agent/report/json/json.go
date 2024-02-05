@@ -21,9 +21,9 @@ type Metrics2MetricInfoer interface {
 }
 
 type report struct {
-	addr string
 	c    *http.Client
 	m    Metrics2MetricInfoer
+	addr string
 }
 
 func NewReport(a string, c *http.Client, m Metrics2MetricInfoer) Doer {
