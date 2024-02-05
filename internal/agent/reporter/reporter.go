@@ -1,35 +1,40 @@
 package reporter
 
 import (
-	"net/http"
 	"time"
-
-	"github.com/k0st1a/metrics/internal/metrics"
 )
 
-type Reporter interface {
-	DoReportsMetrics(*http.Client, *metrics.MyStats)
+type Runner interface {
+	Run()
+}
+
+type Doer interface {
+	Do()
+}
+
+type IncreasePollCounter interface {
+	IncreasePollCount()
 }
 
 type reporter struct {
-	rtype Reporter
+	d              Doer
+	reportInterval int
+	m              IncreasePollCounter
 }
 
-func NewReporter(r Reporter) reporter {
-	return reporter{
-		rtype: r,
+func NewReporter(d Doer, i int, m IncreasePollCounter) Runner {
+	return &reporter{
+		d:              d,
+		reportInterval: i,
+		m:              m,
 	}
 }
 
-func (r *reporter) RunReportMetrics(c *http.Client, m *metrics.MyStats, ri int) {
-	ticker := time.NewTicker(time.Duration(ri) * time.Second)
+func (r *reporter) Run() {
+	ticker := time.NewTicker(time.Duration(r.reportInterval) * time.Second)
 
 	for range ticker.C {
-		r.reportMetrics(c, m)
+		r.m.IncreasePollCount()
+		r.d.Do()
 	}
-}
-
-func (r *reporter) reportMetrics(c *http.Client, m *metrics.MyStats) {
-	m.IncreasePollCount()
-	r.rtype.DoReportsMetrics(c, m)
 }
