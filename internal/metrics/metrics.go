@@ -4,10 +4,15 @@ import (
 	"math/rand"
 	"runtime"
 	"strconv"
-	"time"
 )
 
-type MyStats struct {
+type Metrics interface {
+	Update()
+	IncreasePollCount()
+	Metrics2MetricInfo() []MetricInfo
+}
+
+type myStats struct {
 	PollCount   uint64
 	RandomValue float64
 	MemStats    runtime.MemStats
@@ -19,24 +24,20 @@ type MetricInfo struct {
 	Value string
 }
 
-func RunUpdateMetrics(m *MyStats, pollInterval int) {
-	ticker := time.NewTicker(time.Duration(pollInterval) * time.Second)
-
-	for range ticker.C {
-		m.update()
-	}
+func NewMetrics() Metrics {
+	return &myStats{}
 }
 
-func (m *MyStats) update() {
+func (m *myStats) Update() {
 	runtime.ReadMemStats(&m.MemStats)
 	m.RandomValue = rand.Float64()
 }
 
-func (m *MyStats) IncreasePollCount() {
+func (m *myStats) IncreasePollCount() {
 	m.PollCount++
 }
 
-func (m *MyStats) Metrics2MetricInfo() []MetricInfo {
+func (m *myStats) Metrics2MetricInfo() []MetricInfo {
 	return []MetricInfo{
 		MetricInfo{
 			Name:  "Alloc",

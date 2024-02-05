@@ -8,24 +8,36 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type reporter struct {
+type Doer interface {
+	Do()
+}
+
+type Metrics2MetricInfoer interface {
+	Metrics2MetricInfo() []metrics.MetricInfo
+}
+
+type report struct {
 	addr string
+	c    *http.Client
+	m    Metrics2MetricInfoer
 }
 
-func NewReporter(a string) (*reporter, error) {
-	return &reporter{
+func NewReport(a string, c *http.Client, m Metrics2MetricInfoer) Doer {
+	return &report{
 		addr: a,
-	}, nil
-}
-
-func (r reporter) DoReportsMetrics(c *http.Client, m *metrics.MyStats) {
-	s := m.Metrics2MetricInfo()
-	for _, v := range s {
-		r.doReportMetrics(c, v)
+		c:    c,
+		m:    m,
 	}
 }
 
-func (r reporter) doReportMetrics(c *http.Client, m metrics.MetricInfo) {
+func (r report) Do() {
+	s := r.m.Metrics2MetricInfo()
+	for _, v := range s {
+		r.doReport(v)
+	}
+}
+
+func (r report) doReport(m metrics.MetricInfo) {
 	url, err := url.JoinPath("http://", r.addr, "/update/", m.MType, "/", m.Name, "/", m.Value)
 	if err != nil {
 		log.Error().Err(err).Msg("url.JoinPath error")
@@ -41,7 +53,7 @@ func (r reporter) doReportMetrics(c *http.Client, m metrics.MetricInfo) {
 	req.Header.Set("Content-Type", "text/plain")
 	req.Header.Set("Content-Length", "0")
 
-	response, err := c.Do(req)
+	response, err := r.c.Do(req)
 	if err != nil {
 		log.Error().Err(err).Msg("client do error")
 		return
