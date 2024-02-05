@@ -8,7 +8,6 @@ import (
 
 type Metrics interface {
 	Update()
-	IncreasePollCount()
 	Metrics2MetricInfo() []MetricInfo
 }
 
@@ -31,9 +30,6 @@ func NewMetrics() Metrics {
 func (m *myStats) Update() {
 	runtime.ReadMemStats(&m.MemStats)
 	m.RandomValue = rand.Float64()
-}
-
-func (m *myStats) IncreasePollCount() {
 	m.PollCount++
 }
 

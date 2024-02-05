@@ -23,7 +23,7 @@ func Run() error {
 	r := json.NewReport(cfg.ServerAddr, c, m)
 
 	go poller.NewPoller(m, cfg.PollInterval).Run()
-	reporter.NewReporter(r, cfg.ReportInterval, m).Run()
+	reporter.NewReporter(r, cfg.ReportInterval).Run()
 
 	return nil
 }
