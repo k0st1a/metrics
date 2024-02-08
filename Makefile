@@ -58,6 +58,18 @@ miter9: build statictest
 						-server-port=8080 \
 						-file-storage-path=$$TEMP_FILE ;
 
+.PHONY: miter10
+miter10: build statictest
+			SERVER_PORT=$$(random unused-port) ; \
+			ADDRESS="localhost:$${SERVER_PORT}" ; \
+			TEMP_FILE=$$(random tempfile) ; \
+			METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration10[AB]" ; \
+			metricstest $$METRICSTEST_ARGS \
+						-binary-path=cmd/server/server \
+						-agent-binary-path=cmd/agent/agent \
+						-server-port=$$SERVER_PORT \
+						-database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' ;
+
 .PHONY: ${ITERS}
 ${ITERS}: iter%: build statictest;
 	for i in $(shell seq 1 $*) ; do \
