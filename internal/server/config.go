@@ -14,6 +14,7 @@ type Config struct {
 	FileStoragePath string `env:"FILE_STORAGE_PATH"`
 	StoreInterval   int    `env:"STORE_INTERVAL"`
 	Restore         bool   `env:"RESTORE"`
+	DatabaseDSN     string `env:"DATABASE_DSN"` // Database Data Source Name
 }
 
 const (
@@ -21,6 +22,7 @@ const (
 	defaultStoreInterval   = 300
 	defaultFileStoragePath = "/tmp/metrics-db.json"
 	defaultRestore         = true
+	defaultDatabaseDSN     = ""
 )
 
 func newConfig() *Config {
@@ -29,6 +31,7 @@ func newConfig() *Config {
 		StoreInterval:   defaultStoreInterval,
 		FileStoragePath: defaultFileStoragePath,
 		Restore:         defaultRestore,
+		DatabaseDSN:     defaultDatabaseDSN,
 	}
 }
 
@@ -60,6 +63,8 @@ func parseFlags(cfg *Config) error {
 	flag.BoolVar(&cfg.Restore, "r", cfg.Restore,
 		"Загружать или нет ранее сохранённые значения из указанного файла при старте сервера."+
 			"Соответствует переменной окружения RESTORE")
+	flag.StringVar(&cfg.DatabaseDSN, "d", cfg.DatabaseDSN,
+		"Адрес подключения к БД. Соответствует переменной окружения DATABASE_DSN")
 	flag.Parse()
 
 	if len(flag.Args()) != 0 {
