@@ -7,7 +7,7 @@ import (
 	"testing"
 
 	"github.com/k0st1a/metrics/internal/handlers"
-	"github.com/k0st1a/metrics/internal/storage"
+	"github.com/k0st1a/metrics/internal/storage/inmemory"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -74,7 +74,7 @@ func TestMetricHandler(t *testing.T) {
 
 	r := handlers.NewRouter()
 
-	s := storage.NewStorage("", 300, true)
+	s := inmemory.NewStorage()
 	th := NewHandler(s)
 
 	BuildRouter(r, th)
