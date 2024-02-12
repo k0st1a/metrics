@@ -29,7 +29,12 @@ func (db *dbStorage) Ping() error {
 		log.Error().Err(err).Msg("pgx.Connect error")
 		return fmt.Errorf("pgx.Connect error:%w", err)
 	}
-	defer conn.Close(ctx)
+	defer func() {
+		err := conn.Close(ctx)
+		if err != nil {
+			log.Error().Err(err).Msg("conn.Close error")
+		}
+	}()
 
 	err = conn.Ping(ctx)
 	if err != nil {

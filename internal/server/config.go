@@ -10,11 +10,11 @@ import (
 )
 
 type Config struct {
+	DatabaseDSN     string `env:"DATABASE_DSN"` // Database Data Source Name
 	ServerAddr      string `env:"ADDRESS"`
 	FileStoragePath string `env:"FILE_STORAGE_PATH"`
 	StoreInterval   int    `env:"STORE_INTERVAL"`
 	Restore         bool   `env:"RESTORE"`
-	DatabaseDSN     string `env:"DATABASE_DSN"` // Database Data Source Name
 }
 
 const (
