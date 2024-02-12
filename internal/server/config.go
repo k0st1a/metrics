@@ -94,6 +94,7 @@ func collectConfig() (cfg *Config, err error) {
 
 func printConfig(cfg *Config) {
 	log.Debug().
+		Str("cfg.DatabaseDSN", cfg.DatabaseDSN).
 		Str("cfg.ServerAddr", cfg.ServerAddr).
 		Int("cfg.StoreInterval", cfg.StoreInterval).
 		Str("cfg.FileStoragePath", cfg.FileStoragePath).
