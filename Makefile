@@ -1,9 +1,18 @@
-LAST := 14
+LAST = 14
 NUMBERS := $(shell seq 1 ${LAST})
 ITERS := $(addprefix iter,${NUMBERS})
 
 .DEFAULT_GOAL := build
 .SILENT: ${ITERS}
+
+PG_USER = "metrics-user"
+PG_PASSWORD = "metrics-password"
+PG_DB = "metrics-db"
+PG_HOST = "localhost"
+PG_PORT = "5432"
+DATABASE_DSN = "postgres://${PG_USER}:${PG_PASSWORD}@${PG_HOST}:${PG_PORT}/${PG_DB}?sslmode=disable"
+PG_IMAGE = "postgres:13.13-bullseye"
+DOCKER_CONTEINER_NAME = "metrics-pg-13.3"
 
 METRICSTEST_ARGS = -test.v -source-path=.
 
@@ -59,19 +68,19 @@ miter9: build statictest
 						-file-storage-path=$$TEMP_FILE ;
 
 .PHONY: miter10
-miter10: build statictest
-			SERVER_PORT=$$(random unused-port) ; \
-			ADDRESS="localhost:$${SERVER_PORT}" ; \
-			TEMP_FILE=$$(random tempfile) ; \
-			METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration10[AB]" ; \
-			metricstest $$METRICSTEST_ARGS \
-						-binary-path=cmd/server/server \
-						-agent-binary-path=cmd/agent/agent \
-						-server-port=$$SERVER_PORT \
-						-database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' ;
+miter10: build statictest db-run
+	SERVER_PORT=$$(random unused-port) ; \
+	ADDRESS="localhost:$${SERVER_PORT}" ; \
+	TEMP_FILE=$$(random tempfile) ; \
+	METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration10[AB]" ; \
+	metricstest $$METRICSTEST_ARGS \
+				-binary-path=cmd/server/server \
+				-agent-binary-path=cmd/agent/agent \
+				-server-port=$$SERVER_PORT \
+				-database-dsn=${DATABASE_DSN} ;
 
 .PHONY: ${ITERS}
-${ITERS}: iter%: build statictest;
+${ITERS}: iter%: build statictest db-run;
 	for i in $(shell seq 1 $*) ; do \
 		METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration$$i[AB]?$$" ; \
 		if [ $$i -eq 1 ]; then \
@@ -109,7 +118,7 @@ ${ITERS}: iter%: build statictest;
 						-binary-path=cmd/server/server \
 						-agent-binary-path=cmd/agent/agent \
 						-server-port=$$SERVER_PORT \
-						-database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' ; \
+						-database-dsn=${DATABASE_DSN} ; \
 		elif [ $$i -eq 14 ]; then \
 			SERVER_PORT=$$(random unused-port) ; \
 			ADDRESS="localhost:$${SERVER_PORT}" ; \
@@ -118,7 +127,7 @@ ${ITERS}: iter%: build statictest;
 						-binary-path=cmd/server/server \
 						-agent-binary-path=cmd/agent/agent \
 						-server-port=$$SERVER_PORT \
-						-database-dsn='postgres://postgres:postgres@postgres:5432/praktikum?sslmode=disable' \
+						-database-dsn=${DATABASE_DSN} ; \
 						-key="$$TEMP_FILE" ; \
 			go test -v -race ./... ; \
 		fi ; \
@@ -126,6 +135,27 @@ ${ITERS}: iter%: build statictest;
 			break ; \
 		fi ; \
     done
+
+
+.PHONY: db-run
+db-run: db-image-pull db-stop
+	-docker run \
+	--name ${DOCKER_CONTEINER_NAME} \
+	--rm -ti \
+	-p ${PG_PORT}:5432 \
+	-e POSTGRES_USER=${PG_USER} \
+	-e POSTGRES_PASSWORD=${PG_PASSWORD} \
+	-e POSTGRES_DB=${PG_DB} \
+	-d ${PG_IMAGE}
+
+.PHONY: db-stop
+db-stop:
+	-docker stop ${DOCKER_CONTEINER_NAME}
+
+.PHONY: db-image-pull
+db-image-pull:
+	-docker image pull ${PG_IMAGE}
+
 
 GOLANGCI_LINT_CACHE?=/tmp/praktikum-golangci-lint-cache
 
