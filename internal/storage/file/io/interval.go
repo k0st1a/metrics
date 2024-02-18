@@ -1,13 +1,14 @@
 package io
 
 import (
+	"context"
 	"time"
 
 	"github.com/rs/zerolog/log"
 )
 
 type IntervalWriter interface {
-	Run(i int)
+	Run(ctx context.Context, interval int)
 }
 
 type intervalWriter struct {
@@ -23,13 +24,13 @@ func NewIntervalWriter(w Writer, s StorageGeter) IntervalWriter {
 	}
 }
 
-func (w *intervalWriter) Run(i int) {
+func (w *intervalWriter) Run(ctx context.Context, interval int) {
 	log.Debug().Msg("Run interval writer")
-	ticker := time.NewTicker(time.Duration(i) * time.Second)
+	ticker := time.NewTicker(time.Duration(interval) * time.Second)
 
 	for range ticker.C {
 		log.Debug().Msg("Tick of interval writer")
-		err := w.writer.Write(w.storage)
+		err := w.writer.Write(ctx, w.storage)
 		if err != nil {
 			log.Error().Err(err).Msg("write error storage to file")
 		}

@@ -1,6 +1,8 @@
 package file
 
 import (
+	"context"
+	"fmt"
 	"sync"
 
 	"github.com/k0st1a/metrics/internal/storage/file/io"
@@ -9,13 +11,13 @@ import (
 )
 
 type Storage interface {
-	GetGauge(name string) (value float64, ok bool)
-	StoreGauge(name string, value float64)
+	GetGauge(ctx context.Context, name string) (*float64, error)
+	StoreGauge(ctx context.Context, name string, value float64) error
 
-	GetCounter(name string) (value int64, ok bool)
-	StoreCounter(name string, value int64)
+	GetCounter(ctx context.Context, name string) (*int64, error)
+	StoreCounter(ctx context.Context, name string, value int64) error
 
-	GetAll() (gauges map[string]int64, counters map[string]float64)
+	GetAll(ctx context.Context) (gauge map[string]int64, counter map[string]float64, err error)
 }
 
 type Writer interface {
@@ -28,7 +30,7 @@ type fileStorage struct {
 	mutex   sync.Mutex
 }
 
-func NewStorage(path string, interval int, restore bool) Storage {
+func NewStorage(ctx context.Context, path string, interval int, restore bool) Storage {
 	if path == "" {
 		return inmemory.NewStorage()
 	}
@@ -52,7 +54,7 @@ func NewStorage(path string, interval int, restore bool) Storage {
 
 	if interval != 0 {
 		iw := io.NewIntervalWriter(w, s)
-		go iw.Run(interval)
+		go iw.Run(ctx, interval)
 		w = nil
 	}
 
@@ -62,7 +64,7 @@ func NewStorage(path string, interval int, restore bool) Storage {
 	}
 }
 
-func (s *fileStorage) StoreGauge(name string, value float64) {
+func (s *fileStorage) StoreGauge(ctx context.Context, name string, value float64) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -71,20 +73,25 @@ func (s *fileStorage) StoreGauge(name string, value float64) {
 		Float64("value", value).
 		Msg("StoreGauge")
 
-	s.storage.StoreGauge(name, value)
+	err := s.storage.StoreGauge(ctx, name, value)
+	if err != nil {
+		return fmt.Errorf("store gauge error:%w", err)
+	}
 
-	s.writeStorage()
+	s.writeStorage(ctx)
+
+	return nil
 }
 
-func (s *fileStorage) GetGauge(name string) (float64, bool) {
+func (s *fileStorage) GetGauge(ctx context.Context, name string) (*float64, error) {
 	log.Debug().
 		Str("name:", name).
 		Msg("GetGauge")
 
-	return s.storage.GetGauge(name)
+	return s.storage.GetGauge(ctx, name)
 }
 
-func (s *fileStorage) StoreCounter(name string, value int64) {
+func (s *fileStorage) StoreCounter(ctx context.Context, name string, value int64) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
 
@@ -93,33 +100,38 @@ func (s *fileStorage) StoreCounter(name string, value int64) {
 		Int64("value", value).
 		Msg("StoreCounter")
 
-	s.storage.StoreCounter(name, value)
+	err := s.storage.StoreCounter(ctx, name, value)
+	if err != nil {
+		return fmt.Errorf("store counter error:%w", err)
+	}
 
-	s.writeStorage()
+	s.writeStorage(ctx)
+
+	return nil
 }
 
-func (s *fileStorage) GetCounter(name string) (int64, bool) {
+func (s *fileStorage) GetCounter(ctx context.Context, name string) (*int64, error) {
 	log.Debug().
 		Str("name", name).
 		Msg("GetCounter")
 
-	return s.storage.GetCounter(name)
+	return s.storage.GetCounter(ctx, name)
 }
 
-func (s *fileStorage) GetAll() (map[string]int64, map[string]float64) {
+func (s *fileStorage) GetAll(ctx context.Context) (map[string]int64, map[string]float64, error) {
 	log.Debug().
 		Msg("GetAll")
 
-	return s.storage.GetAll()
+	return s.storage.GetAll(ctx)
 }
 
-func (s *fileStorage) writeStorage() {
+func (s *fileStorage) writeStorage(ctx context.Context) {
 	log.Debug().Msg("Write storage")
 	if s.writer == nil {
 		return
 	}
 
-	err := s.writer.Write(s.storage)
+	err := s.writer.Write(ctx, s.storage)
 	if err != nil {
 		log.Error().Err(err).Msg("write error storage to file")
 	}

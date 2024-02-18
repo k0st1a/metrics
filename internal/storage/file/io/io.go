@@ -1,6 +1,7 @@
 package io
 
 import (
+	"context"
 	"fmt"
 	"os"
 
@@ -9,11 +10,11 @@ import (
 )
 
 type StorageGeter interface {
-	GetAll() (counters map[string]int64, gauges map[string]float64)
+	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
 type Writer interface {
-	Write(StorageGeter) error
+	Write(context.Context, StorageGeter) error
 }
 
 type file struct {
@@ -26,10 +27,13 @@ func NewWriter(p string) Writer {
 
 const FileMode = 0600
 
-func (f *file) Write(s StorageGeter) error {
+func (f *file) Write(ctx context.Context, s StorageGeter) error {
 	log.Printf("Write storage to file:%v", f.path)
 
-	c, g := s.GetAll()
+	c, g, err := s.GetAll(ctx)
+	if err != nil {
+		return fmt.Errorf("get all error:%w", err)
+	}
 
 	p, err := model.Serialize(c, g)
 	if err != nil {
