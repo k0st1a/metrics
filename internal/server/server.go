@@ -1,31 +1,36 @@
 package server
 
 import (
+	"context"
 	"fmt"
 	"net/http"
 
+	hdbp "github.com/k0st1a/metrics/internal/handlers/db/ping"
+	sdbs "github.com/k0st1a/metrics/internal/storage/db"
+	sdbm "github.com/k0st1a/metrics/internal/storage/db/migration/v1"
+	sdbp "github.com/k0st1a/metrics/internal/storage/db/ping"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/k0st1a/metrics/internal/handlers"
-	dbh "github.com/k0st1a/metrics/internal/handlers/db"
 	"github.com/k0st1a/metrics/internal/handlers/json"
 	"github.com/k0st1a/metrics/internal/handlers/text"
-	dbs "github.com/k0st1a/metrics/internal/storage/db"
 	"github.com/k0st1a/metrics/internal/storage/file"
 	"github.com/k0st1a/metrics/internal/storage/inmemory"
 	"github.com/rs/zerolog/log"
 )
 
 type Storage interface {
-	GetGauge(string) (float64, bool)
-	StoreGauge(string, float64)
+	GetGauge(ctx context.Context, name string) (*float64, error)
+	StoreGauge(ctx context.Context, name string, value float64) error
 
-	GetCounter(string) (int64, bool)
-	StoreCounter(string, int64)
+	GetCounter(ctx context.Context, name string) (*int64, error)
+	StoreCounter(ctx context.Context, name string, value int64) error
 
-	GetAll() (map[string]int64, map[string]float64)
+	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
 type Pinger interface {
-	Ping() error
+	Ping(ctx context.Context) error
 }
 
 func Run() error {
@@ -38,16 +43,32 @@ func Run() error {
 
 	printConfig(cfg)
 
-	var p Pinger
-	if cfg.DatabaseDSN != "" {
-		p = dbs.NewStorage(cfg.DatabaseDSN)
-	}
-
 	var s Storage
+	var p Pinger
+
+	ctx := context.Background()
+
 	switch {
+	case cfg.DatabaseDSN != "":
+		log.Debug().Msg("Using db storage")
+		pool, err := pgxpool.New(ctx, cfg.DatabaseDSN)
+		if err != nil {
+			return fmt.Errorf("pgxpool new error:%w", err)
+		}
+
+		m := sdbm.NewMigration(pool)
+		err = m.Migrate(ctx)
+		if err != nil {
+			return fmt.Errorf("migrate error:%w", err)
+		}
+
+		p = sdbp.NewPinger(pool)
+		s = sdbs.NewStorage(pool)
+
 	case cfg.FileStoragePath != "":
 		log.Debug().Msg("Using file storage")
-		s = file.NewStorage(cfg.FileStoragePath, cfg.StoreInterval, cfg.Restore)
+		s = file.NewStorage(ctx, cfg.FileStoragePath, cfg.StoreInterval, cfg.Restore)
+
 	default:
 		log.Debug().Msg("Using memory storage")
 		s = inmemory.NewStorage()
@@ -55,12 +76,12 @@ func Run() error {
 
 	th := text.NewHandler(s)
 	jh := json.NewHandler(s)
-	dh := dbh.NewHandler(p)
+	dbph := hdbp.NewHandler(p)
 
 	r := handlers.NewRouter()
 	text.BuildRouter(r, th)
 	json.BuildRouter(r, jh)
-	dbh.BuildRouter(r, dh)
+	hdbp.BuildRouter(r, dbph)
 
 	err = http.ListenAndServe(cfg.ServerAddr, r)
 	if err != nil {
