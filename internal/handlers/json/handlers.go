@@ -1,6 +1,8 @@
 package json
 
 import (
+	"context"
+	"fmt"
 	"io"
 	"net/http"
 
@@ -16,19 +18,19 @@ const (
 	badContentType = "bad Content-Type"
 )
 
-type storageService interface {
-	GetGauge(string) (float64, bool)
-	StoreGauge(string, float64)
+type Storage interface {
+	GetGauge(ctx context.Context, name string) (*float64, error)
+	StoreGauge(ctx context.Context, name string, value float64) error
 
-	GetCounter(string) (int64, bool)
-	StoreCounter(string, int64)
+	GetCounter(ctx context.Context, name string) (*int64, error)
+	StoreCounter(ctx context.Context, name string, value int64) error
 }
 
 type handler struct {
-	storage storageService
+	storage Storage
 }
 
-func NewHandler(s storageService) *handler {
+func NewHandler(s Storage) *handler {
 	return &handler{
 		storage: s,
 	}
@@ -70,13 +72,15 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := r.Context()
+
 	switch m.MType {
 	case "counter":
 		log.Printf("Post Update counter, name(%v), value(%v)", m.ID, *m.Delta)
-		AddCounter(h.storage, m.ID, *m.Delta)
+		AddCounter(ctx, h.storage, m.ID, *m.Delta)
 	case "gauge":
 		log.Printf("Post Update gauge, name(%v), value(%v)", m.ID, *m.Value)
-		h.storage.StoreGauge(m.ID, *m.Value)
+		h.storage.StoreGauge(ctx, m.ID, *m.Value)
 	default:
 		http.Error(rw, badMetricType, http.StatusBadRequest)
 		return
@@ -116,25 +120,33 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := r.Context()
+
 	switch m.MType {
 	case "counter":
-		c, ok := h.storage.GetCounter(m.ID)
-		if !ok {
-			log.Printf("Post Value, counter, name(%v), value(%v), 404", m.ID, c)
+		c, err := h.storage.GetCounter(ctx, m.ID)
+		if err != nil {
+			log.Error().Err(err).Msg("get counter error")
+			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
+			return
+		}
+		if c == nil {
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
 			return
 		}
-
-		m.Delta = &c
+		m.Delta = c
 	case "gauge":
-		g, ok := h.storage.GetGauge(m.ID)
-		if !ok {
-			log.Printf("Post Value, gauge, name(%v), value(%v), 404", m.ID, g)
+		g, err := h.storage.GetGauge(ctx, m.ID)
+		if err != nil {
+			log.Error().Err(err).Msg("get gauge error")
+			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
+			return
+		}
+		if g == nil {
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
 			return
 		}
-
-		m.Value = &g
+		m.Value = g
 	default:
 		http.Error(rw, badMetricType, http.StatusBadRequest)
 		return
@@ -156,11 +168,21 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func AddCounter(s storageService, name string, value int64) {
-	v, ok := s.GetCounter(name)
-	if ok {
-		s.StoreCounter(name, value+v)
-	} else {
-		s.StoreCounter(name, value)
+func AddCounter(ctx context.Context, s Storage, name string, value int64) error {
+	v, err := s.GetCounter(ctx, name)
+	if err != nil {
+		return fmt.Errorf("get counter error:%w", err)
 	}
+
+	v2 := value
+	if v != nil {
+		v2 += (*v)
+	}
+
+	err = s.StoreCounter(ctx, name, v2)
+	if err != nil {
+		return fmt.Errorf("store counter error:%w", err)
+	}
+
+	return nil
 }
