@@ -1,6 +1,10 @@
 package inmemory
 
-import "github.com/rs/zerolog/log"
+import (
+	"context"
+
+	"github.com/rs/zerolog/log"
+)
 
 type storage struct {
 	gauge   map[string]float64
@@ -8,11 +12,13 @@ type storage struct {
 }
 
 type Storage interface {
-	StoreGauge(name string, value float64)
-	GetGauge(name string) (value float64, ok bool)
-	StoreCounter(name string, value int64)
-	GetCounter(name string) (value int64, ok bool)
-	GetAll() (counters map[string]int64, gauges map[string]float64)
+	GetGauge(ctx context.Context, name string) (*float64, error)
+	StoreGauge(ctx context.Context, name string, value float64) error
+
+	GetCounter(ctx context.Context, name string) (*int64, error)
+	StoreCounter(ctx context.Context, name string, value int64) error
+
+	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
 func NewStorage() Storage {
@@ -29,28 +35,36 @@ func NewStorageWith(c map[string]int64, g map[string]float64) Storage {
 	}
 }
 
-func (s *storage) StoreGauge(name string, value float64) {
+func (s *storage) StoreGauge(ctx context.Context, name string, value float64) error {
 	log.Printf("StoreGauge, name(%v), value(%v)", name, value)
 	s.gauge[name] = value
+	return nil
 }
 
-func (s *storage) GetGauge(name string) (float64, bool) {
+func (s *storage) GetGauge(ctx context.Context, name string) (*float64, error) {
 	v, ok := s.gauge[name]
 	log.Printf("GetGauge, name(%v), value(%v), ok(%v)", name, v, ok)
-	return v, ok
+	if ok {
+		return &v, nil
+	}
+	return nil, nil
 }
 
-func (s *storage) StoreCounter(name string, value int64) {
+func (s *storage) StoreCounter(ctx context.Context, name string, value int64) error {
 	log.Printf("StoreCounter, name(%v), value(%v)", name, value)
 	s.counter[name] = value
+	return nil
 }
 
-func (s *storage) GetCounter(name string) (int64, bool) {
+func (s *storage) GetCounter(ctx context.Context, name string) (*int64, error) {
 	v, ok := s.counter[name]
 	log.Printf("GetCounter, name(%v), value(%v), ok(%v)", name, v, ok)
-	return v, ok
+	if ok {
+		return &v, nil
+	}
+	return nil, nil
 }
 
-func (s *storage) GetAll() (map[string]int64, map[string]float64) {
-	return s.counter, s.gauge
+func (s *storage) GetAll(ctx context.Context) (map[string]int64, map[string]float64, error) {
+	return s.counter, s.gauge, nil
 }
