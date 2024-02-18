@@ -1,6 +1,7 @@
 package db
 
 import (
+	"context"
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
@@ -8,7 +9,7 @@ import (
 )
 
 type Pinger interface {
-	Ping() error
+	Ping(context.Context) error
 }
 
 type handler struct {
@@ -28,7 +29,9 @@ func BuildRouter(r *chi.Mux, h *handler) {
 func (h *handler) GetPingHandler(rw http.ResponseWriter, r *http.Request) {
 	log.Printf("Get Ping")
 
-	err := h.p.Ping()
+	ctx := r.Context()
+
+	err := h.p.Ping(ctx)
 	if err != nil {
 		log.Error().Err(err).Msg("Ping error")
 		rw.WriteHeader(http.StatusInternalServerError)
