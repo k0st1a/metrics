@@ -68,11 +68,23 @@ miter9: build statictest
 						-file-storage-path=$$TEMP_FILE ;
 
 .PHONY: miter10
-miter10: build statictest db-run
+miter10: build statictest delay-after-db-run
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
 	TEMP_FILE=$$(random tempfile) ; \
 	METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration10[AB]" ; \
+	metricstest $$METRICSTEST_ARGS \
+				-binary-path=cmd/server/server \
+				-agent-binary-path=cmd/agent/agent \
+				-server-port=$$SERVER_PORT \
+				-database-dsn=${DATABASE_DSN} ;
+
+.PHONY: miter11
+miter11: build statictest delay-after-db-run
+	SERVER_PORT=$$(random unused-port) ; \
+	ADDRESS="localhost:$${SERVER_PORT}" ; \
+	TEMP_FILE=$$(random tempfile) ; \
+	METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration11" ; \
 	metricstest $$METRICSTEST_ARGS \
 				-binary-path=cmd/server/server \
 				-agent-binary-path=cmd/agent/agent \
@@ -136,6 +148,9 @@ ${ITERS}: iter%: build statictest db-run;
 		fi ; \
     done
 
+.PHONY: delay-after-db-run
+delay-after-db-run: db-run
+	sleep 5s
 
 .PHONY: db-run
 db-run: db-image-pull db-stop
