@@ -1,6 +1,7 @@
 package text
 
 import (
+	"context"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -26,21 +27,21 @@ const (
 	notFoundMetric   = "metric not found"
 )
 
-type storageService interface {
-	GetGauge(string) (float64, bool)
-	StoreGauge(string, float64)
+type Storage interface {
+	GetGauge(ctx context.Context, name string) (*float64, error)
+	StoreGauge(ctx context.Context, name string, value float64) error
 
-	GetCounter(string) (int64, bool)
-	StoreCounter(string, int64)
+	GetCounter(ctx context.Context, name string) (*int64, error)
+	StoreCounter(ctx context.Context, name string, value int64) error
 
-	GetAll() (map[string]int64, map[string]float64)
+	GetAll(ctx context.Context) (gauge map[string]int64, counter map[string]float64, err error)
 }
 
 type handler struct {
-	s storageService
+	s Storage
 }
 
-func NewHandler(s storageService) *handler {
+func NewHandler(s Storage) *handler {
 	return &handler{
 		s: s,
 	}
@@ -71,7 +72,12 @@ func (h *handler) GetAllHandler(rw http.ResponseWriter, r *http.Request) {
 {{range .}}{{.Type}}/{{.Name}}/{{.Value}}
 {{end}}`
 
-	c, g := h.s.GetAll()
+	ctx := r.Context()
+	c, g, err := h.s.GetAll(ctx)
+	if err != nil {
+		log.Error().Err(err).Msg("get metrics error")
+		return
+	}
 
 	m := make([]metricInfo, 0)
 
@@ -85,7 +91,7 @@ func (h *handler) GetAllHandler(rw http.ResponseWriter, r *http.Request) {
 
 	t := template.New("myTemplate")
 
-	t, err := t.Parse(htmlTemplate)
+	t, err = t.Parse(htmlTemplate)
 	if err != nil {
 		log.Error().Err(err).Msg("t.Parse error")
 		return
@@ -121,22 +127,33 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	ctx := r.Context()
+
 	switch mtype {
 	case "counter":
 		c, err := str2counter(value)
 		if err != nil {
 			http.Error(rw, badMetricValue, http.StatusBadRequest)
 			return
-		} else {
-			json.AddCounter(h.s, name, c)
+		}
+
+		err = json.AddCounter(ctx, h.s, name, c)
+		if err != nil {
+			log.Error().Err(err).Msg("add counter error")
+			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
+			return
 		}
 	case "gauge":
 		g, err := str2gauge(value)
 		if err != nil {
 			http.Error(rw, badMetricValue, http.StatusBadRequest)
 			return
-		} else {
-			h.s.StoreGauge(name, g)
+		}
+		err = h.s.StoreGauge(ctx, name, g)
+		if err != nil {
+			log.Error().Err(err).Msg("storage gauge error")
+			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
+			return
 		}
 	}
 
@@ -159,21 +176,33 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 
 	var value string
 
+	ctx := r.Context()
+
 	switch mtype {
 	case "counter":
-		c, ok := h.s.GetCounter(name)
-		if !ok {
+		c, err := h.s.GetCounter(ctx, name)
+		if err != nil {
+			log.Error().Err(err).Msg("get counter error")
+			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
+			return
+		}
+		if c == nil {
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
 			return
 		}
-		value = counter2str(c)
+		value = counter2str(*c)
 	case "gauge":
-		g, ok := h.s.GetGauge(name)
-		if !ok {
+		g, err := h.s.GetGauge(ctx, name)
+		if err != nil {
+			log.Error().Err(err).Msg("get gauge error")
+			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
+			return
+		}
+		if g == nil {
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
 			return
 		}
-		value = gauge2str(g)
+		value = gauge2str(*g)
 	}
 
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
