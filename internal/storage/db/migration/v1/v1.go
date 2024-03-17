@@ -46,11 +46,11 @@ func (db *dbMigration) Migrate(ctx context.Context) error {
         )
 	`
 
-	t, err := tx.Exec(ctx, q1)
+	tag, err := tx.Exec(ctx, q1)
 	if err != nil {
 		return fmt.Errorf("db migration in transaction create counters error:%w", err)
 	}
-	log.Printf("t:%v", t)
+	log.Printf("tag:%v", tag)
 
 	q2 := `
         CREATE TABLE IF NOT EXISTS gauges(
@@ -59,11 +59,11 @@ func (db *dbMigration) Migrate(ctx context.Context) error {
         )
 	`
 
-	t, err = tx.Exec(ctx, q2)
+	tag, err = tx.Exec(ctx, q2)
 	if err != nil {
 		return fmt.Errorf("db migration in transaction create gauges error:%w", err)
 	}
-	log.Printf("t:%v", t)
+	log.Printf("tag:%v", tag)
 
 	err = tx.Commit(ctx)
 	if err != nil {
