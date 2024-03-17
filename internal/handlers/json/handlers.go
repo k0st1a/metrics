@@ -2,6 +2,7 @@ package json
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -209,28 +210,30 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 	switch m.MType {
 	case "counter":
 		c, err := h.storage.GetCounter(ctx, m.ID)
-		if err != nil {
+		switch {
+		case errors.Is(err, errors.New("no counter")):
+			http.Error(rw, notFoundMetric, http.StatusNotFound)
+			return
+		case err != nil:
 			log.Error().Err(err).Msg("get counter error")
 			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
 			return
+		default:
+			m.Delta = c
 		}
-		if c == nil {
-			http.Error(rw, notFoundMetric, http.StatusNotFound)
-			return
-		}
-		m.Delta = c
 	case "gauge":
 		g, err := h.storage.GetGauge(ctx, m.ID)
-		if err != nil {
+		switch {
+		case errors.Is(err, errors.New("no gauge")):
+			http.Error(rw, notFoundMetric, http.StatusNotFound)
+			return
+		case err != nil:
 			log.Error().Err(err).Msg("get gauge error")
 			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
 			return
+		default:
+			m.Value = g
 		}
-		if g == nil {
-			http.Error(rw, notFoundMetric, http.StatusNotFound)
-			return
-		}
-		m.Value = g
 	default:
 		http.Error(rw, badMetricType, http.StatusBadRequest)
 		return

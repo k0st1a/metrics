@@ -2,6 +2,7 @@ package inmemory
 
 import (
 	"context"
+	"errors"
 	"maps"
 
 	"github.com/rs/zerolog/log"
@@ -49,7 +50,8 @@ func (s *storage) GetGauge(ctx context.Context, name string) (*float64, error) {
 	if ok {
 		return &v, nil
 	}
-	return nil, nil
+
+	return nil, errors.New("no gauge")
 }
 
 func (s *storage) StoreCounter(ctx context.Context, name string, value int64) error {
@@ -64,7 +66,7 @@ func (s *storage) GetCounter(ctx context.Context, name string) (*int64, error) {
 	if ok {
 		return &v, nil
 	}
-	return nil, nil
+	return nil, errors.New("no counter")
 }
 
 func (s *storage) StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error {
