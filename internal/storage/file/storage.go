@@ -18,7 +18,7 @@ type Storage interface {
 	StoreCounter(ctx context.Context, name string, value int64) error
 
 	StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error
-	GetAll(ctx context.Context) (gauge map[string]int64, counter map[string]float64, err error)
+	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
 type Writer interface {
@@ -89,7 +89,12 @@ func (s *fileStorage) GetGauge(ctx context.Context, name string) (*float64, erro
 		Str("name:", name).
 		Msg("GetGauge")
 
-	return s.storage.GetGauge(ctx, name)
+	g, err := s.storage.GetGauge(ctx, name)
+	if err != nil {
+		return g, fmt.Errorf("s.storage get gauge error:%w", err)
+	}
+
+	return g, nil
 }
 
 func (s *fileStorage) StoreCounter(ctx context.Context, name string, value int64) error {
@@ -112,11 +117,15 @@ func (s *fileStorage) StoreCounter(ctx context.Context, name string, value int64
 }
 
 func (s *fileStorage) GetCounter(ctx context.Context, name string) (*int64, error) {
-	log.Debug().
-		Str("name", name).
+	log.Debug().Str("name", name).
 		Msg("GetCounter")
 
-	return s.storage.GetCounter(ctx, name)
+	c, err := s.storage.GetCounter(ctx, name)
+	if err != nil {
+		return c, fmt.Errorf("get counter error:%w", err)
+	}
+
+	return c, nil
 }
 
 func (s *fileStorage) StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error {
@@ -140,7 +149,12 @@ func (s *fileStorage) GetAll(ctx context.Context) (map[string]int64, map[string]
 	log.Debug().
 		Msg("GetAll")
 
-	return s.storage.GetAll(ctx)
+	c, g, err := s.storage.GetAll(ctx)
+	if err != nil {
+		return c, g, fmt.Errorf("s.storage get all error:%w", err)
+	}
+
+	return c, g, nil
 }
 
 func (s *fileStorage) writeStorage(ctx context.Context) {

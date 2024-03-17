@@ -16,6 +16,9 @@ const (
 	notFoundMetric = "metric not found"
 
 	badContentType = "bad Content-Type"
+
+	headerContentType          = "Content-Type"
+	contentTypeApplicationJSON = "application/json"
 )
 
 type Storage interface {
@@ -51,8 +54,8 @@ func (h *handler) PostUpdatesHandler(rw http.ResponseWriter, r *http.Request) {
 		Str("method", r.Method).
 		Msg("")
 
-	ct := r.Header.Get("Content-Type")
-	if ct != "application/json" {
+	ct := r.Header.Get(headerContentType)
+	if ct != contentTypeApplicationJSON {
 		http.Error(rw, badContentType, http.StatusBadRequest)
 		return
 	}
@@ -118,8 +121,8 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 		Str("method", r.Method).
 		Msg("")
 
-	ct := r.Header.Get("Content-Type")
-	if ct != "application/json" {
+	ct := r.Header.Get(headerContentType)
+	if ct != contentTypeApplicationJSON {
 		http.Error(rw, badContentType, http.StatusBadRequest)
 		return
 	}
@@ -176,8 +179,8 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 		Str("method", r.Method).
 		Msg("")
 
-	ct := r.Header.Get("Content-Type")
-	if ct != "application/json" {
+	ct := r.Header.Get(headerContentType)
+	if ct != contentTypeApplicationJSON {
 		http.Error(rw, badContentType, http.StatusBadRequest)
 		return
 	}
@@ -240,7 +243,7 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rw.Header().Set("Content-Type", "application/json")
+	rw.Header().Set(headerContentType, contentTypeApplicationJSON)
 
 	_, err = rw.Write(data2)
 	if err != nil {
