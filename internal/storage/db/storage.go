@@ -20,8 +20,8 @@ type Storage interface {
 	StoreCounter(ctx context.Context, name string, value int64) error
 	GetCounter(ctx context.Context, name string) (*int64, error)
 
-	StoreAll(ctx context.Context, gauge map[string]int64, counter map[string]float64) error
-	GetAll(ctx context.Context) (gauge map[string]int64, counter map[string]float64, err error)
+	StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error
+	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
 type dbStorage struct {
@@ -108,12 +108,10 @@ func (s *dbStorage) StoreAll(ctx context.Context, counter map[string]int64, gaug
 	log.Printf("StoreAll, counter:%v gauge:%v", counter, gauge)
 
 	for k, v := range counter {
-		//b.Queue("INSERT INTO counters (name,delta) VALUES($1, $2)", k, v)
 		b.Queue("INSERT INTO counters (name,delta) VALUES($1, $2) ON CONFLICT (name) DO UPDATE SET delta = counters.delta + $2", k, v)
 	}
 
 	for k2, v2 := range gauge {
-		//b.Queue("INSERT INTO gauges (name,value) VALUES($1, $2)", k2, v2)
 		b.Queue("INSERT INTO gauges (name,value) VALUES($1, $2) ON CONFLICT (name) DO UPDATE SET value = $2", k2, v2)
 	}
 
@@ -131,52 +129,17 @@ func (s *dbStorage) StoreAll(ctx context.Context, counter map[string]int64, gaug
 }
 
 func (s *dbStorage) GetAll(ctx context.Context) (map[string]int64, map[string]float64, error) {
-	c, err := s.getCounters(ctx)
+	var b pgx.Batch
+
+	b.Queue("SELECT name,delta FROM counters")
+	b.Queue("SELECT name,value FROM gauges")
+
+	br := s.c.SendBatch(ctx, &b)
+	defer br.Close()
+
+	rows, err := br.Query()
 	if err != nil {
-		return nil, nil, err
-	}
-
-	g, err := s.getGauges(ctx)
-	if err != nil {
-		return nil, nil, err
-	}
-
-	return c, g, nil
-}
-
-func (s *dbStorage) getGauges(ctx context.Context) (map[string]float64, error) {
-	rows, err := s.c.Query(ctx, "SELECT name,value FROM gauges")
-	if err != nil {
-		return nil, fmt.Errorf("get gauges query error:%w", err)
-	}
-	defer rows.Close()
-
-	g := make(map[string]float64)
-
-	for rows.Next() {
-		var name string
-		var value float64
-
-		err = rows.Scan(&name, &value)
-		if err != nil {
-			return nil, fmt.Errorf("rows scan error:%w", err)
-		}
-
-		g[name] = value
-	}
-
-	err = rows.Err()
-	if err != nil {
-		return nil, fmt.Errorf("rows error:%w", err)
-	}
-
-	return g, nil
-}
-
-func (s *dbStorage) getCounters(ctx context.Context) (map[string]int64, error) {
-	rows, err := s.c.Query(ctx, "SELECT name,delta FROM counters")
-	if err != nil {
-		return nil, fmt.Errorf("get counters query error:%w", err)
+		return nil, nil, fmt.Errorf("get counters query error:%w", err)
 	}
 	defer rows.Close()
 
@@ -188,7 +151,7 @@ func (s *dbStorage) getCounters(ctx context.Context) (map[string]int64, error) {
 
 		err = rows.Scan(&name, &delta)
 		if err != nil {
-			return nil, fmt.Errorf("rows scan error:%w", err)
+			return nil, nil, fmt.Errorf("counter rows scan error:%w", err)
 		}
 
 		c[name] = delta
@@ -196,8 +159,33 @@ func (s *dbStorage) getCounters(ctx context.Context) (map[string]int64, error) {
 
 	err = rows.Err()
 	if err != nil {
-		return nil, fmt.Errorf("rows error:%w", err)
+		return nil, nil, fmt.Errorf("counter rows error:%w", err)
 	}
 
-	return c, nil
+	rows, err = br.Query()
+	if err != nil {
+		return nil, nil, fmt.Errorf("get gauges query error:%w", err)
+	}
+	defer rows.Close()
+
+	g := make(map[string]float64)
+
+	for rows.Next() {
+		var name string
+		var value float64
+
+		err = rows.Scan(&name, &value)
+		if err != nil {
+			return nil, nil, fmt.Errorf("gauge rows scan error:%w", err)
+		}
+
+		g[name] = value
+	}
+
+	err = rows.Err()
+	if err != nil {
+		return nil, nil, fmt.Errorf("gauge rows error:%w", err)
+	}
+
+	return c, g, nil
 }
