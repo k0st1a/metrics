@@ -52,6 +52,12 @@ func (db *dbMigration) Migrate(ctx context.Context) error {
 	}
 	log.Printf("tag:%v", tag)
 
+	tag, err = tx.Exec(ctx, `CREATE INDEX counter_idx ON counters (name)`)
+	if err != nil {
+		return fmt.Errorf("db migration in transaction create counters index error:%w", err)
+	}
+	log.Printf("tag:%v", tag)
+
 	q2 := `
         CREATE TABLE IF NOT EXISTS gauges(
                 name  varchar(40)      PRIMARY KEY,
@@ -62,6 +68,12 @@ func (db *dbMigration) Migrate(ctx context.Context) error {
 	tag, err = tx.Exec(ctx, q2)
 	if err != nil {
 		return fmt.Errorf("db migration in transaction create gauges error:%w", err)
+	}
+	log.Printf("tag:%v", tag)
+
+	tag, err = tx.Exec(ctx, `CREATE INDEX gauge_idx ON gauges (name)`)
+	if err != nil {
+		return fmt.Errorf("db migration in transaction create gauges index error:%w", err)
 	}
 	log.Printf("tag:%v", tag)
 
