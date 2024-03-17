@@ -2,6 +2,7 @@ package inmemory
 
 import (
 	"context"
+	"maps"
 
 	"github.com/rs/zerolog/log"
 )
@@ -18,6 +19,7 @@ type Storage interface {
 	GetCounter(ctx context.Context, name string) (*int64, error)
 	StoreCounter(ctx context.Context, name string, value int64) error
 
+	StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error
 	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
@@ -63,6 +65,13 @@ func (s *storage) GetCounter(ctx context.Context, name string) (*int64, error) {
 		return &v, nil
 	}
 	return nil, nil
+}
+
+func (s *storage) StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error {
+	maps.Copy(s.counter, counter)
+	maps.Copy(s.gauge, gauge)
+
+	return nil
 }
 
 func (s *storage) GetAll(ctx context.Context) (map[string]int64, map[string]float64, error) {
