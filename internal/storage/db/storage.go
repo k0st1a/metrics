@@ -6,10 +6,9 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/jackc/pgerrcode"
 	"github.com/jackc/pgx/v5"
-	"github.com/jackc/pgx/v5/pgconn"
 	"github.com/jackc/pgx/v5/pgxpool"
+	"github.com/k0st1a/metrics/internal/utils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -52,12 +51,10 @@ func (s *dbStorage) GetGauge(ctx context.Context, name string) (*float64, error)
 	var v float64
 
 	err := s.c.QueryRow(ctx, "SELECT value FROM gauges WHERE name = $1 LIMIT 1", name).Scan(&v)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, utils.ErrMetricsNoGauge
+	}
 	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgerrcode.IsNoData(pgErr.Code) {
-			return nil, errors.New("no gauge")
-		}
-
 		return nil, fmt.Errorf("get gauge query error:%w", err)
 	}
 
@@ -82,12 +79,10 @@ func (s *dbStorage) GetCounter(ctx context.Context, name string) (*int64, error)
 	var d int64
 
 	err := s.c.QueryRow(ctx, "SELECT delta FROM counters WHERE name = $1 LIMIT 1", name).Scan(&d)
+	if errors.Is(err, pgx.ErrNoRows) {
+		return nil, utils.ErrMetricsNoCounter
+	}
 	if err != nil {
-		var pgErr *pgconn.PgError
-		if errors.As(err, &pgErr) && pgerrcode.IsNoData(pgErr.Code) {
-			return nil, errors.New("no counter")
-		}
-
 		return nil, fmt.Errorf("get counter query error:%w", err)
 	}
 

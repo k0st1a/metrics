@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/k0st1a/metrics/internal/models"
+	"github.com/k0st1a/metrics/internal/utils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -211,7 +212,7 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 	case "counter":
 		c, err := h.storage.GetCounter(ctx, m.ID)
 		switch {
-		case errors.Is(err, errors.New("no counter")):
+		case errors.Is(err, utils.ErrMetricsNoCounter):
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
 			return
 		case err != nil:
@@ -224,7 +225,7 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 	case "gauge":
 		g, err := h.storage.GetGauge(ctx, m.ID)
 		switch {
-		case errors.Is(err, errors.New("no gauge")):
+		case errors.Is(err, utils.ErrMetricsNoGauge):
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
 			return
 		case err != nil:
