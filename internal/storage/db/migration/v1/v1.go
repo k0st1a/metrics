@@ -2,9 +2,10 @@ package v1
 
 import (
 	"context"
+	"errors"
 	"fmt"
-	//"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog/log"
 )
@@ -24,7 +25,19 @@ func NewMigration(c *pgxpool.Pool) Migrator {
 }
 
 func (db *dbMigration) Migrate(ctx context.Context) error {
-	//time.Sleep(1 * time.Second) // Чтобы база успела подняться. На сколько это правильно?
+	tx, err := db.c.Begin(ctx)
+	if err != nil {
+		return fmt.Errorf("db migration transaction begin error:%w", err)
+	}
+	defer func() {
+		err = tx.Rollback(ctx)
+		switch {
+		case errors.Is(err, pgx.ErrTxClosed):
+			log.Debug().Err(err).Msg("db migration transaction closed")
+		default:
+			log.Error().Err(err).Msg("db migration transaction close error")
+		}
+	}()
 
 	q1 := `
         CREATE TABLE IF NOT EXISTS counters(
@@ -33,9 +46,9 @@ func (db *dbMigration) Migrate(ctx context.Context) error {
         )
 	`
 
-	t, err := db.c.Exec(ctx, q1)
+	t, err := tx.Exec(ctx, q1)
 	if err != nil {
-		return fmt.Errorf("create counters error:%w", err)
+		return fmt.Errorf("db migration in transaction create counters error:%w", err)
 	}
 	log.Printf("t:%v", t)
 
@@ -46,11 +59,16 @@ func (db *dbMigration) Migrate(ctx context.Context) error {
         )
 	`
 
-	t, err = db.c.Exec(ctx, q2)
+	t, err = tx.Exec(ctx, q2)
 	if err != nil {
-		return fmt.Errorf("create gauges error:%w", err)
+		return fmt.Errorf("db migration in transaction create gauges error:%w", err)
 	}
 	log.Printf("t:%v", t)
+
+	err = tx.Commit(ctx)
+	if err != nil {
+		return fmt.Errorf("db migration transaction commit error:%w", err)
+	}
 
 	return nil
 }
