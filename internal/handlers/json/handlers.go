@@ -104,13 +104,8 @@ func (h *handler) PostUpdatesHandler(rw http.ResponseWriter, r *http.Request) {
 
 	err = h.storage.StoreAll(ctx, c, g)
 	if err != nil {
-
 		log.Error().Err(err).Msg("s.StoreAll error")
 		rw.WriteHeader(http.StatusInternalServerError)
-
-		//c, g, err = h.storage.GetAll(ctx)
-		//log.Printf("c:%v, g:%v, err:%v", c, g, err)
-
 		return
 	}
 
@@ -153,7 +148,7 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 	switch m.MType {
 	case "counter":
 		log.Printf("Post Update counter, name(%v), value(%v)", m.ID, *m.Delta)
-		AddCounter(ctx, h.storage, m.ID, *m.Delta)
+		err = AddCounter(ctx, h.storage, m.ID, *m.Delta)
 		if err != nil {
 			log.Error().Err(err).Msg("add counter error")
 			http.Error(rw, "store counter error", http.StatusInternalServerError)
