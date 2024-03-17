@@ -34,7 +34,8 @@ type Storage interface {
 	GetCounter(ctx context.Context, name string) (*int64, error)
 	StoreCounter(ctx context.Context, name string, value int64) error
 
-	GetAll(ctx context.Context) (gauge map[string]int64, counter map[string]float64, err error)
+	StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error
+	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
 type handler struct {
