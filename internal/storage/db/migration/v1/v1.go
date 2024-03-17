@@ -33,7 +33,7 @@ func (db *dbMigration) Migrate(ctx context.Context) error {
 		err = tx.Rollback(ctx)
 		switch {
 		case errors.Is(err, pgx.ErrTxClosed):
-			log.Debug().Err(err).Msg("db migration transaction closed")
+			log.Debug().Msg("db migration transaction closed")
 		default:
 			log.Error().Err(err).Msg("db migration transaction close error")
 		}
