@@ -91,6 +91,19 @@ miter11: build statictest delay-after-db-run
 				-server-port=$$SERVER_PORT \
 				-database-dsn=${DATABASE_DSN} ;
 
+.PHONY: miter12
+miter12: build statictest delay-after-db-run
+	#SERVER_PORT=$$(random unused-port) ;
+	SERVER_PORT=8081 ; \
+	ADDRESS="localhost:$${SERVER_PORT}" ; \
+	TEMP_FILE=$$(random tempfile) ; \
+	METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration12" ; \
+	metricstest $$METRICSTEST_ARGS \
+				-binary-path=cmd/server/server \
+				-agent-binary-path=cmd/agent/agent \
+				-server-port=$$SERVER_PORT \
+				-database-dsn=${DATABASE_DSN} ;
+
 .PHONY: ${ITERS}
 ${ITERS}: iter%: build statictest db-run;
 	for i in $(shell seq 1 $*) ; do \
