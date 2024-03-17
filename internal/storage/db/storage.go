@@ -67,9 +67,8 @@ func (s *dbStorage) StoreCounter(ctx context.Context, name string, value int64) 
 	s.m.Lock()
 	defer s.m.Unlock()
 
-	tag, err := s.c.Exec(ctx, "INSERT INTO counters (name,delta) VALUES($1, $2)"+
+	_, err := s.c.Exec(ctx, "INSERT INTO counters (name,delta) VALUES($1, $2)"+
 		"ON CONFLICT (name) DO UPDATE SET delta = $2", name, value)
-	log.Printf("tag:%v, err:%v", tag, err)
 	if err != nil {
 		return fmt.Errorf("store counter query error:%w", err)
 	}
