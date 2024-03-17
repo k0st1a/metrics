@@ -52,11 +52,12 @@ func (s *dbStorage) GetGauge(ctx context.Context, name string) (*float64, error)
 	var v float64
 
 	err := s.c.QueryRow(ctx, "SELECT value FROM gauges WHERE name = $1", name).Scan(&v)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, nil
-	}
-
 	if err != nil {
+		var pgErr *pgconn.PgError
+		if errors.As(err, &pgErr) && pgerrcode.IsNoData(pgErr.Code) {
+			return nil, errors.New("no gauge")
+		}
+
 		return nil, fmt.Errorf("get gauge query error:%w", err)
 	}
 
@@ -81,18 +82,12 @@ func (s *dbStorage) GetCounter(ctx context.Context, name string) (*int64, error)
 	var d int64
 
 	err := s.c.QueryRow(ctx, "SELECT delta FROM counters WHERE name = $1", name).Scan(&d)
-	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, nil
-	}
-
 	if err != nil {
 		var pgErr *pgconn.PgError
 		if errors.As(err, &pgErr) && pgerrcode.IsNoData(pgErr.Code) {
-			return nil, nil
+			return nil, errors.New("no counter")
 		}
-	}
 
-	if err != nil {
 		return nil, fmt.Errorf("get counter query error:%w", err)
 	}
 
