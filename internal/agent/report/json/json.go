@@ -36,20 +36,18 @@ func NewReport(a string, c *http.Client, m Metrics2MetricInfoer) Doer {
 
 func (r *report) Do() {
 	mi := r.m.Metrics2MetricInfo()
-	ms := MetricsInfo2Metrics(mi)
-	for _, v := range ms {
-		r.doReport(&v)
-	}
+	ml := MetricsInfo2Metrics(mi)
+	r.doReport(ml)
 }
 
-func (r *report) doReport(m *models.Metrics) {
-	b, err := models.Serialize(m)
+func (r *report) doReport(m []models.Metrics) {
+	b, err := models.SerializeList(m)
 	if err != nil {
-		log.Error().Err(err).Msg("models.Serialize")
+		log.Error().Err(err).Msg("models.SerializeList")
 		return
 	}
 
-	url, err := url.JoinPath("http://", r.addr, "/update/")
+	url, err := url.JoinPath("http://", r.addr, "/updates/")
 	if err != nil {
 		log.Error().Err(err).Msg("url.JoinPath")
 		return
