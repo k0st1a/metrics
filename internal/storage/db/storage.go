@@ -67,7 +67,8 @@ func (s *dbStorage) StoreCounter(ctx context.Context, name string, value int64) 
 	s.m.Lock()
 	defer s.m.Unlock()
 
-	tag, err := s.c.Exec(ctx, "INSERT INTO counters (name,delta) VALUES($1, $2) ON CONFLICT (name) DO UPDATE SET delta = $2", name, value)
+	tag, err := s.c.Exec(ctx, "INSERT INTO counters (name,delta) VALUES($1, $2)"+
+		"ON CONFLICT (name) DO UPDATE SET delta = $2", name, value)
 	log.Printf("tag:%v, err:%v", tag, err)
 	if err != nil {
 		return fmt.Errorf("store counter query error:%w", err)
@@ -108,7 +109,8 @@ func (s *dbStorage) StoreAll(ctx context.Context, counter map[string]int64, gaug
 	log.Printf("StoreAll, counter:%v gauge:%v", counter, gauge)
 
 	for k, v := range counter {
-		b.Queue("INSERT INTO counters (name,delta) VALUES($1, $2) ON CONFLICT (name) DO UPDATE SET delta = counters.delta + $2", k, v)
+		b.Queue("INSERT INTO counters (name,delta) VALUES($1, $2)"+
+			"ON CONFLICT (name) DO UPDATE SET delta = counters.delta + $2", k, v)
 	}
 
 	for k2, v2 := range gauge {
@@ -116,7 +118,12 @@ func (s *dbStorage) StoreAll(ctx context.Context, counter map[string]int64, gaug
 	}
 
 	br := s.c.SendBatch(ctx, &b)
-	defer br.Close()
+	defer func() {
+		err := br.Close()
+		if err != nil {
+			log.Error().Err(err).Msg("store all br close error")
+		}
+	}()
 
 	for i := 1; i < len(counter)+len(gauge); i++ {
 		_, err := br.Exec()
@@ -135,7 +142,12 @@ func (s *dbStorage) GetAll(ctx context.Context) (map[string]int64, map[string]fl
 	b.Queue("SELECT name,value FROM gauges")
 
 	br := s.c.SendBatch(ctx, &b)
-	defer br.Close()
+	defer func() {
+		err := br.Close()
+		if err != nil {
+			log.Error().Err(err).Msg("get all br close error")
+		}
+	}()
 
 	rows, err := br.Query()
 	if err != nil {
