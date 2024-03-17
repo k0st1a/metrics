@@ -17,6 +17,7 @@ type Storage interface {
 	GetCounter(ctx context.Context, name string) (*int64, error)
 	StoreCounter(ctx context.Context, name string, value int64) error
 
+	StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error
 	GetAll(ctx context.Context) (gauge map[string]int64, counter map[string]float64, err error)
 }
 
@@ -116,6 +117,23 @@ func (s *fileStorage) GetCounter(ctx context.Context, name string) (*int64, erro
 		Msg("GetCounter")
 
 	return s.storage.GetCounter(ctx, name)
+}
+
+func (s *fileStorage) StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error {
+	s.mutex.Lock()
+	defer s.mutex.Unlock()
+
+	log.Debug().
+		Msg("StoreAll")
+
+	err := s.storage.StoreAll(ctx, counter, gauge)
+	if err != nil {
+		return fmt.Errorf("store all error:%w", err)
+	}
+
+	s.writeStorage(ctx)
+
+	return nil
 }
 
 func (s *fileStorage) GetAll(ctx context.Context) (map[string]int64, map[string]float64, error) {
