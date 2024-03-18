@@ -56,7 +56,7 @@ func (s *storage) GetGauge(ctx context.Context, name string) (*float64, error) {
 
 func (s *storage) StoreCounter(ctx context.Context, name string, value int64) error {
 	log.Printf("StoreCounter, name(%v), value(%v)", name, value)
-	s.counter[name] = value
+	s.counter[name] += value
 	return nil
 }
 

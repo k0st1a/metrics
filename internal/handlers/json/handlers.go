@@ -3,7 +3,6 @@ package json
 import (
 	"context"
 	"errors"
-	"fmt"
 	"io"
 	"net/http"
 
@@ -153,9 +152,9 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 	switch m.MType {
 	case "counter":
 		log.Printf("Post Update counter, name(%v), value(%v)", m.ID, *m.Delta)
-		err = AddCounter(ctx, h.storage, m.ID, *m.Delta)
+		err = h.storage.StoreCounter(ctx, m.ID, *m.Delta)
 		if err != nil {
-			log.Error().Err(err).Msg("add counter error")
+			log.Error().Err(err).Msg("h.storage.StoreCounter error")
 			http.Error(rw, "store counter error", http.StatusInternalServerError)
 			return
 		}
@@ -163,7 +162,7 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 		log.Printf("Post Update gauge, name(%v), value(%v)", m.ID, *m.Value)
 		err = h.storage.StoreGauge(ctx, m.ID, *m.Value)
 		if err != nil {
-			log.Error().Err(err).Msg("h.storage.StorageGauge")
+			log.Error().Err(err).Msg("h.storage.StorageGauge error")
 			http.Error(rw, "storage gauge error", http.StatusInternalServerError)
 			return
 		}
@@ -254,23 +253,4 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 		log.Error().Err(err).Msg("rw.Write error")
 		return
 	}
-}
-
-func AddCounter(ctx context.Context, s Storage, name string, value int64) error {
-	v, err := s.GetCounter(ctx, name)
-	if err != nil {
-		return fmt.Errorf("get counter error:%w", err)
-	}
-
-	v2 := value
-	if v != nil {
-		v2 += (*v)
-	}
-
-	err = s.StoreCounter(ctx, name, v2)
-	if err != nil {
-		return fmt.Errorf("store counter error:%w", err)
-	}
-
-	return nil
 }

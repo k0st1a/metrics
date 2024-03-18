@@ -66,7 +66,7 @@ func (s *dbStorage) StoreCounter(ctx context.Context, name string, value int64) 
 	defer s.m.Unlock()
 
 	_, err := s.c.Exec(ctx, "INSERT INTO counters (name,delta) VALUES($1, $2)"+
-		"ON CONFLICT (name) DO UPDATE SET delta = $2", name, value)
+		"ON CONFLICT (name) DO UPDATE SET delta = counters.delta + $2", name, value)
 	if err != nil {
 		return fmt.Errorf("store counter query error:%w", err)
 	}
