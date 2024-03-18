@@ -2,6 +2,7 @@ package text
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -9,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/k0st1a/metrics/internal/utils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -181,28 +183,30 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 	switch mtype {
 	case "counter":
 		c, err := h.s.GetCounter(ctx, name)
-		if err != nil {
+		switch {
+		case errors.Is(err, utils.ErrMetricsNoCounter):
+			http.Error(rw, notFoundMetric, http.StatusNotFound)
+			return
+		case err != nil:
 			log.Error().Err(err).Msg("get counter error")
 			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
 			return
+		default:
+			value = counter2str(*c)
 		}
-		if c == nil {
-			http.Error(rw, notFoundMetric, http.StatusNotFound)
-			return
-		}
-		value = counter2str(*c)
 	case "gauge":
 		g, err := h.s.GetGauge(ctx, name)
-		if err != nil {
+		switch {
+		case errors.Is(err, utils.ErrMetricsNoGauge):
+			http.Error(rw, notFoundMetric, http.StatusNotFound)
+			return
+		case err != nil:
 			log.Error().Err(err).Msg("get gauge error")
 			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
 			return
+		default:
+			value = gauge2str(*g)
 		}
-		if g == nil {
-			http.Error(rw, notFoundMetric, http.StatusNotFound)
-			return
-		}
-		value = gauge2str(*g)
 	}
 
 	rw.Header().Set("Content-Type", "text/plain; charset=utf-8")
