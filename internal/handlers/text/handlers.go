@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/k0st1a/metrics/internal/handlers/json"
 	"github.com/rs/zerolog/log"
 )
 
@@ -138,7 +137,7 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = json.AddCounter(ctx, h.s, name, c)
+		err = h.s.StoreCounter(ctx, name, c)
 		if err != nil {
 			log.Error().Err(err).Msg("add counter error")
 			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
