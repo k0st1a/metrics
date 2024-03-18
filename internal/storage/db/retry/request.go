@@ -44,7 +44,10 @@ func (r *dbRetry) StoreGauge(ctx context.Context, name string, value float64) (e
 
 	for _, interval := range r.retryIntervals {
 		if isConnectionException(err) {
-			time.Sleep(interval)
+			err = wait(ctx, interval)
+			if err != nil {
+				return err
+			}
 			err = r.storage.StoreGauge(ctx, name, value)
 			continue
 		}
@@ -61,7 +64,10 @@ func (r *dbRetry) GetGauge(ctx context.Context, name string) (value *float64, er
 
 	for _, interval := range r.retryIntervals {
 		if isConnectionException(err) {
-			time.Sleep(interval)
+			err = wait(ctx, interval)
+			if err != nil {
+				return nil, err
+			}
 			value, err = r.storage.GetGauge(ctx, name)
 			continue
 		}
@@ -78,7 +84,10 @@ func (r *dbRetry) StoreCounter(ctx context.Context, name string, value int64) (e
 
 	for _, interval := range r.retryIntervals {
 		if isConnectionException(err) {
-			time.Sleep(interval)
+			err = wait(ctx, interval)
+			if err != nil {
+				return err
+			}
 			err = r.storage.StoreCounter(ctx, name, value)
 			continue
 		}
@@ -94,7 +103,10 @@ func (r *dbRetry) GetCounter(ctx context.Context, name string) (value *int64, er
 
 	for _, interval := range r.retryIntervals {
 		if isConnectionException(err) {
-			time.Sleep(interval)
+			err = wait(ctx, interval)
+			if err != nil {
+				return nil, err
+			}
 			value, err = r.storage.GetCounter(ctx, name)
 			continue
 		}
@@ -111,7 +123,10 @@ func (r *dbRetry) StoreAll(ctx context.Context, counter map[string]int64, gauge 
 
 	for _, interval := range r.retryIntervals {
 		if isConnectionException(err) {
-			time.Sleep(interval)
+			err = wait(ctx, interval)
+			if err != nil {
+				return err
+			}
 			err = r.storage.StoreAll(ctx, counter, gauge)
 			continue
 		}
@@ -128,7 +143,10 @@ func (r *dbRetry) GetAll(ctx context.Context) (counter map[string]int64, gauge m
 
 	for _, interval := range r.retryIntervals {
 		if isConnectionException(err) {
-			time.Sleep(interval)
+			err = wait(ctx, interval)
+			if err != nil {
+				return nil, nil, err
+			}
 			counter, gauge, err = r.storage.GetAll(ctx)
 			continue
 		}
@@ -143,4 +161,17 @@ func (r *dbRetry) GetAll(ctx context.Context) (counter map[string]int64, gauge m
 func isConnectionException(err error) bool {
 	var pgErr *pgconn.PgError
 	return errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code)
+}
+
+func wait(ctx context.Context, interval time.Duration) error {
+	timer := time.NewTimer(interval)
+	defer timer.Stop()
+
+	select {
+	case <-ctx.Done():
+		//nolint //Возвращаем ошибку завершкуния контекста
+		return ctx.Err()
+	case <-timer.C:
+		return nil
+	}
 }
