@@ -80,16 +80,14 @@ func (h *handler) GetAllHandler(rw http.ResponseWriter, r *http.Request) {
 {{range .}}{{.Type}}/{{.Name}}/{{.Value}}
 {{end}}`
 
-	ctx := r.Context()
-
 	var (
 		c   map[string]int64
 		g   map[string]float64
 		err error
 	)
 
-	err = h.retry.Retry(ctx, func() error {
-		c, g, err = h.storage.GetAll(ctx)
+	err = h.retry.Retry(r.Context(), func() error {
+		c, g, err = h.storage.GetAll(r.Context())
 		//nolint // Не за чем оборачивать ошибку
 		return err
 	})
@@ -146,8 +144,6 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := r.Context()
-
 	switch mtype {
 	case "counter":
 		c, err := str2counter(value)
@@ -156,9 +152,9 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = h.retry.Retry(ctx, func() error {
+		err = h.retry.Retry(r.Context(), func() error {
 			//nolint // Не за чем оборачивать ошибку
-			return h.storage.StoreCounter(ctx, name, c)
+			return h.storage.StoreCounter(r.Context(), name, c)
 		})
 		if err != nil {
 			log.Error().Err(err).Msg("add counter error")
@@ -171,9 +167,9 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			http.Error(rw, badMetricValue, http.StatusBadRequest)
 			return
 		}
-		err = h.retry.Retry(ctx, func() error {
+		err = h.retry.Retry(r.Context(), func() error {
 			//nolint // Не за чем оборачивать ошибку
-			return h.storage.StoreGauge(ctx, name, g)
+			return h.storage.StoreGauge(r.Context(), name, g)
 		})
 		if err != nil {
 			log.Error().Err(err).Msg("storage gauge error")
@@ -201,16 +197,14 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 
 	var value string
 
-	ctx := r.Context()
-
 	switch mtype {
 	case "counter":
 		var (
 			c   *int64
 			err error
 		)
-		err = h.retry.Retry(ctx, func() error {
-			c, err = h.storage.GetCounter(ctx, name)
+		err = h.retry.Retry(r.Context(), func() error {
+			c, err = h.storage.GetCounter(r.Context(), name)
 			//nolint // Не за чем оборачивать ошибку
 			return err
 		})
@@ -230,8 +224,8 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			g   *float64
 			err error
 		)
-		err = h.retry.Retry(ctx, func() error {
-			g, err = h.storage.GetGauge(ctx, name)
+		err = h.retry.Retry(r.Context(), func() error {
+			g, err = h.storage.GetGauge(r.Context(), name)
 			//nolint // Не за чем оборачивать ошибку
 			return err
 		})
