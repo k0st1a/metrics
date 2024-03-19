@@ -42,7 +42,6 @@ func (r *retry) Retry(ctx context.Context, fnc func() error) error {
 			continue
 		}
 
-		//nolint // Возвращаем значение как есть
 		return err
 	}
 

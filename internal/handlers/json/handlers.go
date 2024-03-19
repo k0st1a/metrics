@@ -108,6 +108,7 @@ func (h *handler) PostUpdatesHandler(rw http.ResponseWriter, r *http.Request) {
 	log.Printf("Store\nCounters:%+v\nGauges:%+v\n", c, g)
 
 	err = h.retry.Retry(ctx, func() error {
+		//nolint // Не за чем оборачивать ошибку
 		return h.storage.StoreAll(ctx, c, g)
 	})
 	if err != nil {
@@ -137,11 +138,6 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	defer func() {
-		if err != nil {
-			log.Error().Err(err).Msg("")
-		}
-	}()
 
 	m, err := models.Deserialize(b)
 	if err != nil {
@@ -156,6 +152,7 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 	case "counter":
 		log.Printf("Post Update counter, name(%v), value(%v)", m.ID, *m.Delta)
 		err = h.retry.Retry(ctx, func() error {
+			//nolint // Не за чем оборачивать ошибку
 			return h.storage.StoreCounter(ctx, m.ID, *m.Delta)
 		})
 		if err != nil {
@@ -166,6 +163,7 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 	case "gauge":
 		log.Printf("Post Update gauge, name(%v), value(%v)", m.ID, *m.Value)
 		err = h.retry.Retry(ctx, func() error {
+			//nolint // Не за чем оборачивать ошибку
 			return h.storage.StoreGauge(ctx, m.ID, *m.Value)
 		})
 		if err != nil {
@@ -199,11 +197,6 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	defer func() {
-		if err != nil {
-			log.Error().Err(err).Msg("")
-		}
-	}()
 
 	m, err := models.Deserialize(b)
 	if err != nil {
@@ -219,6 +212,7 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 		var c *int64
 		err = h.retry.Retry(ctx, func() error {
 			c, err = h.storage.GetCounter(ctx, m.ID)
+			//nolint // Не за чем оборачивать ошибку
 			return err
 		})
 		switch {
@@ -236,6 +230,7 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 		var g *float64
 		err = h.retry.Retry(ctx, func() error {
 			g, err = h.storage.GetGauge(ctx, m.ID)
+			//nolint // Не за чем оборачивать ошибку
 			return err
 		})
 		switch {

@@ -90,6 +90,7 @@ func (h *handler) GetAllHandler(rw http.ResponseWriter, r *http.Request) {
 
 	err = h.retry.Retry(ctx, func() error {
 		c, g, err = h.storage.GetAll(ctx)
+		//nolint // Не за чем оборачивать ошибку
 		return err
 	})
 	if err != nil {
@@ -156,6 +157,7 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		}
 
 		err = h.retry.Retry(ctx, func() error {
+			//nolint // Не за чем оборачивать ошибку
 			return h.storage.StoreCounter(ctx, name, c)
 		})
 		if err != nil {
@@ -170,6 +172,7 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 		err = h.retry.Retry(ctx, func() error {
+			//nolint // Не за чем оборачивать ошибку
 			return h.storage.StoreGauge(ctx, name, g)
 		})
 		if err != nil {
@@ -208,6 +211,7 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		)
 		err = h.retry.Retry(ctx, func() error {
 			c, err = h.storage.GetCounter(ctx, name)
+			//nolint // Не за чем оборачивать ошибку
 			return err
 		})
 		switch {
@@ -228,6 +232,7 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		)
 		err = h.retry.Retry(ctx, func() error {
 			g, err = h.storage.GetGauge(ctx, name)
+			//nolint // Не за чем оборачивать ошибку
 			return err
 		})
 		switch {
