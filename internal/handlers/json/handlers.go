@@ -33,13 +33,19 @@ type Storage interface {
 	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
-type handler struct {
-	storage Storage
+type Retryer interface {
+	Retry(ctx context.Context, fnc func() error) error
 }
 
-func NewHandler(s Storage) *handler {
+type handler struct {
+	storage Storage
+	retry   Retryer
+}
+
+func NewHandler(s Storage, r Retryer) *handler {
 	return &handler{
 		storage: s,
+		retry:   r,
 	}
 }
 
@@ -67,11 +73,6 @@ func (h *handler) PostUpdatesHandler(rw http.ResponseWriter, r *http.Request) {
 		rw.WriteHeader(http.StatusInternalServerError)
 		return
 	}
-	defer func() {
-		if err != nil {
-			log.Error().Err(err).Msg("")
-		}
-	}()
 
 	m, err := models.DeserializeList(b)
 	if err != nil {
@@ -106,7 +107,9 @@ func (h *handler) PostUpdatesHandler(rw http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Store\nCounters:%+v\nGauges:%+v\n", c, g)
 
-	err = h.storage.StoreAll(ctx, c, g)
+	err = h.retry.Retry(ctx, func() error {
+		return h.storage.StoreAll(ctx, c, g)
+	})
 	if err != nil {
 		log.Error().Err(err).Msg("s.StoreAll error")
 		rw.WriteHeader(http.StatusInternalServerError)
@@ -152,7 +155,9 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 	switch m.MType {
 	case "counter":
 		log.Printf("Post Update counter, name(%v), value(%v)", m.ID, *m.Delta)
-		err = h.storage.StoreCounter(ctx, m.ID, *m.Delta)
+		err = h.retry.Retry(ctx, func() error {
+			return h.storage.StoreCounter(ctx, m.ID, *m.Delta)
+		})
 		if err != nil {
 			log.Error().Err(err).Msg("h.storage.StoreCounter error")
 			http.Error(rw, "store counter error", http.StatusInternalServerError)
@@ -160,7 +165,9 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 		}
 	case "gauge":
 		log.Printf("Post Update gauge, name(%v), value(%v)", m.ID, *m.Value)
-		err = h.storage.StoreGauge(ctx, m.ID, *m.Value)
+		err = h.retry.Retry(ctx, func() error {
+			return h.storage.StoreGauge(ctx, m.ID, *m.Value)
+		})
 		if err != nil {
 			log.Error().Err(err).Msg("h.storage.StorageGauge error")
 			http.Error(rw, "storage gauge error", http.StatusInternalServerError)
@@ -209,7 +216,11 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 
 	switch m.MType {
 	case "counter":
-		c, err := h.storage.GetCounter(ctx, m.ID)
+		var c *int64
+		err = h.retry.Retry(ctx, func() error {
+			c, err = h.storage.GetCounter(ctx, m.ID)
+			return err
+		})
 		switch {
 		case errors.Is(err, utils.ErrMetricsNoCounter):
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
@@ -222,7 +233,11 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 			m.Delta = c
 		}
 	case "gauge":
-		g, err := h.storage.GetGauge(ctx, m.ID)
+		var g *float64
+		err = h.retry.Retry(ctx, func() error {
+			g, err = h.storage.GetGauge(ctx, m.ID)
+			return err
+		})
 		switch {
 		case errors.Is(err, utils.ErrMetricsNoGauge):
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
