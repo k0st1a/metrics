@@ -15,11 +15,6 @@ import (
 const (
 	badMetricType  = "metric type is bad"
 	notFoundMetric = "metric not found"
-
-	badContentType = "bad Content-Type"
-
-	headerContentType          = "Content-Type"
-	contentTypeApplicationJSON = "application/json"
 )
 
 type Storage interface {
@@ -50,9 +45,9 @@ func NewHandler(s Storage, r Retryer) *handler {
 }
 
 func BuildRouter(r *chi.Mux, h *handler) {
-	r.Post("/updates/", h.PostUpdatesHandler)
-	r.Post("/update/", h.PostUpdateHandler)
-	r.Post("/value/", h.PostValueHandler)
+	r.With(contentType).Post("/updates/", h.PostUpdatesHandler)
+	r.With(contentType).Post("/update/", h.PostUpdateHandler)
+	r.With(contentType).Post("/value/", h.PostValueHandler)
 }
 
 func (h *handler) PostUpdatesHandler(rw http.ResponseWriter, r *http.Request) {
@@ -60,12 +55,6 @@ func (h *handler) PostUpdatesHandler(rw http.ResponseWriter, r *http.Request) {
 		Str("uri", r.RequestURI).
 		Str("method", r.Method).
 		Msg("")
-
-	ct := r.Header.Get(headerContentType)
-	if ct != contentTypeApplicationJSON {
-		http.Error(rw, badContentType, http.StatusBadRequest)
-		return
-	}
 
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -124,12 +113,6 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 		Str("method", r.Method).
 		Msg("")
 
-	ct := r.Header.Get(headerContentType)
-	if ct != contentTypeApplicationJSON {
-		http.Error(rw, badContentType, http.StatusBadRequest)
-		return
-	}
-
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Error().Err(err).Msg("io.ReadAll error")
@@ -180,12 +163,6 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 		Str("uri", r.RequestURI).
 		Str("method", r.Method).
 		Msg("")
-
-	ct := r.Header.Get(headerContentType)
-	if ct != contentTypeApplicationJSON {
-		http.Error(rw, badContentType, http.StatusBadRequest)
-		return
-	}
 
 	b, err := io.ReadAll(r.Body)
 	if err != nil {
@@ -250,11 +227,21 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	rw.Header().Set(headerContentType, contentTypeApplicationJSON)
+	rw.Header().Set("Content-Type", "application/json")
 
 	_, err = rw.Write(data2)
 	if err != nil {
 		log.Error().Err(err).Msg("rw.Write error")
 		return
 	}
+}
+
+func contentType(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
+		if r.Header.Get("Content-Type") != "application/json" {
+			http.Error(rw, "bad Content-Type", http.StatusBadRequest)
+			return
+		}
+		next.ServeHTTP(rw, r)
+	})
 }
