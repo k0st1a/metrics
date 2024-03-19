@@ -9,7 +9,6 @@ import (
 	sdbs "github.com/k0st1a/metrics/internal/storage/db"
 	sdbm "github.com/k0st1a/metrics/internal/storage/db/migration/v1"
 	sdbp "github.com/k0st1a/metrics/internal/storage/db/ping"
-	sdbr "github.com/k0st1a/metrics/internal/storage/db/retry"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/k0st1a/metrics/internal/handlers"
@@ -17,6 +16,7 @@ import (
 	"github.com/k0st1a/metrics/internal/handlers/text"
 	"github.com/k0st1a/metrics/internal/storage/file"
 	"github.com/k0st1a/metrics/internal/storage/inmemory"
+	"github.com/k0st1a/metrics/internal/utils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -66,7 +66,6 @@ func Run() error {
 
 		p = sdbp.NewPinger(pool)
 		s = sdbs.NewStorage(pool)
-		s = sdbr.NewRetry(s)
 
 	case cfg.FileStoragePath != "":
 		log.Debug().Msg("Using file storage")
@@ -77,8 +76,9 @@ func Run() error {
 		s = inmemory.NewStorage()
 	}
 
-	th := text.NewHandler(s)
-	jh := json.NewHandler(s)
+	rt := utils.NewRetry()
+	th := text.NewHandler(s, rt)
+	jh := json.NewHandler(s, rt)
 	dbph := hdbp.NewHandler(p)
 
 	r := handlers.NewRouter()

@@ -39,13 +39,19 @@ type Storage interface {
 	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
-type handler struct {
-	s Storage
+type Retryer interface {
+	Retry(ctx context.Context, fnc func() error) error
 }
 
-func NewHandler(s Storage) *handler {
+type handler struct {
+	storage Storage
+	retry   Retryer
+}
+
+func NewHandler(s Storage, r Retryer) *handler {
 	return &handler{
-		s: s,
+		storage: s,
+		retry:   r,
 	}
 }
 
@@ -75,7 +81,17 @@ func (h *handler) GetAllHandler(rw http.ResponseWriter, r *http.Request) {
 {{end}}`
 
 	ctx := r.Context()
-	c, g, err := h.s.GetAll(ctx)
+
+	var (
+		c   map[string]int64
+		g   map[string]float64
+		err error
+	)
+
+	err = h.retry.Retry(ctx, func() error {
+		c, g, err = h.storage.GetAll(ctx)
+		return err
+	})
 	if err != nil {
 		log.Error().Err(err).Msg("get metrics error")
 		return
@@ -139,7 +155,9 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = h.s.StoreCounter(ctx, name, c)
+		err = h.retry.Retry(ctx, func() error {
+			return h.storage.StoreCounter(ctx, name, c)
+		})
 		if err != nil {
 			log.Error().Err(err).Msg("add counter error")
 			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
@@ -151,7 +169,9 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			http.Error(rw, badMetricValue, http.StatusBadRequest)
 			return
 		}
-		err = h.s.StoreGauge(ctx, name, g)
+		err = h.retry.Retry(ctx, func() error {
+			return h.storage.StoreGauge(ctx, name, g)
+		})
 		if err != nil {
 			log.Error().Err(err).Msg("storage gauge error")
 			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
@@ -182,7 +202,14 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 
 	switch mtype {
 	case "counter":
-		c, err := h.s.GetCounter(ctx, name)
+		var (
+			c   *int64
+			err error
+		)
+		err = h.retry.Retry(ctx, func() error {
+			c, err = h.storage.GetCounter(ctx, name)
+			return err
+		})
 		switch {
 		case errors.Is(err, utils.ErrMetricsNoCounter):
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
@@ -195,7 +222,14 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			value = counter2str(*c)
 		}
 	case "gauge":
-		g, err := h.s.GetGauge(ctx, name)
+		var (
+			g   *float64
+			err error
+		)
+		err = h.retry.Retry(ctx, func() error {
+			g, err = h.storage.GetGauge(ctx, name)
+			return err
+		})
 		switch {
 		case errors.Is(err, utils.ErrMetricsNoGauge):
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
