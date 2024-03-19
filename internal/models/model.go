@@ -1,7 +1,6 @@
 package models
 
 import (
-	"encoding/json"
 	"fmt"
 
 	"github.com/mailru/easyjson"
@@ -32,25 +31,6 @@ func Deserialize(b []byte) (*Metrics, error) {
 
 func Serialize(m *Metrics) ([]byte, error) {
 	b, err := easyjson.Marshal(m)
-	if err != nil {
-		return nil, fmt.Errorf("easyjson.Marshal error:%w", err)
-	}
-
-	return b, nil
-}
-
-func Deserialize2(b []byte) ([]Metrics, error) {
-	ml := &[]Metrics{}
-	err := json.Unmarshal(b, ml)
-	if err != nil {
-		return nil, fmt.Errorf("easyjson.Unmarshal error:%w", err)
-	}
-
-	return *ml, nil
-}
-
-func Serialize2(ml []Metrics) ([]byte, error) {
-	b, err := json.Marshal(ml)
 	if err != nil {
 		return nil, fmt.Errorf("easyjson.Marshal error:%w", err)
 	}
