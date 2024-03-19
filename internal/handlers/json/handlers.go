@@ -81,8 +81,6 @@ func (h *handler) PostUpdatesHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := r.Context()
-
 	g := make(map[string]float64)
 	c := make(map[string]int64)
 
@@ -107,9 +105,9 @@ func (h *handler) PostUpdatesHandler(rw http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Store\nCounters:%+v\nGauges:%+v\n", c, g)
 
-	err = h.retry.Retry(ctx, func() error {
+	err = h.retry.Retry(r.Context(), func() error {
 		//nolint // Не за чем оборачивать ошибку
-		return h.storage.StoreAll(ctx, c, g)
+		return h.storage.StoreAll(r.Context(), c, g)
 	})
 	if err != nil {
 		log.Error().Err(err).Msg("s.StoreAll error")
@@ -146,14 +144,12 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := r.Context()
-
 	switch m.MType {
 	case "counter":
 		log.Printf("Post Update counter, name(%v), value(%v)", m.ID, *m.Delta)
-		err = h.retry.Retry(ctx, func() error {
+		err = h.retry.Retry(r.Context(), func() error {
 			//nolint // Не за чем оборачивать ошибку
-			return h.storage.StoreCounter(ctx, m.ID, *m.Delta)
+			return h.storage.StoreCounter(r.Context(), m.ID, *m.Delta)
 		})
 		if err != nil {
 			log.Error().Err(err).Msg("h.storage.StoreCounter error")
@@ -162,9 +158,9 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 		}
 	case "gauge":
 		log.Printf("Post Update gauge, name(%v), value(%v)", m.ID, *m.Value)
-		err = h.retry.Retry(ctx, func() error {
+		err = h.retry.Retry(r.Context(), func() error {
 			//nolint // Не за чем оборачивать ошибку
-			return h.storage.StoreGauge(ctx, m.ID, *m.Value)
+			return h.storage.StoreGauge(r.Context(), m.ID, *m.Value)
 		})
 		if err != nil {
 			log.Error().Err(err).Msg("h.storage.StorageGauge error")
@@ -205,13 +201,11 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	ctx := r.Context()
-
 	switch m.MType {
 	case "counter":
 		var c *int64
-		err = h.retry.Retry(ctx, func() error {
-			c, err = h.storage.GetCounter(ctx, m.ID)
+		err = h.retry.Retry(r.Context(), func() error {
+			c, err = h.storage.GetCounter(r.Context(), m.ID)
 			//nolint // Не за чем оборачивать ошибку
 			return err
 		})
@@ -228,8 +222,8 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 		}
 	case "gauge":
 		var g *float64
-		err = h.retry.Retry(ctx, func() error {
-			g, err = h.storage.GetGauge(ctx, m.ID)
+		err = h.retry.Retry(r.Context(), func() error {
+			g, err = h.storage.GetGauge(r.Context(), m.ID)
 			//nolint // Не за чем оборачивать ошибку
 			return err
 		})
