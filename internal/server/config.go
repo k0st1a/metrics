@@ -15,6 +15,7 @@ type Config struct {
 	FileStoragePath string `env:"FILE_STORAGE_PATH"`
 	StoreInterval   int    `env:"STORE_INTERVAL"`
 	Restore         bool   `env:"RESTORE"`
+	HashKey         string `env:"KEY"`
 }
 
 const (
@@ -23,6 +24,7 @@ const (
 	defaultFileStoragePath = "/tmp/metrics-db.json"
 	defaultRestore         = true
 	defaultDatabaseDSN     = ""
+	defaultHashKey         = ""
 )
 
 func newConfig() *Config {
@@ -32,6 +34,7 @@ func newConfig() *Config {
 		FileStoragePath: defaultFileStoragePath,
 		Restore:         defaultRestore,
 		DatabaseDSN:     defaultDatabaseDSN,
+		HashKey:         defaultHashKey,
 	}
 }
 
@@ -65,6 +68,12 @@ func parseFlags(cfg *Config) error {
 			"Соответствует переменной окружения RESTORE")
 	flag.StringVar(&cfg.DatabaseDSN, "d", cfg.DatabaseDSN,
 		"Адрес подключения к БД. Соответствует переменной окружения DATABASE_DSN")
+	flag.StringVar(&(cfg.HashKey), "k", cfg.HashKey,
+		"При наличии ключа во время обработки запроса сервер проверяет соответие полученного и "+
+			"вычесленного(от всего тела запроса) хеша.\nПри несовпадении сервер отбрасывает данные и отвечает 400.\n"+
+			"При наличии ключа на этапе формирования ответа сервер вычисляет хеш и передает его в HTTP-заголовке"+
+			"ответа с именем HashSHA256.")
+
 	flag.Parse()
 
 	if len(flag.Args()) != 0 {
