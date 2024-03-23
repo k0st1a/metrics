@@ -13,12 +13,14 @@ const (
 	defaultPollInterval   = 2
 	defaultReportInterval = 10
 	defaultServerAddr     = "localhost:8080"
+	defaultHashKey        = ""
 )
 
 type Config struct {
 	ServerAddr     string `env:"ADDRESS"`
 	PollInterval   int    `env:"POLL_INTERVAL"`
 	ReportInterval int    `env:"REPORT_INTERVAL"`
+	HashKey        string `env:"KEY"`
 }
 
 func newConfig() *Config {
@@ -26,6 +28,7 @@ func newConfig() *Config {
 		ServerAddr:     defaultServerAddr,
 		PollInterval:   defaultPollInterval,
 		ReportInterval: defaultReportInterval,
+		HashKey:        defaultHashKey,
 	}
 }
 
@@ -50,8 +53,11 @@ func parseFlags(cfg *Config) error {
 	_ = flag.Value(addr)
 	flag.Var(addr, "a", "server network address in a form host:port")
 
-	flag.IntVar(&(cfg.PollInterval), "p", defaultPollInterval, "metrics polling rate to the server")
-	flag.IntVar(&(cfg.ReportInterval), "r", defaultReportInterval, "frequency of sending metrics to the server")
+	flag.IntVar(&(cfg.PollInterval), "p", cfg.PollInterval, "metrics polling rate to the server")
+	flag.IntVar(&(cfg.ReportInterval), "r", cfg.ReportInterval, "frequency of sending metrics to the server")
+	flag.StringVar(&(cfg.HashKey), "k", cfg.HashKey,
+		"Hash key with which the request body will be encoded"+
+			"HTTP Header HashSHA256 will be added to the HTTP request")
 
 	flag.Parse()
 	cfg.ServerAddr = addr.String()
@@ -84,5 +90,6 @@ func printConfig(cfg *Config) {
 		Str("cfg.ServerAddr", cfg.ServerAddr).
 		Int("cfg.PollInterval", cfg.PollInterval).
 		Int("cfg.ReportInterval", cfg.ReportInterval).
+		Str("cfg.HashKey", cfg.HashKey).
 		Msg("")
 }
