@@ -10,7 +10,7 @@ import (
 )
 
 type Retryer interface {
-	Retry(ctx context.Context, fnc func() error) error
+	Retry(ctx context.Context, check func(error) bool, fnc func() error) error
 }
 
 type retry struct {
@@ -29,11 +29,11 @@ func NewRetry() Retryer {
 	}
 }
 
-func (r *retry) Retry(ctx context.Context, fnc func() error) error {
+func (r *retry) Retry(ctx context.Context, check func(error) bool, fnc func() error) error {
 	err := fnc()
 
 	for _, interval := range r.intervals {
-		if isConnectionException(err) {
+		if check(err) {
 			err = wait(ctx, interval)
 			if err != nil {
 				return err
@@ -48,7 +48,7 @@ func (r *retry) Retry(ctx context.Context, fnc func() error) error {
 	return ErrMaxRetryReached
 }
 
-func isConnectionException(err error) bool {
+func IsConnectionException(err error) bool {
 	var pgErr *pgconn.PgError
 	return errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code)
 }
