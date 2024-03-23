@@ -173,6 +173,20 @@ ${ITERS}: iter%: build statictest db-run;
 		fi ; \
     done
 
+.PHONY: miter14
+miter14: build statictest delay-after-db-run
+	SERVER_PORT=$$(random unused-port) ; \
+	ADDRESS="localhost:$${SERVER_PORT}" ; \
+	TEMP_FILE=$$(random tempfile) ; \
+	metricstest -test.v -test.run=^TestIteration14$ \
+		-agent-binary-path=cmd/agent/agent \
+		-binary-path=cmd/server/server \
+		-database-dsn=${DATABASE_DSN} \
+		-server-port="$$SERVER_PORT" \
+		-key=$${TEMP_FILE} \
+		-source-path=. ; \
+	go test -v -race ./... ;
+
 .PHONY: delay-after-db-run
 delay-after-db-run: db-run
 	sleep 5s
