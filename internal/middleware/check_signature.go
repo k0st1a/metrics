@@ -19,7 +19,7 @@ func CheckSignature(h utils.SignChecker) func(next http.Handler) http.Handler {
 				ds, err := hex.DecodeString(sign)
 				if err != nil {
 					log.Error().Err(err).Msg("hash decode error")
-					http.Error(rw, "hash decode error", http.StatusInternalServerError)
+					http.Error(rw, "hash decode error", http.StatusBadRequest)
 					return
 				}
 
@@ -29,14 +29,14 @@ func CheckSignature(h utils.SignChecker) func(next http.Handler) http.Handler {
 					log.Error().Err(err).Msg("body close error")
 				}
 				if err != nil {
-					log.Error().Err(err).Msg("request body read error while check signature")
-					http.Error(rw, "body read error", http.StatusInternalServerError)
+					log.Error().Err(err).Msg("body read error while check signature")
+					http.Error(rw, "body read error", http.StatusBadRequest)
 					return
 				}
 
 				if h.Is() && !h.CheckSignature(b, ds) {
-					log.Error().Err(err).Msg("unsuccess check signature")
-					http.Error(rw, "unsuccess check signature", http.StatusBadRequest)
+					log.Error().Err(err).Msg("wrong signature")
+					http.Error(rw, "wrong signature", http.StatusBadRequest)
 					return
 				}
 
