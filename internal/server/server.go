@@ -81,7 +81,8 @@ func Run() error {
 	jh := json.NewHandler(s, rt)
 	dbph := hdbp.NewHandler(p)
 
-	r := handlers.NewRouter()
+	h := utils.NewHash(cfg.HashKey)
+	r := handlers.NewRouter(h)
 	text.BuildRouter(r, th)
 	json.BuildRouter(r, jh)
 	hdbp.BuildRouter(r, dbph)

@@ -73,7 +73,8 @@ func TestMetricHandler(t *testing.T) {
 		},
 	}
 
-	r := handlers.NewRouter()
+	h := utils.NewHash("")
+	r := handlers.NewRouter(h)
 
 	s := inmemory.NewStorage()
 	rt := utils.NewRetry()
