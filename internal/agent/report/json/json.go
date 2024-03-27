@@ -2,7 +2,6 @@ package json
 
 import (
 	"bytes"
-	"encoding/hex"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -29,12 +28,11 @@ type report struct {
 	addr string
 }
 
-func NewReport(a string, c *http.Client, m Metrics2MetricInfoer, h utils.Signer) Doer {
+func NewReport(a string, c *http.Client, m Metrics2MetricInfoer) Doer {
 	return &report{
 		addr: a,
 		c:    c,
 		m:    m,
-		hash: h,
 	}
 }
 
@@ -64,12 +62,6 @@ func (r *report) doReport(m []models.Metrics) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
-
-	if r.hash.Is() {
-		s := r.hash.Sign(b)
-		hs := hex.EncodeToString(s)
-		req.Header.Set("HashSHA256", hs)
-	}
 
 	resp, err := r.c.Do(req)
 	if err != nil {
