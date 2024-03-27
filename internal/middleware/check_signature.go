@@ -10,6 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Подсмотрел в https://github.com/go-chi/chi/blob/master/middleware/content_type.go
 func CheckSignature(h utils.SignChecker) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
