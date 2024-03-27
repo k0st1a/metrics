@@ -18,9 +18,9 @@ const (
 
 type Config struct {
 	ServerAddr     string `env:"ADDRESS"`
+	HashKey        string `env:"KEY"`
 	PollInterval   int    `env:"POLL_INTERVAL"`
 	ReportInterval int    `env:"REPORT_INTERVAL"`
-	HashKey        string `env:"KEY"`
 }
 
 func newConfig() *Config {
