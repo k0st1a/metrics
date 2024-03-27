@@ -23,10 +23,10 @@ type Metrics2MetricInfoer interface {
 }
 
 type report struct {
+	hash utils.Signer
 	c    *http.Client
 	m    Metrics2MetricInfoer
 	addr string
-	hash utils.Signer
 }
 
 func NewReport(a string, c *http.Client, m Metrics2MetricInfoer, h utils.Signer) Doer {
