@@ -9,6 +9,7 @@ import (
 
 	"github.com/k0st1a/metrics/internal/metrics"
 	"github.com/k0st1a/metrics/internal/models"
+	"github.com/k0st1a/metrics/internal/utils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -21,6 +22,7 @@ type Metrics2MetricInfoer interface {
 }
 
 type report struct {
+	hash utils.Signer
 	c    *http.Client
 	m    Metrics2MetricInfoer
 	addr string
@@ -66,12 +68,6 @@ func (r *report) doReport(m []models.Metrics) {
 		log.Error().Err(err).Msg("client do error")
 		return
 	}
-	defer func() {
-		err = resp.Body.Close()
-		if err != nil {
-			log.Error().Err(err).Msg("resp.Body.Close")
-		}
-	}()
 
 	err = resp.Body.Close()
 	if err != nil {
