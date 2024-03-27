@@ -76,12 +76,6 @@ func (r *report) doReport(m []models.Metrics) {
 		log.Error().Err(err).Msg("client do error")
 		return
 	}
-	defer func() {
-		err = resp.Body.Close()
-		if err != nil {
-			log.Error().Err(err).Msg("resp.Body.Close")
-		}
-	}()
 
 	err = resp.Body.Close()
 	if err != nil {
