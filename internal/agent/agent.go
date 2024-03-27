@@ -7,6 +7,7 @@ import (
 	"github.com/k0st1a/metrics/internal/agent/report/json"
 	"github.com/k0st1a/metrics/internal/agent/reporter"
 	"github.com/k0st1a/metrics/internal/metrics"
+	"github.com/k0st1a/metrics/internal/utils"
 )
 
 func Run() error {
@@ -20,7 +21,8 @@ func Run() error {
 	printConfig(cfg)
 
 	m := metrics.NewMetrics()
-	r := json.NewReport(cfg.ServerAddr, c, m)
+	h := utils.NewHash(cfg.HashKey)
+	r := json.NewReport(cfg.ServerAddr, c, m, h)
 
 	go poller.NewPoller(m, cfg.PollInterval).Run()
 	reporter.NewReporter(r, cfg.ReportInterval).Run()

@@ -2,6 +2,7 @@ package json
 
 import (
 	"bytes"
+	"encoding/hex"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -9,6 +10,7 @@ import (
 
 	"github.com/k0st1a/metrics/internal/metrics"
 	"github.com/k0st1a/metrics/internal/models"
+	"github.com/k0st1a/metrics/internal/utils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -24,13 +26,15 @@ type report struct {
 	c    *http.Client
 	m    Metrics2MetricInfoer
 	addr string
+	hash utils.Signer
 }
 
-func NewReport(a string, c *http.Client, m Metrics2MetricInfoer) Doer {
+func NewReport(a string, c *http.Client, m Metrics2MetricInfoer, h utils.Signer) Doer {
 	return &report{
 		addr: a,
 		c:    c,
 		m:    m,
+		hash: h,
 	}
 }
 
@@ -60,6 +64,12 @@ func (r *report) doReport(m []models.Metrics) {
 	}
 
 	req.Header.Set("Content-Type", "application/json")
+
+	if r.hash.Is() {
+		s := r.hash.Sign(b)
+		hs := hex.EncodeToString(s)
+		req.Header.Set("HashSHA256", hs)
+	}
 
 	resp, err := r.c.Do(req)
 	if err != nil {
