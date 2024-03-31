@@ -39,5 +39,6 @@ func (s *signRoundTrip) RoundTrip(r *http.Request) (*http.Response, error) {
 		hs := hex.EncodeToString(s)
 		r.Header.Set("HashSHA256", hs)
 	}
+	//nolint:wrapcheck //no need here
 	return s.next.RoundTrip(r)
 }
