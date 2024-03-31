@@ -16,28 +16,25 @@ type Doer interface {
 	Do()
 }
 
-type Metrics2MetricInfoer interface {
-	Metrics2MetricInfo() []metrics.MetricInfo
-}
-
 type report struct {
 	client  *http.Client
-	metrics Metrics2MetricInfoer
+	channel <-chan []metrics.MetricInfo
 	address string
 }
 
-func NewReport(a string, c *http.Client, m Metrics2MetricInfoer) Doer {
+func NewReport(a string, c *http.Client, mc <-chan []metrics.MetricInfo) Doer {
 	return &report{
 		address: a,
 		client:  c,
-		metrics: m,
+		channel: mc,
 	}
 }
 
 func (r *report) Do() {
-	mi := r.metrics.Metrics2MetricInfo()
-	ml := MetricsInfo2Metrics(mi)
-	r.doReport(ml)
+	for mi := range r.channel {
+		ml := MetricsInfo2Metrics(mi)
+		r.doReport(ml)
+	}
 }
 
 func (r *report) doReport(m []models.Metrics) {
