@@ -14,6 +14,7 @@ const (
 	defaultReportInterval = 10
 	defaultServerAddr     = "localhost:8080"
 	defaultHashKey        = ""
+	defaultRateLimit      = 1
 )
 
 type Config struct {
@@ -21,6 +22,7 @@ type Config struct {
 	HashKey        string `env:"KEY"`
 	PollInterval   int    `env:"POLL_INTERVAL"`
 	ReportInterval int    `env:"REPORT_INTERVAL"`
+	RateLimit      int    `env:"RATE_LIMIT"`
 }
 
 func newConfig() *Config {
@@ -29,6 +31,7 @@ func newConfig() *Config {
 		PollInterval:   defaultPollInterval,
 		ReportInterval: defaultReportInterval,
 		HashKey:        defaultHashKey,
+		RateLimit:      defaultRateLimit,
 	}
 }
 
@@ -58,6 +61,7 @@ func parseFlags(cfg *Config) error {
 	flag.StringVar(&(cfg.HashKey), "k", cfg.HashKey,
 		"Hash key with which the request body will be encoded"+
 			"HTTP Header HashSHA256 will be added to the HTTP request")
+	flag.IntVar(&(cfg.RateLimit), "l", cfg.RateLimit, "number of simultaneously outgoing requests to the server")
 
 	flag.Parse()
 	cfg.ServerAddr = addr.String()
@@ -91,5 +95,6 @@ func printConfig(cfg *Config) {
 		Int("cfg.PollInterval", cfg.PollInterval).
 		Int("cfg.ReportInterval", cfg.ReportInterval).
 		Str("cfg.HashKey", cfg.HashKey).
+		Int("cfg.RateLimit", cfg.RateLimit).
 		Msg("")
 }
