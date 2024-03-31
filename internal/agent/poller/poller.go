@@ -11,13 +11,13 @@ type Runner interface {
 }
 
 type poller struct {
-	u            Updater
+	updater      Updater
 	pollInterval int
 }
 
 func NewPoller(u Updater, i int) Runner {
 	return &poller{
-		u:            u,
+		updater:      u,
 		pollInterval: i,
 	}
 }
@@ -26,6 +26,6 @@ func (p *poller) Run() {
 	ticker := time.NewTicker(time.Duration(p.pollInterval) * time.Second)
 
 	for range ticker.C {
-		p.u.Update()
+		p.updater.Update()
 	}
 }
