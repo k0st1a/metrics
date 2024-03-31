@@ -19,18 +19,23 @@ func Run() error {
 
 	printConfig(cfg)
 
+	m := metrics.NewMetrics()
+
+	go poller.NewPoller(m, cfg.PollInterval).Run()
+
+	r, mc := reporter.NewReporter(m, cfg.ReportInterval)
+
 	h := utils.NewHash(cfg.HashKey)
 	sgn := middleware.NewSign(http.DefaultTransport, h)
 
-	var c = &http.Client{
-		Transport: sgn,
+	for i := 0; i < cfg.RateLimit; i++ {
+		c := &http.Client{
+			Transport: sgn,
+		}
+		go json.NewReport(cfg.ServerAddr, c, mc).Do()
 	}
 
-	m := metrics.NewMetrics()
-	r := json.NewReport(cfg.ServerAddr, c, m)
-
-	go poller.NewPoller(m, cfg.PollInterval).Run()
-	reporter.NewReporter(r, cfg.ReportInterval).Run()
+	r.Run()
 
 	return nil
 }
