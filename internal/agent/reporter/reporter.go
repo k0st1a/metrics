@@ -13,13 +13,13 @@ type Doer interface {
 }
 
 type reporter struct {
-	d              Doer
+	doer           Doer
 	reportInterval int
 }
 
 func NewReporter(d Doer, i int) Runner {
 	return &reporter{
-		d:              d,
+		doer:           d,
 		reportInterval: i,
 	}
 }
@@ -28,6 +28,6 @@ func (r *reporter) Run() {
 	ticker := time.NewTicker(time.Duration(r.reportInterval) * time.Second)
 
 	for range ticker.C {
-		r.d.Do()
+		r.doer.Do()
 	}
 }
