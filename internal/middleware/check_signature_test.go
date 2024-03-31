@@ -65,7 +65,6 @@ func TestCheckSignature(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-
 			recorder := httptest.NewRecorder()
 
 			h := utils.NewHash(test.key)
@@ -74,7 +73,7 @@ func TestCheckSignature(t *testing.T) {
 			r.Use(CheckSignature(h))
 			r.Post("/", func(w http.ResponseWriter, r *http.Request) {})
 
-			req := httptest.NewRequest("POST", "/", test.body)
+			req := httptest.NewRequest(http.MethodPost, "/", test.body)
 			req.Header.Set("HashSHA256", test.sign)
 
 			r.ServeHTTP(recorder, req)
