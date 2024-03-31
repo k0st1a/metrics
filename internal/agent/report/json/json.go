@@ -22,22 +22,22 @@ type Metrics2MetricInfoer interface {
 }
 
 type report struct {
-	hash utils.Signer
-	c    *http.Client
-	m    Metrics2MetricInfoer
-	addr string
+	hash    utils.Signer // удалить за ненадобностью
+	client  *http.Client
+	metrics Metrics2MetricInfoer
+	address string
 }
 
 func NewReport(a string, c *http.Client, m Metrics2MetricInfoer) Doer {
 	return &report{
-		addr: a,
-		c:    c,
-		m:    m,
+		address: a,
+		client:  c,
+		metrics: m,
 	}
 }
 
 func (r *report) Do() {
-	mi := r.m.Metrics2MetricInfo()
+	mi := r.metrics.Metrics2MetricInfo()
 	ml := MetricsInfo2Metrics(mi)
 	r.doReport(ml)
 }
@@ -49,7 +49,7 @@ func (r *report) doReport(m []models.Metrics) {
 		return
 	}
 
-	url, err := url.JoinPath("http://", r.addr, "/updates/")
+	url, err := url.JoinPath("http://", r.address, "/updates/")
 	if err != nil {
 		log.Error().Err(err).Msg("url.JoinPath")
 		return
@@ -63,7 +63,7 @@ func (r *report) doReport(m []models.Metrics) {
 
 	req.Header.Set("Content-Type", "application/json")
 
-	resp, err := r.c.Do(req)
+	resp, err := r.client.Do(req)
 	if err != nil {
 		log.Error().Err(err).Msg("client do error")
 		return
