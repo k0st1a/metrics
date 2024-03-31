@@ -9,7 +9,6 @@ import (
 
 	"github.com/k0st1a/metrics/internal/metrics"
 	"github.com/k0st1a/metrics/internal/models"
-	"github.com/k0st1a/metrics/internal/utils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -22,7 +21,6 @@ type Metrics2MetricInfoer interface {
 }
 
 type report struct {
-	hash    utils.Signer // удалить за ненадобностью
 	client  *http.Client
 	metrics Metrics2MetricInfoer
 	address string
