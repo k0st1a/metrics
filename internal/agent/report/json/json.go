@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"strconv"
 
-	"github.com/k0st1a/metrics/internal/metrics"
+	"github.com/k0st1a/metrics/internal/agent/model"
 	"github.com/k0st1a/metrics/internal/models"
 	"github.com/rs/zerolog/log"
 )
@@ -18,15 +18,15 @@ type Doer interface {
 
 type report struct {
 	client  *http.Client
-	channel <-chan []metrics.MetricInfo
+	channel <-chan []model.MetricInfo
 	address string
 }
 
-func NewReport(a string, c *http.Client, mc <-chan []metrics.MetricInfo) Doer {
+func NewReport(a string, c *http.Client, ch <-chan []model.MetricInfo) Doer {
 	return &report{
 		address: a,
 		client:  c,
-		channel: mc,
+		channel: ch,
 	}
 }
 
@@ -71,7 +71,7 @@ func (r *report) doReport(m []models.Metrics) {
 	}
 }
 
-func MetricsInfo2Metrics(mi []metrics.MetricInfo) []models.Metrics {
+func MetricsInfo2Metrics(mi []model.MetricInfo) []models.Metrics {
 	mms := []models.Metrics{}
 	for _, v := range mi {
 		mm, err := MetricInfo2Metrics(v)
@@ -84,7 +84,7 @@ func MetricsInfo2Metrics(mi []metrics.MetricInfo) []models.Metrics {
 	return mms
 }
 
-func MetricInfo2Metrics(mi metrics.MetricInfo) (*models.Metrics, error) {
+func MetricInfo2Metrics(mi model.MetricInfo) (*models.Metrics, error) {
 	switch mi.MType {
 	case "gauge":
 		v, err := str2float64(mi.Value)
