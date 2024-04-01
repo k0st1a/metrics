@@ -21,23 +21,23 @@ func Run() error {
 
 	printConfig(cfg)
 
-	//runtime
+	// runtime
 	rm := runtime.NewMetric()
 	pollRCh := make(chan struct{}, 1)
 	rcl, pollResRCh := collector.NewCollector(pollRCh, rm)
 	go rcl.Do()
 
-	//gopsutil
+	// gopsutil
 	gm := gopsutil.NewMetric()
 	pollGCh := make(chan struct{}, 1)
 	gcl, pollResGCh := collector.NewCollector(pollGCh, gm)
 	go gcl.Do()
 
-	//sign
+	// sign
 	h := utils.NewHash(cfg.HashKey)
 	sgn := middleware.NewSign(http.DefaultTransport, h)
 
-	//reporters
+	// reporters
 	reportCh := make(chan []model.MetricInfo)
 	for i := 0; i < cfg.RateLimit; i++ {
 		c := &http.Client{
