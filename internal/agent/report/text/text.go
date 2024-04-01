@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"net/url"
 
-	"github.com/k0st1a/metrics/internal/metrics"
+	"github.com/k0st1a/metrics/internal/agent/model"
 	"github.com/rs/zerolog/log"
 )
 
@@ -13,7 +13,7 @@ type Doer interface {
 }
 
 type Metrics2MetricInfoer interface {
-	Metrics2MetricInfo() []metrics.MetricInfo
+	Metrics2MetricInfo() []model.MetricInfo
 }
 
 type report struct {
@@ -37,7 +37,7 @@ func (r report) Do() {
 	}
 }
 
-func (r report) doReport(m metrics.MetricInfo) {
+func (r report) doReport(m model.MetricInfo) {
 	url, err := url.JoinPath("http://", r.addr, "/update/", m.MType, "/", m.Name, "/", m.Value)
 	if err != nil {
 		log.Error().Err(err).Msg("url.JoinPath error")
