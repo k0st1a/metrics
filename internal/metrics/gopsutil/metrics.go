@@ -16,47 +16,47 @@ func NewMetric() *state {
 	return &state{}
 }
 
-func (s *state) MetricInfo() []model.MetricInfo {
-	mi := s.mem2MetricInfo()
-	ci := s.cpu2MetricInfo()
+func (s *state) MetricInfoRaw() []model.MetricInfoRaw {
+	mi := s.mem2MetricInfoRaw()
+	ci := s.cpu2MetricInfoRaw()
 	return append(mi, ci...)
 }
 
-func (s *state) mem2MetricInfo() []model.MetricInfo {
+func (s *state) mem2MetricInfoRaw() []model.MetricInfoRaw {
 	mem, err := mem.VirtualMemory()
 	if err != nil {
 		log.Error().Err(err).Msg("get memory information error")
-		return []model.MetricInfo{}
+		return []model.MetricInfoRaw{}
 	}
 
-	return []model.MetricInfo{
-		model.MetricInfo{
+	return []model.MetricInfoRaw{
+		model.MetricInfoRaw{
 			Name:  "TotalMemory",
-			MType: "gauge",
-			Value: strconv.FormatUint(mem.Total, 10),
+			Type:  "gauge",
+			Value: mem.Total,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "FreeMemory",
-			MType: "gauge",
-			Value: strconv.FormatUint(mem.Free, 10),
+			Type:  "gauge",
+			Value: mem.Free,
 		},
 	}
 }
 
-func (s *state) cpu2MetricInfo() []model.MetricInfo {
+func (s *state) cpu2MetricInfoRaw() []model.MetricInfoRaw {
 	cpu, err := cpu.Percent(0, true)
 	if err != nil {
 		log.Error().Err(err).Msg("get cpu percent usage information error")
-		return []model.MetricInfo{}
+		return []model.MetricInfoRaw{}
 	}
 
-	mi := make([]model.MetricInfo, len(cpu))
+	mi := make([]model.MetricInfoRaw, len(cpu))
 
 	for i, v := range cpu {
-		mi[i] = model.MetricInfo{
+		mi[i] = model.MetricInfoRaw{
 			Name:  "CPUutilization" + strconv.Itoa(i),
-			MType: "gauge",
-			Value: strconv.FormatFloat(v, 'g', -1, 64),
+			Type:  "gauge",
+			Value: v,
 		}
 	}
 

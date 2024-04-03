@@ -18,11 +18,11 @@ type Doer interface {
 
 type report struct {
 	client  *http.Client
-	channel <-chan []model.MetricInfo
+	channel <-chan map[string]model.MetricInfoRaw
 	address string
 }
 
-func NewReport(a string, c *http.Client, ch <-chan []model.MetricInfo) Doer {
+func NewReport(a string, c *http.Client, ch <-chan map[string]model.MetricInfoRaw) Doer {
 	return &report{
 		address: a,
 		client:  c,
@@ -32,7 +32,11 @@ func NewReport(a string, c *http.Client, ch <-chan []model.MetricInfo) Doer {
 
 func (r *report) Do() {
 	for mi := range r.channel {
-		ml := MetricsInfo2Metrics(mi)
+		log.Printf("mi:%v", mi)
+		mi2 := model.RawMap2InfoList(mi)
+		log.Printf("mi2:%v", mi2)
+		ml := MetricsInfo2Metrics(mi2)
+		log.Printf("ml:%v", ml)
 		r.doReport(ml)
 	}
 }

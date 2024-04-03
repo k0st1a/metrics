@@ -3,7 +3,6 @@ package runtime
 import (
 	"math/rand"
 	"runtime"
-	"strconv"
 
 	"github.com/k0st1a/metrics/internal/agent/model"
 )
@@ -18,9 +17,9 @@ func NewMetric() *state {
 	return &state{}
 }
 
-func (s *state) MetricInfo() []model.MetricInfo {
+func (s *state) MetricInfoRaw() []model.MetricInfoRaw {
 	s.update()
-	return s.mem2MetricInfo()
+	return s.mem2MetricInfoRaw()
 }
 
 func (s *state) update() {
@@ -29,152 +28,152 @@ func (s *state) update() {
 	s.pollCount++
 }
 
-func (s *state) mem2MetricInfo() []model.MetricInfo {
-	return []model.MetricInfo{
-		model.MetricInfo{
+func (s *state) mem2MetricInfoRaw() []model.MetricInfoRaw {
+	return []model.MetricInfoRaw{
+		model.MetricInfoRaw{
 			Name:  "Alloc",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.Alloc, 10),
+			Type:  "gauge",
+			Value: s.memStats.Alloc,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "BuckHashSys",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.BuckHashSys, 10),
+			Type:  "gauge",
+			Value: s.memStats.BuckHashSys,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "Frees",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.Frees, 10),
+			Type:  "gauge",
+			Value: s.memStats.Frees,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "GCSys",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.GCSys, 10),
+			Type:  "gauge",
+			Value: s.memStats.GCSys,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "HeapAlloc",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.HeapAlloc, 10),
+			Type:  "gauge",
+			Value: s.memStats.HeapAlloc,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "HeapIdle",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.HeapIdle, 10),
+			Type:  "gauge",
+			Value: s.memStats.HeapIdle,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "HeapInuse",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.HeapInuse, 10),
+			Type:  "gauge",
+			Value: s.memStats.HeapInuse,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "HeapObjects",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.HeapObjects, 10),
+			Type:  "gauge",
+			Value: s.memStats.HeapObjects,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "HeapReleased",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.HeapReleased, 10),
+			Type:  "gauge",
+			Value: s.memStats.HeapReleased,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "HeapSys",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.HeapSys, 10),
+			Type:  "gauge",
+			Value: s.memStats.HeapSys,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "LastGC",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.LastGC, 10),
+			Type:  "gauge",
+			Value: s.memStats.LastGC,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "Lookups",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.Lookups, 10),
+			Type:  "gauge",
+			Value: s.memStats.Lookups,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "MCacheInuse",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.MCacheInuse, 10),
+			Type:  "gauge",
+			Value: s.memStats.MCacheInuse,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "MCacheSys",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.MCacheSys, 10),
+			Type:  "gauge",
+			Value: s.memStats.MCacheSys,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "MSpanInuse",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.MSpanInuse, 10),
+			Type:  "gauge",
+			Value: s.memStats.MSpanInuse,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "MSpanSys",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.MSpanSys, 10),
+			Type:  "gauge",
+			Value: s.memStats.MSpanSys,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "Mallocs",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.Mallocs, 10),
+			Type:  "gauge",
+			Value: s.memStats.Mallocs,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "NextGC",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.NextGC, 10),
+			Type:  "gauge",
+			Value: s.memStats.NextGC,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "OtherSys",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.OtherSys, 10),
+			Type:  "gauge",
+			Value: s.memStats.OtherSys,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "PauseTotalNs",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.PauseTotalNs, 10),
+			Type:  "gauge",
+			Value: s.memStats.PauseTotalNs,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "StackInuse",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.StackInuse, 10),
+			Type:  "gauge",
+			Value: s.memStats.StackInuse,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "StackSys",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.StackSys, 10),
+			Type:  "gauge",
+			Value: s.memStats.StackSys,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "Sys",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.Sys, 10),
+			Type:  "gauge",
+			Value: s.memStats.Sys,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "TotalAlloc",
-			MType: "gauge",
-			Value: strconv.FormatUint(s.memStats.TotalAlloc, 10),
+			Type:  "gauge",
+			Value: s.memStats.TotalAlloc,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "NumForcedGC",
-			MType: "gauge",
-			Value: strconv.FormatUint(uint64(s.memStats.NumForcedGC), 10),
+			Type:  "gauge",
+			Value: uint64(s.memStats.NumForcedGC),
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "NumGC",
-			MType: "gauge",
-			Value: strconv.FormatUint(uint64(s.memStats.NumGC), 10),
+			Type:  "gauge",
+			Value: uint64(s.memStats.NumGC),
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "GCCPUFraction",
-			MType: "gauge",
-			Value: strconv.FormatFloat(s.memStats.GCCPUFraction, 'g', -1, 64),
+			Type:  "gauge",
+			Value: s.memStats.GCCPUFraction,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "PollCount",
-			MType: "counter",
-			Value: strconv.FormatUint(s.pollCount, 10),
+			Type:  "counter",
+			Value: s.pollCount,
 		},
-		model.MetricInfo{
+		model.MetricInfoRaw{
 			Name:  "RandomValue",
-			MType: "gauge",
-			Value: strconv.FormatFloat(s.randomValue, 'g', -1, 64),
+			Type:  "gauge",
+			Value: s.randomValue,
 		},
 	}
 }
