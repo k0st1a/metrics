@@ -4,8 +4,8 @@ import (
 	"github.com/k0st1a/metrics/internal/agent/model"
 )
 
-type MetricInfoer interface {
-	MetricInfo() []model.MetricInfo
+type MetricInfoRawer interface {
+	MetricInfoRaw() []model.MetricInfoRaw
 }
 
 type Doer interface {
@@ -14,12 +14,12 @@ type Doer interface {
 
 type state struct {
 	in     <-chan struct{}
-	out    chan<- []model.MetricInfo
-	metric MetricInfoer
+	out    chan<- []model.MetricInfoRaw
+	metric MetricInfoRawer
 }
 
-func NewCollector(in <-chan struct{}, m MetricInfoer) (Doer, <-chan []model.MetricInfo) {
-	out := make(chan []model.MetricInfo)
+func NewCollector(in <-chan struct{}, m MetricInfoRawer) (Doer, <-chan []model.MetricInfoRaw) {
+	out := make(chan []model.MetricInfoRaw)
 	return &state{
 		in:     in,
 		out:    out,
@@ -29,6 +29,6 @@ func NewCollector(in <-chan struct{}, m MetricInfoer) (Doer, <-chan []model.Metr
 
 func (s *state) Do() {
 	for range s.in {
-		s.out <- s.metric.MetricInfo()
+		s.out <- s.metric.MetricInfoRaw()
 	}
 }
