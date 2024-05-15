@@ -1,4 +1,4 @@
-package utils
+package retry
 
 import (
 	"context"
@@ -9,6 +9,8 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 )
 
+var ErrMaxRetryReached = errors.New("retry: maximum number of retry reached")
+
 type Retryer interface {
 	Retry(ctx context.Context, check func(error) bool, fnc func() error) error
 }
@@ -17,7 +19,7 @@ type retry struct {
 	intervals []time.Duration
 }
 
-func NewRetry() Retryer {
+func New() Retryer {
 	return &retry{
 		intervals: []time.Duration{
 			time.Duration(1) * time.Second,

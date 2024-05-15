@@ -8,8 +8,8 @@ import (
 
 	"github.com/k0st1a/metrics/internal/handlers"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
+	"github.com/k0st1a/metrics/internal/pkg/retry"
 	"github.com/k0st1a/metrics/internal/storage/inmemory"
-	"github.com/k0st1a/metrics/internal/utils"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -78,7 +78,7 @@ func TestMetricHandler(t *testing.T) {
 	r := handlers.NewRouter(h)
 
 	s := inmemory.NewStorage()
-	rt := utils.NewRetry()
+	rt := retry.New()
 	th := NewHandler(s, rt)
 
 	BuildRouter(r, th)

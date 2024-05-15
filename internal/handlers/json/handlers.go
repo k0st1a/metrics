@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/k0st1a/metrics/internal/models"
+	"github.com/k0st1a/metrics/internal/pkg/retry"
 	"github.com/k0st1a/metrics/internal/utils"
 	"github.com/rs/zerolog/log"
 )
@@ -94,7 +95,7 @@ func (h *handler) PostUpdatesHandler(rw http.ResponseWriter, r *http.Request) {
 
 	log.Printf("Store\nCounters:%+v\nGauges:%+v\n", c, g)
 
-	err = h.retry.Retry(r.Context(), utils.IsConnectionException, func() error {
+	err = h.retry.Retry(r.Context(), retry.IsConnectionException, func() error {
 		//nolint // Не за чем оборачивать ошибку
 		return h.storage.StoreAll(r.Context(), c, g)
 	})
@@ -130,7 +131,7 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 	switch m.MType {
 	case "counter":
 		log.Printf("Post Update counter, name(%v), value(%v)", m.ID, *m.Delta)
-		err = h.retry.Retry(r.Context(), utils.IsConnectionException, func() error {
+		err = h.retry.Retry(r.Context(), retry.IsConnectionException, func() error {
 			//nolint // Не за чем оборачивать ошибку
 			return h.storage.StoreCounter(r.Context(), m.ID, *m.Delta)
 		})
@@ -141,7 +142,7 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 		}
 	case "gauge":
 		log.Printf("Post Update gauge, name(%v), value(%v)", m.ID, *m.Value)
-		err = h.retry.Retry(r.Context(), utils.IsConnectionException, func() error {
+		err = h.retry.Retry(r.Context(), retry.IsConnectionException, func() error {
 			//nolint // Не за чем оборачивать ошибку
 			return h.storage.StoreGauge(r.Context(), m.ID, *m.Value)
 		})
@@ -181,7 +182,7 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 	switch m.MType {
 	case "counter":
 		var c *int64
-		err = h.retry.Retry(r.Context(), utils.IsConnectionException, func() error {
+		err = h.retry.Retry(r.Context(), retry.IsConnectionException, func() error {
 			c, err = h.storage.GetCounter(r.Context(), m.ID)
 			//nolint // Не за чем оборачивать ошибку
 			return err
@@ -199,7 +200,7 @@ func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 		}
 	case "gauge":
 		var g *float64
-		err = h.retry.Retry(r.Context(), utils.IsConnectionException, func() error {
+		err = h.retry.Retry(r.Context(), retry.IsConnectionException, func() error {
 			g, err = h.storage.GetGauge(r.Context(), m.ID)
 			//nolint // Не за чем оборачивать ошибку
 			return err

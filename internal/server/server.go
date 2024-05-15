@@ -15,9 +15,9 @@ import (
 	"github.com/k0st1a/metrics/internal/handlers/json"
 	"github.com/k0st1a/metrics/internal/handlers/text"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
+	"github.com/k0st1a/metrics/internal/pkg/retry"
 	"github.com/k0st1a/metrics/internal/storage/file"
 	"github.com/k0st1a/metrics/internal/storage/inmemory"
-	"github.com/k0st1a/metrics/internal/utils"
 	"github.com/rs/zerolog/log"
 )
 
@@ -77,7 +77,7 @@ func Run() error {
 		s = inmemory.NewStorage()
 	}
 
-	rt := utils.NewRetry()
+	rt := retry.New()
 	th := text.NewHandler(s, rt)
 	jh := json.NewHandler(s, rt)
 	dbph := hdbp.NewHandler(p)
