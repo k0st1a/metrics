@@ -10,6 +10,7 @@ import (
 	"strings"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/k0st1a/metrics/internal/pkg/retry"
 	"github.com/k0st1a/metrics/internal/utils"
 	"github.com/rs/zerolog/log"
 )
@@ -86,7 +87,7 @@ func (h *handler) GetAllHandler(rw http.ResponseWriter, r *http.Request) {
 		err error
 	)
 
-	err = h.retry.Retry(r.Context(), utils.IsConnectionException, func() error {
+	err = h.retry.Retry(r.Context(), retry.IsConnectionException, func() error {
 		c, g, err = h.storage.GetAll(r.Context())
 		//nolint // Не за чем оборачивать ошибку
 		return err
@@ -152,7 +153,7 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 
-		err = h.retry.Retry(r.Context(), utils.IsConnectionException, func() error {
+		err = h.retry.Retry(r.Context(), retry.IsConnectionException, func() error {
 			//nolint // Не за чем оборачивать ошибку
 			return h.storage.StoreCounter(r.Context(), name, c)
 		})
@@ -167,7 +168,7 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			http.Error(rw, badMetricValue, http.StatusBadRequest)
 			return
 		}
-		err = h.retry.Retry(r.Context(), utils.IsConnectionException, func() error {
+		err = h.retry.Retry(r.Context(), retry.IsConnectionException, func() error {
 			//nolint // Не за чем оборачивать ошибку
 			return h.storage.StoreGauge(r.Context(), name, g)
 		})
@@ -203,7 +204,7 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			c   *int64
 			err error
 		)
-		err = h.retry.Retry(r.Context(), utils.IsConnectionException, func() error {
+		err = h.retry.Retry(r.Context(), retry.IsConnectionException, func() error {
 			c, err = h.storage.GetCounter(r.Context(), name)
 			//nolint // Не за чем оборачивать ошибку
 			return err
@@ -224,7 +225,7 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			g   *float64
 			err error
 		)
-		err = h.retry.Retry(r.Context(), utils.IsConnectionException, func() error {
+		err = h.retry.Retry(r.Context(), retry.IsConnectionException, func() error {
 			g, err = h.storage.GetGauge(r.Context(), name)
 			//nolint // Не за чем оборачивать ошибку
 			return err
