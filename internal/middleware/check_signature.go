@@ -6,11 +6,11 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/k0st1a/metrics/internal/utils"
+	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/rs/zerolog/log"
 )
 
-func CheckSignature(h utils.SignChecker) func(next http.Handler) http.Handler {
+func CheckSignature(h hash.Checker) func(next http.Handler) http.Handler {
 	// Подсмотрел в https://github.com/go-chi/chi/blob/master/middleware/content_type.go
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
@@ -34,7 +34,7 @@ func CheckSignature(h utils.SignChecker) func(next http.Handler) http.Handler {
 					return
 				}
 
-				if h.Is() && !h.CheckSignature(b, ds) {
+				if h.Is() && !h.Check(b, ds) {
 					log.Error().Err(err).Msg("wrong signature")
 					http.Error(rw, "wrong signature", http.StatusBadRequest)
 					return

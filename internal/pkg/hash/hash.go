@@ -1,4 +1,4 @@
-package utils
+package hash
 
 import (
 	"bytes"
@@ -11,8 +11,8 @@ type Signer interface {
 	Is() bool
 }
 
-type SignChecker interface {
-	CheckSignature(data []byte, sign []byte) (equal bool)
+type Checker interface {
+	Check(data []byte, sign []byte) (equal bool)
 	Is() bool
 }
 
@@ -20,7 +20,7 @@ type hash struct {
 	key []byte
 }
 
-func NewHash(key string) *hash {
+func New(key string) *hash {
 	return &hash{
 		key: []byte(key),
 	}
@@ -37,7 +37,7 @@ func (h *hash) Sign(data []byte) []byte {
 	return h1.Sum(nil)
 }
 
-func (h *hash) CheckSignature(data []byte, sign []byte) bool {
+func (h *hash) Check(data []byte, sign []byte) bool {
 	s := h.Sign(data)
 	return bytes.Equal(s, sign)
 }

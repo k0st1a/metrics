@@ -9,7 +9,7 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/k0st1a/metrics/internal/utils"
+	"github.com/k0st1a/metrics/internal/pkg/hash"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -67,7 +67,7 @@ func TestCheckSignature(t *testing.T) {
 		t.Run(test.name, func(t *testing.T) {
 			recorder := httptest.NewRecorder()
 
-			h := utils.NewHash(test.key)
+			h := hash.New(test.key)
 
 			r := chi.NewRouter()
 			r.Use(CheckSignature(h))
