@@ -5,7 +5,7 @@ import (
 	"fmt"
 
 	"github.com/caarlos0/env/v10"
-	"github.com/k0st1a/metrics/internal/utils"
+	"github.com/k0st1a/metrics/internal/pkg/netaddr"
 	"github.com/rs/zerolog/log"
 )
 
@@ -47,7 +47,7 @@ func parseEnv(cfg *Config) error {
 }
 
 func parseFlags(cfg *Config) error {
-	addr := &utils.NetAddress{}
+	addr := &netaddr.NetAddress{}
 	err := addr.Set(cfg.ServerAddr)
 	if err != nil {
 		return fmt.Errorf("addr set error:%w", err)
