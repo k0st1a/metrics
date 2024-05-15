@@ -6,16 +6,16 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/k0st1a/metrics/internal/utils"
+	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/rs/zerolog/log"
 )
 
 type signRoundTrip struct {
 	next http.RoundTripper
-	hash utils.Signer
+	hash hash.Signer
 }
 
-func NewSign(next http.RoundTripper, sign utils.Signer) *signRoundTrip {
+func NewSign(next http.RoundTripper, sign hash.Signer) *signRoundTrip {
 	return &signRoundTrip{
 		next: next,
 		hash: sign,

@@ -8,7 +8,7 @@ import (
 	"github.com/k0st1a/metrics/internal/metrics/gopsutil"
 	"github.com/k0st1a/metrics/internal/metrics/runtime"
 	"github.com/k0st1a/metrics/internal/middleware"
-	"github.com/k0st1a/metrics/internal/utils"
+	"github.com/k0st1a/metrics/internal/pkg/hash"
 )
 
 func Run() error {
@@ -24,7 +24,7 @@ func Run() error {
 	p, pc := poller.NewPoller(cfg.PollInterval, rm, gm)
 
 	// sign
-	h := utils.NewHash(cfg.HashKey)
+	h := hash.New(cfg.HashKey)
 	sign := middleware.NewSign(http.DefaultTransport, h)
 
 	r, rc := reporter.NewReporter(cfg.ServerAddr, cfg.ReportInterval, cfg.RateLimit, sign)

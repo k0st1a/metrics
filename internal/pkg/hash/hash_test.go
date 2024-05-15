@@ -1,4 +1,4 @@
-package utils
+package hash
 
 import (
 	"encoding/hex"
@@ -24,14 +24,14 @@ func TestHashSign(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			h := NewHash(test.key)
+			h := New(test.key)
 
 			ds, err := hex.DecodeString(test.sign)
 			assert.NoError(t, err)
 
 			assert.Equal(t, ds, h.Sign(test.data))
 
-			assert.True(t, h.CheckSignature(test.data, ds))
+			assert.True(t, h.Check(test.data, ds))
 		})
 	}
 }
@@ -56,7 +56,7 @@ func TestHashIs(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-			h := NewHash(test.key)
+			h := New(test.key)
 
 			assert.Equal(t, test.is, h.Is())
 		})

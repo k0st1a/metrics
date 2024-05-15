@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/k0st1a/metrics/internal/handlers"
+	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/storage/inmemory"
 	"github.com/k0st1a/metrics/internal/utils"
 
@@ -73,7 +74,7 @@ func TestMetricHandler(t *testing.T) {
 		},
 	}
 
-	h := utils.NewHash("")
+	h := hash.New("")
 	r := handlers.NewRouter(h)
 
 	s := inmemory.NewStorage()

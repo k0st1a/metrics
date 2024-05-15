@@ -14,6 +14,7 @@ import (
 	"github.com/k0st1a/metrics/internal/handlers"
 	"github.com/k0st1a/metrics/internal/handlers/json"
 	"github.com/k0st1a/metrics/internal/handlers/text"
+	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/storage/file"
 	"github.com/k0st1a/metrics/internal/storage/inmemory"
 	"github.com/k0st1a/metrics/internal/utils"
@@ -81,7 +82,7 @@ func Run() error {
 	jh := json.NewHandler(s, rt)
 	dbph := hdbp.NewHandler(p)
 
-	h := utils.NewHash(cfg.HashKey)
+	h := hash.New(cfg.HashKey)
 	r := handlers.NewRouter(h)
 	text.BuildRouter(r, th)
 	json.BuildRouter(r, jh)
