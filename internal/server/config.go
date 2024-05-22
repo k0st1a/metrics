@@ -16,6 +16,7 @@ type Config struct {
 	HashKey         string `env:"KEY"`
 	StoreInterval   int    `env:"STORE_INTERVAL"`
 	Restore         bool   `env:"RESTORE"`
+	PprofServerAddr string `env:"PPROF_ADDRESS"`
 }
 
 const (
@@ -25,6 +26,7 @@ const (
 	defaultRestore         = true
 	defaultDatabaseDSN     = ""
 	defaultHashKey         = ""
+	defaultPprofServerAddr = "localhost:8086"
 )
 
 func newConfig() *Config {
@@ -35,6 +37,7 @@ func newConfig() *Config {
 		Restore:         defaultRestore,
 		DatabaseDSN:     defaultDatabaseDSN,
 		HashKey:         defaultHashKey,
+		PprofServerAddr: defaultPprofServerAddr,
 	}
 }
 
@@ -73,6 +76,7 @@ func parseFlags(cfg *Config) error {
 			"вычесленного(от всего тела запроса) хеша.\nПри несовпадении сервер отбрасывает данные и отвечает 400.\n"+
 			"При наличии ключа на этапе формирования ответа сервер вычисляет хеш и передает его в HTTP-заголовке"+
 			"ответа с именем HashSHA256.")
+	flag.StringVar(&(cfg.PprofServerAddr), "p", cfg.PprofServerAddr, "pprof server address")
 
 	flag.Parse()
 

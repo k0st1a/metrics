@@ -2,6 +2,7 @@ package server
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"net/http"
 
@@ -15,7 +16,9 @@ import (
 	"github.com/k0st1a/metrics/internal/handlers/json"
 	"github.com/k0st1a/metrics/internal/handlers/text"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
+	"github.com/k0st1a/metrics/internal/pkg/profiler"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
+	"github.com/k0st1a/metrics/internal/pkg/server"
 	"github.com/k0st1a/metrics/internal/storage/file"
 	"github.com/k0st1a/metrics/internal/storage/inmemory"
 	"github.com/rs/zerolog/log"
@@ -88,9 +91,41 @@ func Run() error {
 	json.BuildRouter(r, jh)
 	hdbp.BuildRouter(r, dbph)
 
-	err = http.ListenAndServe(cfg.ServerAddr, r)
+	srv := server.New(ctx, cfg.ServerAddr, r)
+
+	go func() {
+		err := srv.Run()
+		if errors.Is(err, http.ErrServerClosed) {
+			log.Printf("metrics server closed")
+			return
+		}
+		if err != nil {
+			log.Error().Err(err).Msg("failed to run metrics server")
+		}
+	}()
+
+	prf := profiler.New(ctx, cfg.PprofServerAddr)
+	go func() {
+		err := prf.Run()
+		if errors.Is(err, http.ErrServerClosed) {
+			log.Printf("profiler server closed")
+			return
+		}
+		if err != nil {
+			log.Error().Err(err).Msg("failed to run profiler server")
+		}
+	}()
+
+	<-ctx.Done()
+
+	err = srv.Shutdown(context.Background())
 	if err != nil {
-		return fmt.Errorf("listen and serve error:%w", err)
+		log.Error().Err(err).Msg("error of shutdown metrics server")
+	}
+
+	err = prf.Shutdown(context.Background())
+	if err != nil {
+		log.Error().Err(err).Msg("error of shutdown profiler server")
 	}
 
 	return nil
