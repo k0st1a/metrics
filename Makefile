@@ -14,6 +14,11 @@ PG_DATABASE_DSN = "postgres://${PG_USER}:${PG_PASSWORD}@${PG_HOST}:${PG_PORT}/${
 PG_IMAGE = "postgres:13.13-bullseye"
 PG_DOCKER_CONTEINER_NAME = "metrics-pg-13.3"
 
+SERVER_PORT="8080"
+SERVER_HOST="localhost"
+PPROF_SERVER_PORT="8086"
+PPROF_SERVER_HOST="0.0.0.0"
+
 METRICSTEST_ARGS = -test.v -source-path=.
 
 .PHONY:build
@@ -186,6 +191,17 @@ miter14: build statictest db-up
 		-key=$${TEMP_FILE} \
 		-source-path=. ; \
 	go test -v -race ./... ;
+
+.PHONY: server-run-with-args
+server-run-with-args: build statictest db-up
+	chmod +x ./cmd/server/server && \
+		./cmd/server/server -a ${SERVER_HOST}:${SERVER_PORT} -d ${PG_DATABASE_DSN} \
+							-p ${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT}
+
+.PHONY: agent-run-with-args
+agent-run-with-args: build statictest db-up
+	chmod +x ./cmd/agent/agent && \
+		./cmd/agent/agent -a ${SERVER_HOST}:${SERVER_PORT}
 
 .PHONY: db-up
 db-up:
