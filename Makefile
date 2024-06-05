@@ -10,9 +10,9 @@ PG_PASSWORD = "metrics-password"
 PG_DB = "metrics-db"
 PG_HOST = "localhost"
 PG_PORT = "5432"
-DATABASE_DSN = "postgres://${PG_USER}:${PG_PASSWORD}@${PG_HOST}:${PG_PORT}/${PG_DB}?sslmode=disable"
+PG_DATABASE_DSN = "postgres://${PG_USER}:${PG_PASSWORD}@${PG_HOST}:${PG_PORT}/${PG_DB}?sslmode=disable"
 PG_IMAGE = "postgres:13.13-bullseye"
-DOCKER_CONTEINER_NAME = "metrics-pg-13.3"
+PG_DOCKER_CONTEINER_NAME = "metrics-pg-13.3"
 
 METRICSTEST_ARGS = -test.v -source-path=.
 
@@ -77,7 +77,7 @@ miter10: build statictest delay-after-db-run
 				-binary-path=cmd/server/server \
 				-agent-binary-path=cmd/agent/agent \
 				-server-port=$$SERVER_PORT \
-				-database-dsn=${DATABASE_DSN} ;
+				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: miter11
 miter11: build statictest delay-after-db-run
@@ -89,7 +89,7 @@ miter11: build statictest delay-after-db-run
 				-binary-path=cmd/server/server \
 				-agent-binary-path=cmd/agent/agent \
 				-server-port=$$SERVER_PORT \
-				-database-dsn=${DATABASE_DSN} ;
+				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: miter12
 miter12: build statictest delay-after-db-run
@@ -102,7 +102,7 @@ miter12: build statictest delay-after-db-run
 				-binary-path=cmd/server/server \
 				-agent-binary-path=cmd/agent/agent \
 				-server-port=$$SERVER_PORT \
-				-database-dsn=${DATABASE_DSN} ;
+				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: miter13
 miter13: build statictest delay-after-db-run
@@ -114,7 +114,7 @@ miter13: build statictest delay-after-db-run
 				-binary-path=cmd/server/server \
 				-agent-binary-path=cmd/agent/agent \
 				-server-port=$$SERVER_PORT \
-				-database-dsn=${DATABASE_DSN} ;
+				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: ${ITERS}
 ${ITERS}: iter%: build statictest db-run;
@@ -155,7 +155,7 @@ ${ITERS}: iter%: build statictest db-run;
 						-binary-path=cmd/server/server \
 						-agent-binary-path=cmd/agent/agent \
 						-server-port=$$SERVER_PORT \
-						-database-dsn=${DATABASE_DSN} ; \
+						-database-dsn=${PG_DATABASE_DSN} ; \
 		elif [ $$i -eq 14 ]; then \
 			SERVER_PORT=$$(random unused-port) ; \
 			ADDRESS="localhost:$${SERVER_PORT}" ; \
@@ -164,7 +164,7 @@ ${ITERS}: iter%: build statictest db-run;
 						-binary-path=cmd/server/server \
 						-agent-binary-path=cmd/agent/agent \
 						-server-port=$$SERVER_PORT \
-						-database-dsn=${DATABASE_DSN} ; \
+						-database-dsn=${PG_DATABASE_DSN} ; \
 						-key="$$TEMP_FILE" ; \
 			go test -v -race ./... ; \
 		fi ; \
@@ -181,7 +181,7 @@ miter14: build statictest delay-after-db-run
 	metricstest -test.v -test.run=^TestIteration14$ \
 		-agent-binary-path=cmd/agent/agent \
 		-binary-path=cmd/server/server \
-		-database-dsn=${DATABASE_DSN} \
+		-database-dsn=${PG_DATABASE_DSN} \
 		-server-port="$$SERVER_PORT" \
 		-key=$${TEMP_FILE} \
 		-source-path=. ; \
@@ -194,7 +194,7 @@ delay-after-db-run: db-run
 .PHONY: db-run
 db-run: db-image-pull db-stop
 	-docker run \
-	--name ${DOCKER_CONTEINER_NAME} \
+	--name ${PG_DOCKER_CONTEINER_NAME} \
 	--rm -ti \
 	-p ${PG_PORT}:5432 \
 	-e POSTGRES_USER=${PG_USER} \
@@ -204,12 +204,35 @@ db-run: db-image-pull db-stop
 
 .PHONY: db-stop
 db-stop:
-	-docker stop ${DOCKER_CONTEINER_NAME}
+	-docker stop ${PG_DOCKER_CONTEINER_NAME}
 
 .PHONY: db-image-pull
 db-image-pull:
 	-docker image pull ${PG_IMAGE}
 
+.PHONY: db-up
+db-up:
+	PG_USER=${PG_USER} \
+	PG_PASSWORD=${PG_PASSWORD} \
+	PG_DB=${PG_DB} \
+	PG_HOST=${PG_HOST} \
+	PG_PORT=${PG_PORT} \
+	PG_DATABASE_DSN=${PG_DATABASE_DSN} \
+	PG_IMAGE=${PG_IMAGE} \
+	PG_DOCKER_CONTEINER_NAME=${PG_DOCKER_CONTEINER_NAME} \
+	docker compose -f ./docker-compose.yml up -d postgres
+
+.PHONY: db-down
+db-down:
+	PG_USER=${PG_USER} \
+	PG_PASSWORD=${PG_PASSWORD} \
+	PG_DB=${PG_DB} \
+	PG_HOST=${PG_HOST} \
+	PG_PORT=${PG_PORT} \
+	PG_DATABASE_DSN=${PG_DATABASE_DSN} \
+	PG_IMAGE=${PG_IMAGE} \
+	PG_DOCKER_CONTEINER_NAME=${PG_DOCKER_CONTEINER_NAME} \
+	docker compose -f ./docker-compose.yml down postgres
 
 GOLANGCI_LINT_CACHE?=/tmp/praktikum-golangci-lint-cache
 
