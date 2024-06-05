@@ -68,7 +68,7 @@ miter9: build statictest
 						-file-storage-path=$$TEMP_FILE ;
 
 .PHONY: miter10
-miter10: build statictest delay-after-db-run
+miter10: build statictest db-up
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -80,7 +80,7 @@ miter10: build statictest delay-after-db-run
 				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: miter11
-miter11: build statictest delay-after-db-run
+miter11: build statictest db-up
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -92,7 +92,7 @@ miter11: build statictest delay-after-db-run
 				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: miter12
-miter12: build statictest delay-after-db-run
+miter12: build statictest db-up
 	#SERVER_PORT=$$(random unused-port) ;
 	SERVER_PORT=8081 ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
@@ -105,7 +105,7 @@ miter12: build statictest delay-after-db-run
 				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: miter13
-miter13: build statictest delay-after-db-run
+miter13: build statictest db-up
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -174,7 +174,7 @@ ${ITERS}: iter%: build statictest db-run;
     done
 
 .PHONY: miter14
-miter14: build statictest delay-after-db-run
+miter14: build statictest db-up
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -186,29 +186,6 @@ miter14: build statictest delay-after-db-run
 		-key=$${TEMP_FILE} \
 		-source-path=. ; \
 	go test -v -race ./... ;
-
-.PHONY: delay-after-db-run
-delay-after-db-run: db-run
-	sleep 5s
-
-.PHONY: db-run
-db-run: db-image-pull db-stop
-	-docker run \
-	--name ${PG_DOCKER_CONTEINER_NAME} \
-	--rm -ti \
-	-p ${PG_PORT}:5432 \
-	-e POSTGRES_USER=${PG_USER} \
-	-e POSTGRES_PASSWORD=${PG_PASSWORD} \
-	-e POSTGRES_DB=${PG_DB} \
-	-d ${PG_IMAGE}
-
-.PHONY: db-stop
-db-stop:
-	-docker stop ${PG_DOCKER_CONTEINER_NAME}
-
-.PHONY: db-image-pull
-db-image-pull:
-	-docker image pull ${PG_IMAGE}
 
 .PHONY: db-up
 db-up:
