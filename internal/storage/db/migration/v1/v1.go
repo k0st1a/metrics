@@ -10,20 +10,17 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Migrator interface {
-	Migrate(ctx context.Context) error
-}
-
 type dbMigration struct {
 	c *pgxpool.Pool
 }
 
-func NewMigration(c *pgxpool.Pool) Migrator {
+func NewMigration(c *pgxpool.Pool) *dbMigration {
 	return &dbMigration{
 		c: c,
 	}
 }
 
+// Migrate - запускает миграцию
 func (db *dbMigration) Migrate(ctx context.Context) error {
 	tx, err := db.c.Begin(ctx)
 	if err != nil {
