@@ -203,6 +203,13 @@ agent-run-with-args: build statictest db-up
 	chmod +x ./cmd/agent/agent && \
 		./cmd/agent/agent -a ${SERVER_HOST}:${SERVER_PORT}
 
+.PHONY: cover
+cover:
+	go test -v -coverpkg=./... -coverprofile=profile.cov.tmp ./... && \
+	cat profile.cov.tmp | grep -v "_easyjson.go" > profile.cov && \
+	rm profile.cov.tmp && \
+	go tool cover -func profile.cov
+
 .PHONY: db-up
 db-up:
 	PG_USER=${PG_USER} \
