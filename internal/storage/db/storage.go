@@ -12,29 +12,22 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Storage interface {
-	StoreGauge(ctx context.Context, name string, value float64) error
-	GetGauge(ctx context.Context, name string) (*float64, error)
-
-	StoreCounter(ctx context.Context, name string, value int64) error
-	GetCounter(ctx context.Context, name string) (*int64, error)
-
-	StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error
-	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
-}
-
-type dbStorage struct {
+type DBStorage struct {
 	c *pgxpool.Pool
 	m sync.Mutex
 }
 
-func NewStorage(c *pgxpool.Pool) Storage {
-	return &dbStorage{
+// NewStorage - создать storage для хранения метрик в БД, где:
+//
+//	c - пулл коннекций до БД.
+func NewStorage(c *pgxpool.Pool) *DBStorage {
+	return &DBStorage{
 		c: c,
 	}
 }
 
-func (s *dbStorage) StoreGauge(ctx context.Context, name string, value float64) error {
+// StoreGauge - сохраняет метрику типа gauge с именем name и значенем value
+func (s *DBStorage) StoreGauge(ctx context.Context, name string, value float64) error {
 	s.m.Lock()
 	defer s.m.Unlock()
 
@@ -46,7 +39,8 @@ func (s *dbStorage) StoreGauge(ctx context.Context, name string, value float64) 
 	return nil
 }
 
-func (s *dbStorage) GetGauge(ctx context.Context, name string) (*float64, error) {
+// GetGauge - возвращает метрику типа gauge с именем name
+func (s *DBStorage) GetGauge(ctx context.Context, name string) (*float64, error) {
 	log.Printf("GetGauge, name:%v", name)
 	var v float64
 
@@ -61,7 +55,8 @@ func (s *dbStorage) GetGauge(ctx context.Context, name string) (*float64, error)
 	return &v, nil
 }
 
-func (s *dbStorage) StoreCounter(ctx context.Context, name string, value int64) error {
+// StoreCounter - сохраняет метрику типа counter с именем name и значенем value
+func (s *DBStorage) StoreCounter(ctx context.Context, name string, value int64) error {
 	s.m.Lock()
 	defer s.m.Unlock()
 
@@ -74,7 +69,8 @@ func (s *dbStorage) StoreCounter(ctx context.Context, name string, value int64) 
 	return nil
 }
 
-func (s *dbStorage) GetCounter(ctx context.Context, name string) (*int64, error) {
+// GetCounter - возвращает метрику типа gauge с именем name
+func (s *DBStorage) GetCounter(ctx context.Context, name string) (*int64, error) {
 	log.Printf("GetCounter, name:%v", name)
 	var d int64
 
@@ -89,7 +85,8 @@ func (s *dbStorage) GetCounter(ctx context.Context, name string) (*int64, error)
 	return &d, nil
 }
 
-func (s *dbStorage) StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error {
+// StoreAll - сохраняет группу метрик типа counter и gauge
+func (s *DBStorage) StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error {
 	s.m.Lock()
 	defer s.m.Unlock()
 
@@ -124,7 +121,8 @@ func (s *dbStorage) StoreAll(ctx context.Context, counter map[string]int64, gaug
 	return nil
 }
 
-func (s *dbStorage) GetAll(ctx context.Context) (map[string]int64, map[string]float64, error) {
+// GetAll - возвращает все метрики типа counter и gauge
+func (s *DBStorage) GetAll(ctx context.Context) (map[string]int64, map[string]float64, error) {
 	var b pgx.Batch
 
 	b.Queue("SELECT name,delta FROM counters")
