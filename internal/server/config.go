@@ -15,9 +15,9 @@ type Config struct {
 	ServerAddr      string
 	FileStoragePath string
 	HashKey         string
+	PprofServerAddr string
 	StoreInterval   int
 	Restore         bool
-	PprofServerAddr string
 }
 
 const (
