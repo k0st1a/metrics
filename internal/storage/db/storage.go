@@ -26,7 +26,7 @@ func NewStorage(c *pgxpool.Pool) *DBStorage {
 	}
 }
 
-// StoreGauge - сохраняет метрику типа gauge с именем name и значенем value
+// StoreGauge - сохраняет метрику типа gauge с именем name и значенем value.
 func (s *DBStorage) StoreGauge(ctx context.Context, name string, value float64) error {
 	s.m.Lock()
 	defer s.m.Unlock()
@@ -39,7 +39,7 @@ func (s *DBStorage) StoreGauge(ctx context.Context, name string, value float64) 
 	return nil
 }
 
-// GetGauge - возвращает метрику типа gauge с именем name
+// GetGauge - возвращает метрику типа gauge с именем name.
 func (s *DBStorage) GetGauge(ctx context.Context, name string) (*float64, error) {
 	log.Printf("GetGauge, name:%v", name)
 	var v float64
@@ -55,7 +55,7 @@ func (s *DBStorage) GetGauge(ctx context.Context, name string) (*float64, error)
 	return &v, nil
 }
 
-// StoreCounter - сохраняет метрику типа counter с именем name и значенем value
+// StoreCounter - сохраняет метрику типа counter с именем name и значенем value.
 func (s *DBStorage) StoreCounter(ctx context.Context, name string, value int64) error {
 	s.m.Lock()
 	defer s.m.Unlock()
@@ -69,7 +69,7 @@ func (s *DBStorage) StoreCounter(ctx context.Context, name string, value int64) 
 	return nil
 }
 
-// GetCounter - возвращает метрику типа gauge с именем name
+// GetCounter - возвращает метрику типа gauge с именем name.
 func (s *DBStorage) GetCounter(ctx context.Context, name string) (*int64, error) {
 	log.Printf("GetCounter, name:%v", name)
 	var d int64
@@ -85,7 +85,7 @@ func (s *DBStorage) GetCounter(ctx context.Context, name string) (*int64, error)
 	return &d, nil
 }
 
-// StoreAll - сохраняет группу метрик типа counter и gauge
+// StoreAll - сохраняет группу метрик типа counter и gauge.
 func (s *DBStorage) StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error {
 	s.m.Lock()
 	defer s.m.Unlock()
@@ -121,7 +121,7 @@ func (s *DBStorage) StoreAll(ctx context.Context, counter map[string]int64, gaug
 	return nil
 }
 
-// GetAll - возвращает все метрики типа counter и gauge
+// GetAll - возвращает все метрики типа counter и gauge.
 func (s *DBStorage) GetAll(ctx context.Context) (map[string]int64, map[string]float64, error) {
 	var b pgx.Batch
 

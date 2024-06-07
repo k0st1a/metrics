@@ -9,11 +9,11 @@ import (
 )
 
 type state struct {
+	sign           http.RoundTripper
 	pollerCh       chan<- struct{}
 	serverAddr     string
 	reportInterval int
 	rateLimit      int
-	sign           http.RoundTripper
 }
 
 //nolint:lll //no need here

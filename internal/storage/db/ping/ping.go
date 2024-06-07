@@ -17,7 +17,7 @@ func NewPinger(c *pgxpool.Pool) *dbPing {
 	}
 }
 
-// Ping - проверяем подключение к БД
+// Ping - проверяем подключение к БД.
 func (db *dbPing) Ping(ctx context.Context) error {
 	err := db.c.Ping(ctx)
 	if err != nil {
