@@ -72,6 +72,48 @@ func TestMetricHandler(t *testing.T) {
 			expectedStatusCode: 200,
 			expectedBody:       "Current metrics in form type/name/value:\ngauge/gaugename/123.3\n",
 		},
+		{
+			name:               "check update counter metric with name CounterName with value 123",
+			reqMethod:          http.MethodPost,
+			reqPath:            "/update/counter/CounterName/123",
+			expectedStatusCode: 200,
+			expectedBody:       "",
+		},
+		{
+			name:               "check update counter metric with name CounterName with value bad_value",
+			reqMethod:          http.MethodPost,
+			reqPath:            "/update/counter/CounterName/bad_value",
+			expectedStatusCode: 400,
+			expectedBody:       "metric value is bad\n",
+		},
+		{
+			name:               "check update counter metric with name CounterName without value",
+			reqMethod:          http.MethodPost,
+			reqPath:            "/update/counter/CounterName/",
+			expectedStatusCode: 400,
+			expectedBody:       "",
+		},
+		{
+			name:               "check update counter metric without name",
+			reqMethod:          http.MethodPost,
+			reqPath:            "/update/counter/",
+			expectedStatusCode: 404,
+			expectedBody:       "metric value is empty\n",
+		},
+		{
+			name:               "check bad counter request",
+			reqMethod:          http.MethodPost,
+			reqPath:            "/update/counters",
+			expectedStatusCode: 400,
+			expectedBody:       "",
+		},
+		{
+			name:               "check get all metrics",
+			reqMethod:          http.MethodGet,
+			reqPath:            "/",
+			expectedStatusCode: 200,
+			expectedBody:       "Current metrics in form type/name/value:\ncounter/countername/123\ngauge/gaugename/123.3\n",
+		},
 	}
 
 	h := hash.New("")
