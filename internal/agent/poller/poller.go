@@ -15,8 +15,8 @@ type MetricInfoRawer interface {
 type state struct {
 	runtimeMetrics  MetricInfoRawer
 	gopsutilMetrics MetricInfoRawer
-	pollInterval    int
 	reportCh        chan<- map[string]model.MetricInfoRaw
+	pollInterval    int
 }
 
 func NewPoller(i int, rm MetricInfoRawer, gm MetricInfoRawer) (*state, <-chan map[string]model.MetricInfoRaw) {

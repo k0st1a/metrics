@@ -67,7 +67,7 @@ func NewStorage(ctx context.Context, path string, interval int, restore bool) St
 	}
 }
 
-// StoreGauge - сохраняет метрику типа gauge с именем name и значенем value
+// StoreGauge - сохраняет метрику типа gauge с именем name и значенем value.
 func (s *FileStorage) StoreGauge(ctx context.Context, name string, value float64) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
@@ -87,7 +87,7 @@ func (s *FileStorage) StoreGauge(ctx context.Context, name string, value float64
 	return nil
 }
 
-// GetGauge - возвращает метрику типа gauge с именем name
+// GetGauge - возвращает метрику типа gauge с именем name.
 func (s *FileStorage) GetGauge(ctx context.Context, name string) (*float64, error) {
 	log.Debug().
 		Str("name:", name).
@@ -101,7 +101,7 @@ func (s *FileStorage) GetGauge(ctx context.Context, name string) (*float64, erro
 	return g, nil
 }
 
-// StoreCounter - сохраняет метрику типа counter с именем name и значенем value
+// StoreCounter - сохраняет метрику типа counter с именем name и значенем value.
 func (s *FileStorage) StoreCounter(ctx context.Context, name string, value int64) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
@@ -121,7 +121,7 @@ func (s *FileStorage) StoreCounter(ctx context.Context, name string, value int64
 	return nil
 }
 
-// GetCounter - возвращает метрику типа gauge с именем name
+// GetCounter - возвращает метрику типа gauge с именем name.
 func (s *FileStorage) GetCounter(ctx context.Context, name string) (*int64, error) {
 	log.Debug().Str("name", name).
 		Msg("GetCounter")
@@ -134,7 +134,7 @@ func (s *FileStorage) GetCounter(ctx context.Context, name string) (*int64, erro
 	return c, nil
 }
 
-// StoreAll - сохраняет группу метрик типа counter и gauge
+// StoreAll - сохраняет группу метрик типа counter и gauge.
 func (s *FileStorage) StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
@@ -152,7 +152,7 @@ func (s *FileStorage) StoreAll(ctx context.Context, counter map[string]int64, ga
 	return nil
 }
 
-// GetAll - возвращает все метрики типа counter и gauge
+// GetAll - возвращает все метрики типа counter и gauge.
 func (s *FileStorage) GetAll(ctx context.Context) (map[string]int64, map[string]float64, error) {
 	log.Debug().
 		Msg("GetAll")
@@ -165,7 +165,7 @@ func (s *FileStorage) GetAll(ctx context.Context) (map[string]int64, map[string]
 	return c, g, nil
 }
 
-// writeStorage - записывает все метрики на файловую систему
+// writeStorage - записывает все метрики на файловую систему.
 func (s *FileStorage) writeStorage(ctx context.Context) {
 	log.Debug().Msg("Write storage")
 	if s.writer == nil {

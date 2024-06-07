@@ -20,7 +20,7 @@ func NewMigration(c *pgxpool.Pool) *dbMigration {
 	}
 }
 
-// Migrate - запускает миграцию
+// Migrate - запускает миграцию.
 func (db *dbMigration) Migrate(ctx context.Context) error {
 	tx, err := db.c.Begin(ctx)
 	if err != nil {
