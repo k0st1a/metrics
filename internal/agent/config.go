@@ -3,8 +3,9 @@ package agent
 import (
 	"flag"
 	"fmt"
+	"os"
+	"strconv"
 
-	"github.com/caarlos0/env/v10"
 	"github.com/k0st1a/metrics/internal/pkg/netaddr"
 	"github.com/rs/zerolog/log"
 )
@@ -18,72 +19,77 @@ const (
 )
 
 type Config struct {
-	ServerAddr     string `env:"ADDRESS"`
-	HashKey        string `env:"KEY"`
-	PollInterval   int    `env:"POLL_INTERVAL"`
-	ReportInterval int    `env:"REPORT_INTERVAL"`
-	RateLimit      int    `env:"RATE_LIMIT"`
+	ServerAddr     string
+	HashKey        string
+	PollInterval   int
+	ReportInterval int
+	RateLimit      int
 }
 
-func newConfig() *Config {
-	return &Config{
-		ServerAddr:     defaultServerAddr,
-		PollInterval:   defaultPollInterval,
-		ReportInterval: defaultReportInterval,
-		HashKey:        defaultHashKey,
-		RateLimit:      defaultRateLimit,
-	}
-}
+func NewConfig() (*Config, error) {
+	cfg := &Config{}
 
-func parseEnv(cfg *Config) error {
-	err := env.Parse(cfg)
-	if err != nil {
-		return fmt.Errorf("env parse error:%w", err)
-	}
-
-	return nil
-}
-
-func parseFlags(cfg *Config) error {
 	addr := &netaddr.NetAddress{}
-	err := addr.Set(cfg.ServerAddr)
+	err := addr.Set(defaultServerAddr)
 	if err != nil {
-		return fmt.Errorf("addr set error:%w", err)
+		return nil, fmt.Errorf("addr set error:%w", err)
 	}
 
-	// если интерфейс не реализован,
-	// здесь будет ошибка компиляции
-	_ = flag.Value(addr)
-	flag.Var(addr, "a", "server network address in a form host:port")
+	flag.Var(addr, "a", "server network address")
 
-	flag.IntVar(&(cfg.PollInterval), "p", cfg.PollInterval, "metrics polling rate to the server")
-	flag.IntVar(&(cfg.ReportInterval), "r", cfg.ReportInterval, "frequency of sending metrics to the server")
-	flag.StringVar(&(cfg.HashKey), "k", cfg.HashKey,
+	flag.IntVar(&cfg.PollInterval, "p", defaultPollInterval, "metrics polling rate to the server")
+	flag.IntVar(&cfg.ReportInterval, "r", defaultReportInterval, "frequency of sending metrics to the server")
+	flag.StringVar(&cfg.HashKey, "k", defaultHashKey,
 		"Hash key with which the request body will be encoded"+
 			"HTTP Header HashSHA256 will be added to the HTTP request")
-	flag.IntVar(&(cfg.RateLimit), "l", cfg.RateLimit, "number of simultaneously outgoing requests to the server")
+	flag.IntVar(&(cfg.RateLimit), "l", defaultRateLimit, "number of simultaneously outgoing requests to the server")
 
 	flag.Parse()
-	cfg.ServerAddr = addr.String()
 
 	if len(flag.Args()) != 0 {
-		return fmt.Errorf("unknown args")
+		return nil, fmt.Errorf("unknown args:%v", flag.Args())
 	}
 
-	return nil
-}
+	cfg.ServerAddr = addr.String()
 
-func collectConfig() (cfg *Config, err error) {
-	cfg = newConfig()
-
-	err = parseFlags(cfg)
-	if err != nil {
-		return nil, err
+	sa, ok := os.LookupEnv("ADDRESS")
+	if ok {
+		cfg.ServerAddr = sa
 	}
 
-	err = parseEnv(cfg)
-	if err != nil {
-		return nil, err
+	k, ok := os.LookupEnv("KEY")
+	if ok {
+		cfg.HashKey = k
+	}
+
+	pi, ok := os.LookupEnv("POLL_INTERVAL")
+	if ok {
+		piInt, err := strconv.Atoi(pi)
+		if err != nil {
+			return nil, fmt.Errorf("POLL_INTERVAL parse error:%w", err)
+		}
+
+		cfg.PollInterval = piInt
+	}
+
+	ri, ok := os.LookupEnv("REPORT_INTERVAL")
+	if ok {
+		riInt, err := strconv.Atoi(ri)
+		if err != nil {
+			return nil, fmt.Errorf("REPORT_INTERVAL parse error:%w", err)
+		}
+
+		cfg.ReportInterval = riInt
+	}
+
+	rl, ok := os.LookupEnv("RATE_LIMIT")
+	if ok {
+		rlInt, err := strconv.Atoi(rl)
+		if err != nil {
+			return nil, fmt.Errorf("RATE_LIMIT parse error:%w", err)
+		}
+
+		cfg.RateLimit = rlInt
 	}
 
 	return cfg, nil
