@@ -206,7 +206,7 @@ agent-run-with-args: build statictest db-up
 .PHONY: cover
 cover:
 	go test -v -coverpkg=./... -coverprofile=profile.cov.tmp ./... && \
-	cat profile.cov.tmp | grep -v "_easyjson.go" > profile.cov && \
+	cat profile.cov.tmp | grep -v "_easyjson.go" | grep -v "model.go" > profile.cov && \
 	rm profile.cov.tmp && \
 	go tool cover -func profile.cov
 
