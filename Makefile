@@ -210,6 +210,31 @@ cover:
 	rm profile.cov.tmp && \
 	go tool cover -func profile.cov
 
+.PHONY: pprof-mem-http
+pprof-mem-http:
+	go tool pprof -http=":9090" -seconds=30 http://${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT}/debug/pprof/heap
+
+.PHONY: pprof-mem-console
+pprof-mem-console:
+	go tool pprof -seconds=30 http://${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT}/debug/pprof/heap
+
+.PHONY: pprof-cpu-http
+pprof-cpu-http:
+	go tool pprof -http=":9090" -seconds=30 http://${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT}/debug/pprof/profile
+
+.PHONY: pprof-cpu-console
+pprof-cpu-console:
+	go tool pprof -seconds=30 http://${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT}/debug/pprof/profile
+
+.PHONY: pprof-mem-save
+pprof-mem-save:
+	curl --location http://${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT}/debug/pprof/heap > ./profiles/result.pprof
+
+.PHONY: pprofcompare
+pprofcompare:
+	go tool pprof -top -diff_base=profiles/base.pprof profiles/result.pprof
+
+
 .PHONY: db-up
 db-up:
 	PG_USER=${PG_USER} \
