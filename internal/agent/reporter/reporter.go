@@ -24,6 +24,7 @@ func NewReporter(serverAddr string, reportInterval int, rateLimit int, sign http
 		reportInterval: reportInterval,
 		rateLimit:      rateLimit,
 		pollerCh:       pollerCh,
+		sign:           sign,
 	}, pollerCh
 }
 
