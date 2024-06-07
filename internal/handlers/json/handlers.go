@@ -16,6 +16,9 @@ import (
 const (
 	badMetricType  = "metric type is bad"
 	notFoundMetric = "metric not found"
+	emptyMetricID  = "metric id is empty"
+	nilMetricValue = "metric value is nil"
+	nilMetricDelta = "metric delta is nil"
 )
 
 type Storage interface {
@@ -130,6 +133,16 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 
 	switch m.MType {
 	case "counter":
+		if m.ID == "" {
+			log.Error().Err(err).Msg("m.ID is empty")
+			http.Error(rw, emptyMetricID, http.StatusBadRequest)
+			return
+		}
+		if m.Delta == nil {
+			log.Error().Err(err).Msg("m.Value is nil")
+			http.Error(rw, nilMetricDelta, http.StatusBadRequest)
+			return
+		}
 		log.Printf("Post Update counter, name(%v), value(%v)", m.ID, *m.Delta)
 		err = h.retry.Retry(r.Context(), retry.IsConnectionException, func() error {
 			//nolint // Не за чем оборачивать ошибку
@@ -141,6 +154,16 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 	case "gauge":
+		if m.ID == "" {
+			log.Error().Err(err).Msg("m.ID is empty")
+			http.Error(rw, emptyMetricID, http.StatusBadRequest)
+			return
+		}
+		if m.Value == nil {
+			log.Error().Err(err).Msg("m.Value is nil")
+			http.Error(rw, nilMetricValue, http.StatusBadRequest)
+			return
+		}
 		log.Printf("Post Update gauge, name(%v), value(%v)", m.ID, *m.Value)
 		err = h.retry.Retry(r.Context(), retry.IsConnectionException, func() error {
 			//nolint // Не за чем оборачивать ошибку
