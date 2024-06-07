@@ -10,6 +10,17 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+type Storage interface {
+	GetGauge(ctx context.Context, name string) (*float64, error)
+	StoreGauge(ctx context.Context, name string, value float64) error
+
+	GetCounter(ctx context.Context, name string) (*int64, error)
+	StoreCounter(ctx context.Context, name string, value int64) error
+
+	StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error
+	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
+}
+
 type FileStorage struct {
 	storage Storage
 	writer  io.Writer
@@ -22,7 +33,7 @@ type FileStorage struct {
 //	path - путь на файловой системе до файла, куда будут сохраняться метрики;
 //	interval - интервал в секундах, через который по пути path будут сохраняться все метрики;
 //	restore - при запуске загружать метрики из файла по пути path?
-func NewStorage(ctx context.Context, path string, interval int, restore bool) *FileStorage {
+func NewStorage(ctx context.Context, path string, interval int, restore bool) Storage {
 	if path == "" {
 		return inmemory.NewStorage()
 	}
