@@ -34,7 +34,11 @@ func NewConfig() (*Config, error) {
 	cfg := &Config{}
 
 	addr := &netaddr.NetAddress{}
-	addr.Set(defaultServerAddr)
+	err := addr.Set(defaultServerAddr)
+	if err != nil {
+		return nil, fmt.Errorf("addr set error:%w", err)
+	}
+
 	flag.Var(addr, "a", "server network address")
 	flag.IntVar(&cfg.StoreInterval, "i", defaultStoreInterval,
 		"Интервал времени в секундах, по истечении которого текущие показания сервера сохраняются на диск "+

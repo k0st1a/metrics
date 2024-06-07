@@ -12,7 +12,7 @@ import (
 )
 
 func Run() error {
-	cfg, err := collectConfig()
+	cfg, err := NewConfig()
 	if err != nil {
 		return err
 	}
