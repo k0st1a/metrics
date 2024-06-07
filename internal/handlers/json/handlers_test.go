@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"context"
 	"io"
-	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
 	"os"
@@ -169,7 +168,7 @@ func TestMetricHandler(t *testing.T) {
 	h := hash.New("")
 	r := handlers.NewRouter(h)
 
-	tmpfile, err := ioutil.TempFile("/tmp/", "json-handlers.*.txt")
+	tmpfile, err := os.CreateTemp("/tmp/", "json-handlers.*.txt")
 	if err != nil {
 		panic(err)
 	}
