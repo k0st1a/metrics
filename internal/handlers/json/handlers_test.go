@@ -155,6 +155,15 @@ func TestMetricHandler(t *testing.T) {
 			expectedStatusCode: 400,
 			expectedBody:       "metric id is empty\n",
 		},
+		{
+			name:               "Upload gauge and counter metrics",
+			reqMethod:          http.MethodPost,
+			reqPath:            "/updates/",
+			body:               `[{"id":"GaugeName","type":"gauge","value":123.3},{"id":"CounterName","type":"counter","delta":123},{"id":"SomeMetricName","type":"bad_type"}]`,
+			contentType:        "application/json",
+			expectedStatusCode: 200,
+			expectedBody:       "",
+		},
 	}
 
 	h := hash.New("")
