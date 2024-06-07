@@ -24,11 +24,25 @@ func TestMetricHandler(t *testing.T) {
 		expectedBody       string
 	}{
 		{
+			name:               "check get gauge metric with name GaugeName which not exists",
+			reqMethod:          http.MethodGet,
+			reqPath:            "/value/gauge/GaugeName",
+			expectedStatusCode: 404,
+			expectedBody:       "metric not found\n",
+		},
+		{
 			name:               "check update gauge metric with name GaugeName with value 123.3",
 			reqMethod:          http.MethodPost,
 			reqPath:            "/update/gauge/GaugeName/123.3",
 			expectedStatusCode: 200,
 			expectedBody:       "",
+		},
+		{
+			name:               "check get gauge metric with name GaugeName with value 123.3",
+			reqMethod:          http.MethodGet,
+			reqPath:            "/value/gauge/GaugeName",
+			expectedStatusCode: 200,
+			expectedBody:       "123.3",
 		},
 		{
 			name:               "check update gauge metric with name GaugeName with value bad_value",
@@ -73,11 +87,25 @@ func TestMetricHandler(t *testing.T) {
 			expectedBody:       "Current metrics in form type/name/value:\ngauge/gaugename/123.3\n",
 		},
 		{
+			name:               "check get counter metric with name CounterName which not exists",
+			reqMethod:          http.MethodGet,
+			reqPath:            "/value/counter/CounterName",
+			expectedStatusCode: 404,
+			expectedBody:       "metric not found\n",
+		},
+		{
 			name:               "check update counter metric with name CounterName with value 123",
 			reqMethod:          http.MethodPost,
 			reqPath:            "/update/counter/CounterName/123",
 			expectedStatusCode: 200,
 			expectedBody:       "",
+		},
+		{
+			name:               "check get counter metric with name CounterName with value 123",
+			reqMethod:          http.MethodGet,
+			reqPath:            "/value/counter/CounterName",
+			expectedStatusCode: 200,
+			expectedBody:       "123",
 		},
 		{
 			name:               "check update counter metric with name CounterName with value bad_value",

@@ -63,7 +63,6 @@ func BuildRouter(r *chi.Mux, h *handler) {
 
 	r.Get("/", h.GetAllHandler)
 	r.Get("/value/{type}/{name}", h.GetMetricHandler)
-	r.Get("/value/{type}/{name}", h.GetMetricHandler)
 
 	r.NotFound(BadRequestHandler)
 }
