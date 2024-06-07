@@ -3,20 +3,21 @@ package server
 import (
 	"flag"
 	"fmt"
+	"os"
+	"strconv"
 
-	"github.com/caarlos0/env/v10"
 	"github.com/k0st1a/metrics/internal/pkg/netaddr"
 	"github.com/rs/zerolog/log"
 )
 
 type Config struct {
-	DatabaseDSN     string `env:"DATABASE_DSN"` // Database Data Source Name
-	ServerAddr      string `env:"ADDRESS"`
-	FileStoragePath string `env:"FILE_STORAGE_PATH"`
-	HashKey         string `env:"KEY"`
-	StoreInterval   int    `env:"STORE_INTERVAL"`
-	Restore         bool   `env:"RESTORE"`
-	PprofServerAddr string `env:"PPROF_ADDRESS"`
+	DatabaseDSN     string
+	ServerAddr      string
+	FileStoragePath string
+	HashKey         string
+	StoreInterval   int
+	Restore         bool
+	PprofServerAddr string
 }
 
 const (
@@ -29,77 +30,80 @@ const (
 	defaultPprofServerAddr = "localhost:8086"
 )
 
-func newConfig() *Config {
-	return &Config{
-		ServerAddr:      defaultServerAddr,
-		StoreInterval:   defaultStoreInterval,
-		FileStoragePath: defaultFileStoragePath,
-		Restore:         defaultRestore,
-		DatabaseDSN:     defaultDatabaseDSN,
-		HashKey:         defaultHashKey,
-		PprofServerAddr: defaultPprofServerAddr,
-	}
-}
+func NewConfig() (*Config, error) {
+	cfg := &Config{}
 
-func parseEnv(cfg *Config) error {
-	err := env.Parse(cfg)
-	if err != nil {
-		return fmt.Errorf("env parse error:%w", err)
-	}
-	return nil
-}
-
-func parseFlags(cfg *Config) error {
 	addr := &netaddr.NetAddress{}
-	err := addr.Set(cfg.ServerAddr)
-	if err != nil {
-		return fmt.Errorf("addr set error:%w", err)
-	}
-
-	// если интерфейс не реализован,
-	// здесь будет ошибка компиляции
-	_ = flag.Value(addr)
+	addr.Set(defaultServerAddr)
 	flag.Var(addr, "a", "server network address")
-	flag.IntVar(&cfg.StoreInterval, "i", cfg.StoreInterval,
+	flag.IntVar(&cfg.StoreInterval, "i", defaultStoreInterval,
 		"Интервал времени в секундах, по истечении которого текущие показания сервера сохраняются на диск "+
 			"(значение 0 делает запись синхронной). Соответствует переменной окружения STORE_INTERVAL")
-	flag.StringVar(&cfg.FileStoragePath, "f", cfg.FileStoragePath,
+	flag.StringVar(&cfg.FileStoragePath, "f", defaultFileStoragePath,
 		"Полное имя файла, куда сохраняются текущие значения (пустое значение отключает функцию записи на диск). "+
 			"Соответствует переменной окружения FILE_STORAGE_PATH")
-	flag.BoolVar(&cfg.Restore, "r", cfg.Restore,
+	flag.BoolVar(&cfg.Restore, "r", defaultRestore,
 		"Загружать или нет ранее сохранённые значения из указанного файла при старте сервера."+
 			"Соответствует переменной окружения RESTORE")
-	flag.StringVar(&cfg.DatabaseDSN, "d", cfg.DatabaseDSN,
+	flag.StringVar(&cfg.DatabaseDSN, "d", defaultDatabaseDSN,
 		"Адрес подключения к БД. Соответствует переменной окружения DATABASE_DSN")
-	flag.StringVar(&(cfg.HashKey), "k", cfg.HashKey,
+	flag.StringVar(&(cfg.HashKey), "k", defaultHashKey,
 		"При наличии ключа во время обработки запроса сервер проверяет соответие полученного и "+
 			"вычесленного(от всего тела запроса) хеша.\nПри несовпадении сервер отбрасывает данные и отвечает 400.\n"+
 			"При наличии ключа на этапе формирования ответа сервер вычисляет хеш и передает его в HTTP-заголовке"+
 			"ответа с именем HashSHA256.")
-	flag.StringVar(&(cfg.PprofServerAddr), "p", cfg.PprofServerAddr, "pprof server address")
+	flag.StringVar(&cfg.PprofServerAddr, "p", defaultPprofServerAddr, "pprof server address")
 
 	flag.Parse()
 
 	if len(flag.Args()) != 0 {
-		return fmt.Errorf("unknown args")
+		return nil, fmt.Errorf("unknown args:%v", flag.Args())
 	}
 
 	cfg.ServerAddr = addr.String()
 
-	return nil
-}
-
-func collectConfig() (cfg *Config, err error) {
-	cfg = newConfig()
-
-	err = parseFlags(cfg)
-	if err != nil {
-		return nil, err
+	dbdsn, ok := os.LookupEnv("DATABASE_DSN")
+	if ok {
+		cfg.DatabaseDSN = dbdsn
 	}
 
-	err = parseEnv(cfg)
-	if err != nil {
-		return nil, err
+	sa, ok := os.LookupEnv("ADDRESS")
+	if ok {
+		cfg.ServerAddr = sa
+	}
+
+	fsp, ok := os.LookupEnv("FILE_STORAGE_PATH")
+	if ok {
+		cfg.FileStoragePath = fsp
+	}
+
+	k, ok := os.LookupEnv("KEY")
+	if ok {
+		cfg.HashKey = k
+	}
+
+	si, ok := os.LookupEnv("STORE_INTERVAL")
+	if ok {
+		siInt, err := strconv.Atoi(si)
+		if err != nil {
+			return nil, fmt.Errorf("STORE_INTERVAL parse error:%w", err)
+		}
+
+		cfg.StoreInterval = siInt
+	}
+
+	rs, ok := os.LookupEnv("RESTORE")
+	if ok {
+		rsBool, err := strconv.ParseBool(rs)
+		if err != nil {
+			return nil, fmt.Errorf("RESTORE parse error:%w", err)
+		}
+		cfg.Restore = rsBool
+	}
+
+	ppa, ok := os.LookupEnv("PPROF_ADDRESS")
+	if ok {
+		cfg.PprofServerAddr = ppa
 	}
 
 	return cfg, nil

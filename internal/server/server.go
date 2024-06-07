@@ -42,7 +42,7 @@ type Pinger interface {
 func Run() error {
 	log.Debug().Msg("Run server")
 
-	cfg, err := collectConfig()
+	cfg, err := NewConfig()
 	if err != nil {
 		return err
 	}
