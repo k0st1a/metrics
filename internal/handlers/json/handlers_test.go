@@ -2,15 +2,18 @@ package json
 
 import (
 	"bytes"
+	"context"
 	"io"
+	"io/ioutil"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"testing"
 
 	"github.com/k0st1a/metrics/internal/handlers"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
-	"github.com/k0st1a/metrics/internal/storage/inmemory"
+	"github.com/k0st1a/metrics/internal/storage/file"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
@@ -157,7 +160,13 @@ func TestMetricHandler(t *testing.T) {
 	h := hash.New("")
 	r := handlers.NewRouter(h)
 
-	s := inmemory.NewStorage()
+	tmpfile, err := ioutil.TempFile("/tmp/", "json-handlers.*.txt")
+	if err != nil {
+		panic(err)
+	}
+	defer os.Remove(tmpfile.Name())
+
+	s := file.NewStorage(context.Background(), tmpfile.Name(), 200, false)
 	rt := retry.New()
 	th := NewHandler(s, rt)
 
