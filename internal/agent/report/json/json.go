@@ -18,6 +18,10 @@ type report struct {
 	address string
 }
 
+// NewReport - создание репортера, HTTP клиента, отправляющего метрики в формате JSON, где:
+// * a - адрем сервера;
+// * с - HTTP клиент;
+// * ch - через данный канал получаем метрики для отправки на сервер.
 func NewReport(a string, c *http.Client, ch <-chan map[string]model.MetricInfoRaw) *report {
 	return &report{
 		address: a,
@@ -26,6 +30,7 @@ func NewReport(a string, c *http.Client, ch <-chan map[string]model.MetricInfoRa
 	}
 }
 
+// Do - запуск репортера.
 func (r *report) Do() {
 	for mi := range r.channel {
 		log.Printf("mi:%v", mi)
@@ -71,6 +76,7 @@ func (r *report) doReport(m []models.Metrics) {
 	}
 }
 
+// MetricsInfo2Metrics - преобразование списка метрики из "промежуточного" формата в "окончательный" формта для отправки на сервер
 func MetricsInfo2Metrics(mi []model.MetricInfo) []models.Metrics {
 	mms := []models.Metrics{}
 	for _, v := range mi {
@@ -84,6 +90,7 @@ func MetricsInfo2Metrics(mi []model.MetricInfo) []models.Metrics {
 	return mms
 }
 
+// MetricInfo2Metrics - преобразование метрики из "промежуточного" формате в "окончательный" формат для отправки на сервер
 func MetricInfo2Metrics(mi model.MetricInfo) (*models.Metrics, error) {
 	switch mi.MType {
 	case "gauge":
