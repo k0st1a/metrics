@@ -19,10 +19,10 @@ type state struct {
 }
 
 // NewReporter - создание репортера, который отправляет метрики на сервер, где:
-// * `serverAddr` - адрес сервера;
-// * `reportInterval` - интервал между отправками на сервер, в секундах;
-// * `rateLimit` - количество одновременных запросов на сервер;
-// * `sign` - функция подписи передаваемых на сервер данных.
+//   - serverAddr - адрес сервера;
+//   - reportInterval - интервал между отправками на сервер, в секундах;
+//   - rateLimit - количество одновременных запросов на сервер;
+//   - sign - функция подписи передаваемых на сервер данных.
 //
 //nolint:lll //no need here
 func NewReporter(serverAddr string, reportInterval int, rateLimit int, sign http.RoundTripper) (*state, <-chan struct{}) {
@@ -36,7 +36,9 @@ func NewReporter(serverAddr string, reportInterval int, rateLimit int, sign http
 	}, pollerCh
 }
 
-// Do - запуск репортера.
+// Do - запуск репортера, где:
+//   - ctx - контекст отмены репортера;
+//   - reportCh - канал получения метрик.
 func (s *state) Do(ctx context.Context, reportCh <-chan map[string]model.MetricInfoRaw) {
 	agentCh := make(chan map[string]model.MetricInfoRaw)
 	for i := 0; i < s.rateLimit; i++ {

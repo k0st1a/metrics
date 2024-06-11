@@ -28,11 +28,10 @@ type FileStorage struct {
 }
 
 // NewStorage - создать storage для хранения метрик на файловой системе, где:
-//
-//	ctx - контекст;
-//	path - путь на файловой системе до файла, куда будут сохраняться метрики;
-//	interval - интервал в секундах, через который по пути path будут сохраняться все метрики;
-//	restore - при запуске загружать метрики из файла по пути path?
+//   - ctx - контекст;
+//   - path - путь на файловой системе до файла, куда будут сохраняться метрики;
+//   - interval - интервал в секундах, через который по пути path будут сохраняться все метрики;
+//   - restore - при запуске загружать метрики из файла по пути path?
 func NewStorage(ctx context.Context, path string, interval int, restore bool) Storage {
 	if path == "" {
 		return inmemory.NewStorage()

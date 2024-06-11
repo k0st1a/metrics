@@ -6,6 +6,7 @@ import (
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 )
 
+// NewRouter - создание нового маршрутизатора.
 func NewRouter(h hash.Checker) *chi.Mux {
 	r := chi.NewRouter()
 

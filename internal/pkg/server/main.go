@@ -14,9 +14,9 @@ type Server struct {
 }
 
 // New - создание сервера, где:
-// * ctx - контекст отмены запросов, обрабатываемых сервером;
-// * address - хост и порт сервера;
-// * handler - обработчик сервера.
+//   - ctx - контекст отмены запросов, обрабатываемых сервером;
+//   - address - хост и порт сервера;
+//   - handler - обработчик сервера.
 func New(ctx context.Context, address string, handler http.Handler) *Server {
 	s := &http.Server{
 		BaseContext: func(_ net.Listener) context.Context { return ctx },
