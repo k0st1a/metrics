@@ -14,7 +14,7 @@ type StorageGeter interface {
 	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
-// Writer - интерфейс зафиси на файловую систему
+// Writer - интерфейс зафиси на файловую систему.
 type Writer interface {
 	Write(context.Context, StorageGeter) error
 }

@@ -28,7 +28,7 @@ func Append(acc map[string]MetricInfoRaw, adding []MetricInfoRaw) map[string]Met
 	return acc
 }
 
-// RawMap2InfoList  - преобразование map из метрик в в list из метрик.
+// RawMap2InfoList  - преобразование метрик формата map в метрики формата list.
 func RawMap2InfoList(r map[string]MetricInfoRaw) []MetricInfo {
 	mi := make([]MetricInfo, len(r))
 	i := 0

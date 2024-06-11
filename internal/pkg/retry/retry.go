@@ -51,7 +51,7 @@ func (r *retry) Retry(ctx context.Context, check func(error) bool, fnc func() er
 	return ErrMaxRetryReached
 }
 
-// IsConnectionException - проверка ошибки соединения с БД PostgreSQL
+// IsConnectionException - проверка ошибки соединения с БД PostgreSQL.
 func IsConnectionException(err error) bool {
 	var pgErr *pgconn.PgError
 	return errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code)

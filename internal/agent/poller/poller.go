@@ -8,7 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// MetricInfoRawer - интерфейс формирования метрик
+// MetricInfoRawer - интерфейс формирования метрик.
 type MetricInfoRawer interface {
 	MetricInfoRaw() []model.MetricInfoRaw
 }
@@ -23,7 +23,7 @@ type state struct {
 // NewPoller - создание поллера, опросника метрик, где:
 // * i - через заданное количество секунд запускать сбор метрик;
 // * rm - функция формирования runtime метрик;
-// * gm - функция формирования gopsutil метрик;
+// * gm - функция формирования gopsutil метрик.
 func NewPoller(i int, rm MetricInfoRawer, gm MetricInfoRawer) (*state, <-chan map[string]model.MetricInfoRaw) {
 	reportCh := make(chan map[string]model.MetricInfoRaw)
 	return &state{
@@ -34,7 +34,7 @@ func NewPoller(i int, rm MetricInfoRawer, gm MetricInfoRawer) (*state, <-chan ma
 	}, reportCh
 }
 
-// Do - запуск опросника метрик
+// Do - запуск опросника метрик.
 func (s *state) Do(reporterCh <-chan struct{}) {
 	pollTicker := time.NewTicker(time.Duration(s.pollInterval) * time.Second)
 	// runtime

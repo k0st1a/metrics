@@ -155,10 +155,14 @@ func TestMetricHandler(t *testing.T) {
 			expectedBody:       "metric id is empty\n",
 		},
 		{
-			name:               "Upload gauge and counter metrics",
-			reqMethod:          http.MethodPost,
-			reqPath:            "/updates/",
-			body:               `[{"id":"GaugeName","type":"gauge","value":123.3},{"id":"CounterName","type":"counter","delta":123},{"id":"SomeMetricName","type":"bad_type"}]`,
+			name:      "Upload gauge and counter metrics",
+			reqMethod: http.MethodPost,
+			reqPath:   "/updates/",
+			body: `[` +
+				`{"id":"GaugeName","type":"gauge","value":123.3},` +
+				`{"id":"CounterName","type":"counter","delta":123},` +
+				`{"id":"SomeMetricName","type":"bad_type"}` +
+				`]`,
 			contentType:        "application/json",
 			expectedStatusCode: 200,
 			expectedBody:       "",
@@ -172,7 +176,9 @@ func TestMetricHandler(t *testing.T) {
 	if err != nil {
 		panic(err)
 	}
-	defer os.Remove(tmpfile.Name())
+	defer func() {
+		_ = os.Remove(tmpfile.Name())
+	}()
 
 	s := file.NewStorage(context.Background(), tmpfile.Name(), 200, false)
 	rt := retry.New()

@@ -21,7 +21,7 @@ type Metrics struct {
 //easyjson:json
 type MetricsList []Metrics
 
-// Deserialize - распаковка байт в формат Metrics
+// Deserialize - распаковка байт в формат Metrics.
 func Deserialize(b []byte) (*Metrics, error) {
 	m := &Metrics{}
 	err := easyjson.Unmarshal(b, m)
@@ -32,7 +32,7 @@ func Deserialize(b []byte) (*Metrics, error) {
 	return m, nil
 }
 
-// Deserialize - упаковка Metrics в байты
+// Serialize - упаковка Metrics в байты.
 func Serialize(m *Metrics) ([]byte, error) {
 	b, err := easyjson.Marshal(m)
 	if err != nil {
@@ -42,7 +42,7 @@ func Serialize(m *Metrics) ([]byte, error) {
 	return b, nil
 }
 
-// Deserialize - распаковка байт в формат []Metrics
+// DeserializeList - распаковка байт в формат []Metrics.
 func DeserializeList(b []byte) ([]Metrics, error) {
 	v := MetricsList{}
 	err := easyjson.Unmarshal(b, &v)
@@ -53,7 +53,7 @@ func DeserializeList(b []byte) ([]Metrics, error) {
 	return []Metrics(v), nil
 }
 
-// Deserialize - упаковка []Metrics в байты
+// SerializeList - упаковка []Metrics в байты.
 func SerializeList(ml []Metrics) ([]byte, error) {
 	v := MetricsList(ml)
 	b, err := easyjson.Marshal(&v)

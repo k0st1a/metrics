@@ -22,7 +22,9 @@ func NewStorage() *Storage {
 	}
 }
 
-// NewStorage - создать storage для хранения метрик в RAM с заданными метриками типа counter и gauge.
+// NewStorageWith - создать storage для хранения метрик в RAM с заданными метриками типа counter и gauge, где:
+// * counter - метрики типа counter;
+// * gauge - метрики типа gauge.
 func NewStorageWith(counter map[string]int64, gauge map[string]float64) *Storage {
 	return &Storage{
 		counter: counter,

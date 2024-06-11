@@ -76,7 +76,8 @@ func (r *report) doReport(m []models.Metrics) {
 	}
 }
 
-// MetricsInfo2Metrics - преобразование списка метрики из "промежуточного" формата в "окончательный" формта для отправки на сервер
+// MetricsInfo2Metrics - преобразование списка метрики из "промежуточного" формата в "окончательный" формат
+// для отправки на сервер.
 func MetricsInfo2Metrics(mi []model.MetricInfo) []models.Metrics {
 	mms := []models.Metrics{}
 	for _, v := range mi {
@@ -90,7 +91,8 @@ func MetricsInfo2Metrics(mi []model.MetricInfo) []models.Metrics {
 	return mms
 }
 
-// MetricInfo2Metrics - преобразование метрики из "промежуточного" формате в "окончательный" формат для отправки на сервер
+// MetricInfo2Metrics - преобразование метрики из "промежуточного" формате в "окончательный" формат
+// для отправки на сервер.
 func MetricInfo2Metrics(mi model.MetricInfo) (*models.Metrics, error) {
 	switch mi.MType {
 	case "gauge":
