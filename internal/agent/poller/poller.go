@@ -1,6 +1,7 @@
 package poller
 
 import (
+	"context"
 	"time"
 
 	"github.com/k0st1a/metrics/internal/agent/collector"
@@ -35,7 +36,7 @@ func NewPoller(i int, rm MetricInfoRawer, gm MetricInfoRawer) (*state, <-chan ma
 }
 
 // Do - запуск опросника метрик.
-func (s *state) Do(reporterCh <-chan struct{}) {
+func (s *state) Do(ctx context.Context, reporterCh <-chan struct{}) {
 	pollTicker := time.NewTicker(time.Duration(s.pollInterval) * time.Second)
 	// runtime
 	collectRuntimeCh := make(chan struct{}, 1)
@@ -72,6 +73,10 @@ func (s *state) Do(reporterCh <-chan struct{}) {
 			log.Printf("<-reportCh, acc:%v\n", acc)
 			s.reportCh <- acc
 			acc = map[string]model.MetricInfoRaw{}
+		case <-ctx.Done():
+			log.Printf("Poller closed with cause:%s\n", ctx.Err())
+			pollTicker.Stop()
+			return
 		}
 	}
 }
