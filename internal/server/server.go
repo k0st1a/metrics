@@ -5,6 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
 
 	hdbp "github.com/k0st1a/metrics/internal/handlers/db/ping"
 	sdbs "github.com/k0st1a/metrics/internal/storage/db"
@@ -52,7 +54,8 @@ func Run() error {
 	var s Storage
 	var p Pinger
 
-	ctx := context.Background()
+	ctx, cancelCtx := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancelCtx()
 
 	switch {
 	case cfg.DatabaseDSN != "":
