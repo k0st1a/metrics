@@ -7,16 +7,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type IntervalWriter interface {
-	Run(ctx context.Context, interval int)
-}
-
 type intervalWriter struct {
 	writer  Writer
 	storage StorageGeter
 }
 
-func NewIntervalWriter(w Writer, s StorageGeter) IntervalWriter {
+func NewIntervalWriter(w Writer, s StorageGeter) *intervalWriter {
 	log.Debug().Msg("NewIntervalWriter")
 	return &intervalWriter{
 		writer:  w,
