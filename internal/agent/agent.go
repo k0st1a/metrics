@@ -2,7 +2,11 @@
 package agent
 
 import (
+	"context"
 	"net/http"
+	"os"
+	"os/signal"
+	"sync"
 
 	"github.com/k0st1a/metrics/internal/agent/poller"
 	"github.com/k0st1a/metrics/internal/agent/reporter"
@@ -21,6 +25,9 @@ func Run() error {
 
 	printConfig(cfg)
 
+	ctx, cancelCtx := signal.NotifyContext(context.Background(), os.Interrupt)
+	defer cancelCtx()
+
 	rm := runtime.NewMetric()
 	gm := gopsutil.NewMetric()
 	p, pc := poller.NewPoller(cfg.PollInterval, rm, gm)
@@ -31,9 +38,22 @@ func Run() error {
 
 	r, rc := reporter.NewReporter(cfg.ServerAddr, cfg.ReportInterval, cfg.RateLimit, sign)
 
-	go p.Do(rc)
+	var wg sync.WaitGroup
 
-	r.Do(pc)
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		p.Do(ctx, rc)
+	}()
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		r.Do(ctx, pc)
+	}()
+
+	<-ctx.Done()
+	wg.Wait()
 
 	return nil
 }

@@ -1,11 +1,13 @@
 package reporter
 
 import (
+	"context"
 	"net/http"
 	"time"
 
 	"github.com/k0st1a/metrics/internal/agent/model"
 	"github.com/k0st1a/metrics/internal/agent/report/json"
+	"github.com/rs/zerolog/log"
 )
 
 type state struct {
@@ -35,7 +37,7 @@ func NewReporter(serverAddr string, reportInterval int, rateLimit int, sign http
 }
 
 // Do - запуск репортера.
-func (s *state) Do(reportCh <-chan map[string]model.MetricInfoRaw) {
+func (s *state) Do(ctx context.Context, reportCh <-chan map[string]model.MetricInfoRaw) {
 	agentCh := make(chan map[string]model.MetricInfoRaw)
 	for i := 0; i < s.rateLimit; i++ {
 		c := &http.Client{
@@ -46,13 +48,20 @@ func (s *state) Do(reportCh <-chan map[string]model.MetricInfoRaw) {
 
 	reportTicker := time.NewTicker(time.Duration(s.reportInterval) * time.Second)
 
-	for range reportTicker.C {
-		s.pollerCh <- struct{}{}
-		m := <-reportCh
-		if len(m) == 0 {
-			continue
+	for {
+		select {
+		case <-reportTicker.C:
+			log.Printf("-->reportTick\n")
+			s.pollerCh <- struct{}{}
+			m := <-reportCh
+			if len(m) == 0 {
+				continue
+			}
+			agentCh <- m
+		case <-ctx.Done():
+			log.Printf("Reporter closed with cause:%s\n", ctx.Err())
+			reportTicker.Stop()
+			return
 		}
-
-		agentCh <- m
 	}
 }
