@@ -12,16 +12,19 @@ import (
 type state struct {
 }
 
+// NewMetric - создание сущности по упаковки метрик из пакета gopsutil в формат model.MetricInfoRaw.
 func NewMetric() *state {
 	return &state{}
 }
 
+// MetricInfoRaw - упаковка метрик из пакета gopsutil в формат model.MetricInfoRaw
 func (s *state) MetricInfoRaw() []model.MetricInfoRaw {
 	mi := s.mem2MetricInfoRaw()
 	ci := s.cpu2MetricInfoRaw()
 	return append(mi, ci...)
 }
 
+// mem2MetricInfoRaw - упаковка метрик `TotalMemory`, `FreeMemory` из пакета `github.com/shirou/gopsutil/v3/mem` в формат model.MetricInfoRaw.
 func (s *state) mem2MetricInfoRaw() []model.MetricInfoRaw {
 	mem, err := mem.VirtualMemory()
 	if err != nil {
@@ -43,6 +46,7 @@ func (s *state) mem2MetricInfoRaw() []model.MetricInfoRaw {
 	}
 }
 
+// cpu2MetricInfoRaw - упаковка метрики `CPUutilization` из пакета `github.com/shirou/gopsutil/v3/cpu` в формат model.MetricInfoRaw.
 func (s *state) cpu2MetricInfoRaw() []model.MetricInfoRaw {
 	cpu, err := cpu.Percent(0, true)
 	if err != nil {

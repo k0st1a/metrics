@@ -13,21 +13,25 @@ type state struct {
 	memStats    runtime.MemStats
 }
 
+// NewMetric - создание сущности по упаковки метрик из пакета runtime в формат model.MetricInfoRaw.
 func NewMetric() *state {
 	return &state{}
 }
 
+// MetricInfoRaw - упаковка метрик из пакета runtime в формат model.MetricInfoRaw
 func (s *state) MetricInfoRaw() []model.MetricInfoRaw {
 	s.update()
 	return s.mem2MetricInfoRaw()
 }
 
+// update - вычитывание метрик из пакета runtime + обновление поля randomValue и pollCount.
 func (s *state) update() {
 	runtime.ReadMemStats(&s.memStats)
 	s.randomValue = rand.Float64()
 	s.pollCount++
 }
 
+// mem2MetricInfoRaw - упаковка метрик из пакета runtime в формат model.MetricInfoRaw.
 func (s *state) mem2MetricInfoRaw() []model.MetricInfoRaw {
 	return []model.MetricInfoRaw{
 		model.MetricInfoRaw{
