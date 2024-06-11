@@ -11,15 +11,11 @@ import (
 
 var ErrMaxRetryReached = errors.New("retry: maximum number of retry reached")
 
-type Retryer interface {
-	Retry(ctx context.Context, check func(error) bool, fnc func() error) error
-}
-
 type retry struct {
 	intervals []time.Duration
 }
 
-func New() Retryer {
+func New() *retry {
 	return &retry{
 		intervals: []time.Duration{
 			time.Duration(1) * time.Second,
