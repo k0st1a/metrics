@@ -21,17 +21,25 @@ const (
 	nilMetricDelta = "metric delta is nil"
 )
 
+// Storage - интерфейс работы с хранилищем метрик.
 type Storage interface {
+	// GetGauge - возвращает метрику типа gauge с именем name.
 	GetGauge(ctx context.Context, name string) (*float64, error)
+	// StoreGauge - сохраняет метрику типа gauge с именем name и значенем value.
 	StoreGauge(ctx context.Context, name string, value float64) error
 
+	// GetCounter - возвращает метрику типа gauge с именем name.
 	GetCounter(ctx context.Context, name string) (*int64, error)
+	// StoreCounter - сохраняет метрику типа counter с именем name и значенем value.
 	StoreCounter(ctx context.Context, name string, value int64) error
 
+	// StoreAll - сохраняет группу метрик типа counter и gauge.
 	StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error
+	// GetAll - возвращает все метрики типа counter и gauge.
 	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
+// Retryer - интерфейс повторного обращения к хранилищу
 type Retryer interface {
 	Retry(ctx context.Context, check func(error) bool, fnc func() error) error
 }
@@ -41,6 +49,7 @@ type handler struct {
 	retry   Retryer
 }
 
+// NewHandler - создание HTTP обработчика взаимодействия с хранилищем метрик. Обработчик работает с запросами/ответами в формате JSON.
 func NewHandler(s Storage, r Retryer) *handler {
 	return &handler{
 		storage: s,
@@ -48,12 +57,14 @@ func NewHandler(s Storage, r Retryer) *handler {
 	}
 }
 
+// BuildRouter - формирование маршрута для HTTP обработчика.
 func BuildRouter(r *chi.Mux, h *handler) {
 	r.With(contentType).Post("/updates/", h.PostUpdatesHandler)
 	r.With(contentType).Post("/update/", h.PostUpdateHandler)
 	r.With(contentType).Post("/value/", h.PostValueHandler)
 }
 
+// PostUpdatesHandler - обработчик сохранения метрик в формате JSON.
 func (h *handler) PostUpdatesHandler(rw http.ResponseWriter, r *http.Request) {
 	log.Info().
 		Str("uri", r.RequestURI).
@@ -111,6 +122,7 @@ func (h *handler) PostUpdatesHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
+// PostUpdateHandler - обработчик сохранения метрики в формате JSON.
 func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 	log.Info().
 		Str("uri", r.RequestURI).
@@ -182,6 +194,7 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
+// PostUpdateHandler - обработчик получения метрики в формате JSON.
 func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 	log.Info().
 		Str("uri", r.RequestURI).

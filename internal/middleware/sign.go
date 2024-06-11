@@ -1,3 +1,4 @@
+// Middleware для подписи отправляемых с клиента данных.
 package middleware
 
 import (
@@ -15,7 +16,6 @@ type signRoundTrip struct {
 	hash hash.Signer
 }
 
-// NewSign - `middleware` для подписи отправляемых с клиента данных.
 func NewSign(next http.RoundTripper, sign hash.Signer) *signRoundTrip {
 	return &signRoundTrip{
 		next: next,
@@ -23,7 +23,6 @@ func NewSign(next http.RoundTripper, sign hash.Signer) *signRoundTrip {
 	}
 }
 
-// RoundTrip - вызывается на клиенте перед отправкой данных на сервер.
 func (s *signRoundTrip) RoundTrip(r *http.Request) (*http.Response, error) {
 	if s.hash.Is() {
 		b, err := io.ReadAll(r.Body)

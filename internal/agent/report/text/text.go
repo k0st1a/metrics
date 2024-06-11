@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Metrics2MetricInfoer - интерфейс формирования метрик
 type Metrics2MetricInfoer interface {
 	Metrics2MetricInfo() []model.MetricInfo
 }
@@ -18,6 +19,10 @@ type report struct {
 	addr string
 }
 
+// NewReport - создание репортера, HTTP клиента, отправляющего метрики, где:
+// * a - адрем сервера;
+// * с - HTTP клиент;
+// * m - функция формирования метрик.
 func NewReport(a string, c *http.Client, m Metrics2MetricInfoer) *report {
 	return &report{
 		addr: a,
@@ -26,6 +31,7 @@ func NewReport(a string, c *http.Client, m Metrics2MetricInfoer) *report {
 	}
 }
 
+// Do - запуск репортера.
 func (r report) Do() {
 	s := r.m.Metrics2MetricInfo()
 	for _, v := range s {

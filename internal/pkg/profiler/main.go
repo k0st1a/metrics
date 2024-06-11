@@ -1,3 +1,4 @@
+// Пакет для запуска профилировщика pprof
 package profiler
 
 import (
@@ -8,6 +9,7 @@ import (
 	"github.com/k0st1a/metrics/internal/pkg/server"
 )
 
+// New - создание сервера и обработчиками pprof.
 func New(ctx context.Context, address string) *server.Server {
 	mux := http.NewServeMux()
 

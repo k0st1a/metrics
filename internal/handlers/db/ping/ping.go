@@ -8,6 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// Pinger - интерфес проверки доступности БД.
 type Pinger interface {
 	Ping(context.Context) error
 }
@@ -16,16 +17,19 @@ type handler struct {
 	p Pinger
 }
 
+// NewHandler - создание обработчика для проверки доступности БД.
 func NewHandler(p Pinger) *handler {
 	return &handler{
 		p: p,
 	}
 }
 
+// BuildRouter - формирование маршрута для обработчика.
 func BuildRouter(r *chi.Mux, h *handler) {
 	r.Get("/ping", h.GetPingHandler)
 }
 
+// GetPingHandler - обработчик для проверки доступности БД.
 func (h *handler) GetPingHandler(rw http.ResponseWriter, r *http.Request) {
 	log.Printf("Get Ping")
 

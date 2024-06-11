@@ -1,3 +1,4 @@
+// Пакет HTTP-клиента для сбора рантайм-метрик и их последующей отправки на сервер по протоколу HTTP.
 package agent
 
 import (
@@ -11,6 +12,7 @@ import (
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 )
 
+// Run - запуск агента
 func Run() error {
 	cfg, err := NewConfig()
 	if err != nil {

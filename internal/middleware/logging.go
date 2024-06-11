@@ -1,3 +1,4 @@
+// Middleware логирования запросов на стороне сервера.
 package middleware
 
 import (
