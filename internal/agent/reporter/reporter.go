@@ -34,7 +34,7 @@ func NewReporter(serverAddr string, reportInterval int, rateLimit int, sign http
 	}, pollerCh
 }
 
-// Do - запуск репортера
+// Do - запуск репортера.
 func (s *state) Do(reportCh <-chan map[string]model.MetricInfoRaw) {
 	agentCh := make(chan map[string]model.MetricInfoRaw)
 	for i := 0; i < s.rateLimit; i++ {

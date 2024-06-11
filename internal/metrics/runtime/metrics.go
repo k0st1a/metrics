@@ -18,7 +18,7 @@ func NewMetric() *state {
 	return &state{}
 }
 
-// MetricInfoRaw - упаковка метрик из пакета runtime в формат model.MetricInfoRaw
+// MetricInfoRaw - упаковка метрик из пакета runtime в формат model.MetricInfoRaw.
 func (s *state) MetricInfoRaw() []model.MetricInfoRaw {
 	s.update()
 	return s.mem2MetricInfoRaw()

@@ -6,7 +6,7 @@ import (
 	"net/http"
 
 	"github.com/k0st1a/metrics/internal/storage/db"
-	"github.com/k0st1a/metrics/internal/storage/db/migration/v1"
+	v1 "github.com/k0st1a/metrics/internal/storage/db/migration/v1"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/k0st1a/metrics/internal/handlers"

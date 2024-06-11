@@ -22,7 +22,7 @@ type Metrics struct {
 	List []Metric `json:"list"`
 }
 
-// Deserialize - преобразование байт в метрики типа counter и gauge
+// Deserialize - преобразование байт в метрики типа counter и gauge.
 func Deserialize(b []byte) (map[string]int64, map[string]float64, error) {
 	m := Metrics{}
 	err := easyjson.Unmarshal(b, &m)
@@ -47,7 +47,7 @@ func Deserialize(b []byte) (map[string]int64, map[string]float64, error) {
 	return c, g, nil
 }
 
-// Serialize - преобразование метрик типа counter и gauge в байты
+// Serialize - преобразование метрик типа counter и gauge в байты.
 func Serialize(c map[string]int64, g map[string]float64) ([]byte, error) {
 	m := []Metric{}
 

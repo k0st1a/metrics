@@ -39,7 +39,7 @@ type Storage interface {
 	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
-// Retryer - интерфейс повторного обращения к хранилищу
+// Retryer - интерфейс повторного обращения к хранилищу.
 type Retryer interface {
 	Retry(ctx context.Context, check func(error) bool, fnc func() error) error
 }
@@ -49,7 +49,8 @@ type handler struct {
 	retry   Retryer
 }
 
-// NewHandler - создание HTTP обработчика взаимодействия с хранилищем метрик. Обработчик работает с запросами/ответами в формате JSON.
+// NewHandler - создание HTTP обработчика взаимодействия с хранилищем метрик.
+// Обработчик работает с запросами/ответами в формате JSON.
 func NewHandler(s Storage, r Retryer) *handler {
 	return &handler{
 		storage: s,

@@ -12,9 +12,10 @@ type intervalWriter struct {
 	storage StorageGeter
 }
 
-// NewIntervalWriter - создание писателя, который с заданной периодичностью сохраняет текущие метрики на файловую систему, где:
+// NewIntervalWriter - создание писателя, который с заданной периодичностью сохраняет текущие метрики на
+// файловую систему, где:
 // * w - интерфейс записи метрик;
-// * s - интерфейс получения метрик;
+// * s - интерфейс получения метрик.
 func NewIntervalWriter(w Writer, s StorageGeter) *intervalWriter {
 	log.Debug().Msg("NewIntervalWriter")
 	return &intervalWriter{

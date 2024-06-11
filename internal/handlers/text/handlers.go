@@ -47,7 +47,7 @@ type Storage interface {
 	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
-// Retryer - интерфейс повторного обращения к хранилищу
+// Retryer - интерфейс повторного обращения к хранилищу.
 type Retryer interface {
 	Retry(ctx context.Context, check func(error) bool, fnc func() error) error
 }
@@ -77,17 +77,17 @@ func BuildRouter(r *chi.Mux, h *handler) {
 	r.NotFound(BadRequestHandler)
 }
 
-// BadRequestHandler - обработчик когда не найден ни один из путей
+// BadRequestHandler - обработчик когда не найден ни один из путей.
 func BadRequestHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusBadRequest)
 }
 
-// NotFoundHandler - обработчик когда в пути не задано имя метрики
+// NotFoundHandler - обработчик когда в пути не задано имя метрики.
 func NotFoundHandler(rw http.ResponseWriter, r *http.Request) {
 	http.Error(rw, emptyMetricValue, http.StatusNotFound)
 }
 
-// GetAllHandler - обработчик для получения всех метрик
+// GetAllHandler - обработчик для получения всех метрик.
 func (h *handler) GetAllHandler(rw http.ResponseWriter, r *http.Request) {
 	const htmlTemplate = `Current metrics in form type/name/value:
 {{range .}}{{.Type}}/{{.Name}}/{{.Value}}

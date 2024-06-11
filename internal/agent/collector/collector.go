@@ -4,7 +4,7 @@ import (
 	"github.com/k0st1a/metrics/internal/agent/model"
 )
 
-// MetricInfoRawer - интерфейс формирования метрик
+// MetricInfoRawer - интерфейс формирования метрик.
 type MetricInfoRawer interface {
 	MetricInfoRaw() []model.MetricInfoRaw
 }

@@ -12,7 +12,7 @@ import (
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 )
 
-// Run - запуск агента
+// Run - запуск агента.
 func Run() error {
 	cfg, err := NewConfig()
 	if err != nil {

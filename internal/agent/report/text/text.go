@@ -8,7 +8,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// Metrics2MetricInfoer - интерфейс формирования метрик
+// Metrics2MetricInfoer - интерфейс формирования метрик.
 type Metrics2MetricInfoer interface {
 	Metrics2MetricInfo() []model.MetricInfo
 }

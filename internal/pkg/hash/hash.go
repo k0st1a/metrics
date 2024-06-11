@@ -23,14 +23,14 @@ type hash struct {
 	key []byte
 }
 
-// New - создания сущности подпись
+// New - создания сущности подпись.
 func New(key string) *hash {
 	return &hash{
 		key: []byte(key),
 	}
 }
 
-// Is - проверка есть ли подпись
+// Is - проверка есть ли подпись.
 func (h *hash) Is() bool {
 	return !bytes.Equal(h.key, []byte{})
 }
