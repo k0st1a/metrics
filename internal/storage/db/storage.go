@@ -18,8 +18,7 @@ type DBStorage struct {
 }
 
 // NewStorage - создать storage для хранения метрик в БД, где:
-//
-//	c - пулл коннекций до БД.
+//   - c - пулл коннекций до БД.
 func NewStorage(c *pgxpool.Pool) *DBStorage {
 	return &DBStorage{
 		c: c,

@@ -24,7 +24,7 @@ type file struct {
 }
 
 // NewWriter - писать на файловую систему, где:
-// * p - полное имя файла, куда сохраняются текущие значения метрик.
+//   - p - полное имя файла, куда сохраняются текущие значения метрик.
 func NewWriter(p string) Writer {
 	return &file{path: p}
 }
@@ -32,8 +32,8 @@ func NewWriter(p string) Writer {
 const FileMode = 0600
 
 // Write - запись метрик на файловую систему, где:
-// * ctx - контекст отмены записи;
-// * s - интерфейс получения метрик.
+//   - ctx - контекст отмены записи;
+//   - s - интерфейс получения метрик.
 func (f *file) Write(ctx context.Context, s StorageGeter) error {
 	log.Printf("Write storage to file:%v", f.path)
 
@@ -57,7 +57,7 @@ func (f *file) Write(ctx context.Context, s StorageGeter) error {
 }
 
 // Read - чтение метрик из файловой системы, где:
-// * path - полное имя файла, куда ранее были сохранены метрики.
+//   - path - полное имя файла, куда ранее были сохранены метрики.
 func Read(path string) (map[string]int64, map[string]float64, error) {
 	log.Printf("Read storage from file:%v", path)
 

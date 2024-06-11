@@ -20,9 +20,9 @@ type report struct {
 }
 
 // NewReport - создание репортера, HTTP клиента, отправляющего метрики, где:
-// * a - адрем сервера;
-// * с - HTTP клиент;
-// * m - функция формирования метрик.
+//   - a - адреc сервера;
+//   - с - HTTP клиент;
+//   - m - функция формирования метрик.
 func NewReport(a string, c *http.Client, m Metrics2MetricInfoer) *report {
 	return &report{
 		addr: a,

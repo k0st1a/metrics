@@ -19,9 +19,9 @@ type report struct {
 }
 
 // NewReport - создание репортера, HTTP клиента, отправляющего метрики в формате JSON, где:
-// * a - адрем сервера;
-// * с - HTTP клиент;
-// * ch - через данный канал получаем метрики для отправки на сервер.
+//   - a - адрем сервера;
+//   - с - HTTP клиент;
+//   - ch - через данный канал получаем метрики для отправки на сервер.
 func NewReport(a string, c *http.Client, ch <-chan map[string]model.MetricInfoRaw) *report {
 	return &report{
 		address: a,

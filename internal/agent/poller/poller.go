@@ -22,9 +22,9 @@ type state struct {
 }
 
 // NewPoller - создание поллера, опросника метрик, где:
-// * i - через заданное количество секунд запускать сбор метрик;
-// * rm - функция формирования runtime метрик;
-// * gm - функция формирования gopsutil метрик.
+//   - i - через заданное количество секунд запускать сбор метрик;
+//   - rm - функция формирования runtime метрик;
+//   - gm - функция формирования gopsutil метрик.
 func NewPoller(i int, rm MetricInfoRawer, gm MetricInfoRawer) (*state, <-chan map[string]model.MetricInfoRaw) {
 	reportCh := make(chan map[string]model.MetricInfoRaw)
 	return &state{
@@ -35,7 +35,9 @@ func NewPoller(i int, rm MetricInfoRawer, gm MetricInfoRawer) (*state, <-chan ma
 	}, reportCh
 }
 
-// Do - запуск опросника метрик.
+// Do - запуск опросника метрик, где:
+//   - ctx - контест отмены опросника;
+//   - reporterCh - признак того, что нужно отправить данные в канал reportCH
 func (s *state) Do(ctx context.Context, reporterCh <-chan struct{}) {
 	pollTicker := time.NewTicker(time.Duration(s.pollInterval) * time.Second)
 	// runtime
