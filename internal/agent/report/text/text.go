@@ -8,10 +8,6 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Doer interface {
-	Do()
-}
-
 type Metrics2MetricInfoer interface {
 	Metrics2MetricInfo() []model.MetricInfo
 }
@@ -22,7 +18,7 @@ type report struct {
 	addr string
 }
 
-func NewReport(a string, c *http.Client, m Metrics2MetricInfoer) Doer {
+func NewReport(a string, c *http.Client, m Metrics2MetricInfoer) *report {
 	return &report{
 		addr: a,
 		c:    c,
