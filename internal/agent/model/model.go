@@ -2,18 +2,21 @@ package model
 
 import "strconv"
 
+// MetricInfo - структура для "промежуточного" хранения метрик.
 type MetricInfo struct {
 	Name  string
 	MType string
 	Value string
 }
 
+// MetricInfoRaw - структура для хранения "сырых" метрик.
 type MetricInfoRaw struct {
 	Value any
 	Name  string
 	Type  string
 }
 
+// Append - добавление метрики в список.
 func Append(acc map[string]MetricInfoRaw, adding []MetricInfoRaw) map[string]MetricInfoRaw {
 	for _, v := range adding {
 		acc[v.Name] = MetricInfoRaw{
@@ -25,6 +28,7 @@ func Append(acc map[string]MetricInfoRaw, adding []MetricInfoRaw) map[string]Met
 	return acc
 }
 
+// RawMap2InfoList  - преобразование map из метрик в в list из метрик.
 func RawMap2InfoList(r map[string]MetricInfoRaw) []MetricInfo {
 	mi := make([]MetricInfo, len(r))
 	i := 0
@@ -36,6 +40,7 @@ func RawMap2InfoList(r map[string]MetricInfoRaw) []MetricInfo {
 	return mi
 }
 
+// raw2Info - преобразование "сырой" метрики в "промежуточный".
 func raw2Info(m MetricInfoRaw) MetricInfo {
 	var value string
 
