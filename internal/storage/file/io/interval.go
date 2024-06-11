@@ -12,6 +12,9 @@ type intervalWriter struct {
 	storage StorageGeter
 }
 
+// NewIntervalWriter - создание писателя, который с заданной периодичностью сохраняет текущие метрики на файловую систему, где:
+// * w - интерфейс записи метрик;
+// * s - интерфейс получения метрик;
 func NewIntervalWriter(w Writer, s StorageGeter) *intervalWriter {
 	log.Debug().Msg("NewIntervalWriter")
 	return &intervalWriter{
@@ -20,6 +23,9 @@ func NewIntervalWriter(w Writer, s StorageGeter) *intervalWriter {
 	}
 }
 
+// Run - запуск писателя, где:
+// * ctx - контекст отмены записи;
+// * interval - интервал времени в секундах, через которые сохранять метрики на файловую систему.
 func (w *intervalWriter) Run(ctx context.Context, interval int) {
 	log.Debug().Msg("Run interval writer")
 	ticker := time.NewTicker(time.Duration(interval) * time.Second)

@@ -9,10 +9,12 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// StorageGeter - интерфейс получения всех метрик.
 type StorageGeter interface {
 	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
+// Writer - интерфейс зафиси на файловую систему
 type Writer interface {
 	Write(context.Context, StorageGeter) error
 }
@@ -21,12 +23,17 @@ type file struct {
 	path string
 }
 
+// NewWriter - писать на файловую систему, где:
+// * p - полное имя файла, куда сохраняются текущие значения метрик.
 func NewWriter(p string) Writer {
 	return &file{path: p}
 }
 
 const FileMode = 0600
 
+// Write - запись метрик на файловую систему, где:
+// * ctx - контекст отмены записи;
+// * s - интерфейс получения метрик.
 func (f *file) Write(ctx context.Context, s StorageGeter) error {
 	log.Printf("Write storage to file:%v", f.path)
 
@@ -49,6 +56,8 @@ func (f *file) Write(ctx context.Context, s StorageGeter) error {
 	return nil
 }
 
+// Read - чтение метрик из файловой системы, где:
+// * path - полное имя файла, куда ранее были сохранены метрики.
 func Read(path string) (map[string]int64, map[string]float64, error) {
 	log.Printf("Read storage from file:%v", path)
 
