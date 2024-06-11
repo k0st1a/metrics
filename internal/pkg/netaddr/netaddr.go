@@ -1,3 +1,4 @@
+// Пакет для проверки данных на соответствие сетевому адресу.
 package netaddr
 
 import (
@@ -6,15 +7,18 @@ import (
 	"strconv"
 )
 
+// NetAddress - структура для хранения данных о сетевом адресе.
 type NetAddress struct {
 	host string
 	port uint16
 }
 
+// String - преобразование сетевого адреса к строке.
 func (a *NetAddress) String() string {
 	return a.host + ":" + strconv.FormatUint(uint64(a.port), 10)
 }
 
+// Set - проверка и преобразование строки к сетевому адресу.
 func (a *NetAddress) Set(flagValue string) error {
 	host, port, err := net.SplitHostPort(flagValue)
 	if err != nil {

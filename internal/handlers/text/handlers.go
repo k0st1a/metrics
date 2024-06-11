@@ -29,17 +29,25 @@ const (
 	notFoundMetric   = "metric not found"
 )
 
+// Storage - интерфейс работы с хранилищем метрик.
 type Storage interface {
+	// GetGauge - возвращает метрику типа gauge с именем name.
 	GetGauge(ctx context.Context, name string) (*float64, error)
+	// StoreGauge - сохраняет метрику типа gauge с именем name и значенем value.
 	StoreGauge(ctx context.Context, name string, value float64) error
 
+	// GetCounter - возвращает метрику типа gauge с именем name.
 	GetCounter(ctx context.Context, name string) (*int64, error)
+	// StoreCounter - сохраняет метрику типа counter с именем name и значенем value.
 	StoreCounter(ctx context.Context, name string, value int64) error
 
+	// StoreAll - сохраняет группу метрик типа counter и gauge.
 	StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error
+	// GetAll - возвращает все метрики типа counter и gauge.
 	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
 }
 
+// Retryer - интерфейс повторного обращения к хранилищу
 type Retryer interface {
 	Retry(ctx context.Context, check func(error) bool, fnc func() error) error
 }
@@ -49,6 +57,7 @@ type handler struct {
 	retry   Retryer
 }
 
+// NewHandler - создание HTTP обработчика взаимодействия с хранилищем метрик.
 func NewHandler(s Storage, r Retryer) *handler {
 	return &handler{
 		storage: s,
@@ -56,6 +65,7 @@ func NewHandler(s Storage, r Retryer) *handler {
 	}
 }
 
+// BuildRouter - формирование маршрута для HTTP обработчика.
 func BuildRouter(r *chi.Mux, h *handler) {
 	r.Post("/update/{type}/{name}/{value}", h.PostMetricHandler)
 	r.Post("/update/counter/", NotFoundHandler)
@@ -67,14 +77,17 @@ func BuildRouter(r *chi.Mux, h *handler) {
 	r.NotFound(BadRequestHandler)
 }
 
+// BadRequestHandler - обработчик когда не найден ни один из путей
 func BadRequestHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusBadRequest)
 }
 
+// NotFoundHandler - обработчик когда в пути не задано имя метрики
 func NotFoundHandler(rw http.ResponseWriter, r *http.Request) {
 	http.Error(rw, emptyMetricValue, http.StatusNotFound)
 }
 
+// GetAllHandler - обработчик для получения всех метрик
 func (h *handler) GetAllHandler(rw http.ResponseWriter, r *http.Request) {
 	const htmlTemplate = `Current metrics in form type/name/value:
 {{range .}}{{.Type}}/{{.Name}}/{{.Value}}
@@ -125,6 +138,7 @@ func (h *handler) GetAllHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
+// PostMetricHandler - обработчик для сохранения метрики.
 func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 	mtype := strings.ToLower(chi.URLParam(r, "type"))
 	if !checkType(mtype) {
@@ -182,6 +196,7 @@ func (h *handler) PostMetricHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
+// GetMetricHandler - обработчик для получения метрики.
 func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 	mtype := strings.ToLower(chi.URLParam(r, "type"))
 	if !checkType(mtype) {

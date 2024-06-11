@@ -10,6 +10,7 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+// CheckSignature - middleware проверки подписи HashSHA256 для принимаемых данных на стороне сервера.
 func CheckSignature(h hash.Checker) func(next http.Handler) http.Handler {
 	// Подсмотрел в https://github.com/go-chi/chi/blob/master/middleware/content_type.go
 	return func(next http.Handler) http.Handler {

@@ -14,6 +14,7 @@ type dbMigration struct {
 	c *pgxpool.Pool
 }
 
+// NewMigration - создание сущности "миграция".
 func NewMigration(c *pgxpool.Pool) *dbMigration {
 	return &dbMigration{
 		c: c,

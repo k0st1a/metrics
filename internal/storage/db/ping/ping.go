@@ -11,6 +11,7 @@ type dbPing struct {
 	c *pgxpool.Pool
 }
 
+// NewPinger - создание сущности проверки подключения к БД.
 func NewPinger(c *pgxpool.Pool) *dbPing {
 	return &dbPing{
 		c: c,
