@@ -15,6 +15,7 @@ type retry struct {
 	intervals []time.Duration
 }
 
+// New - создание ретрайера, повтореное выполнение функции в зависимости от возвращаемой ею ошибки.
 func New() *retry {
 	return &retry{
 		intervals: []time.Duration{
@@ -27,6 +28,10 @@ func New() *retry {
 	}
 }
 
+// Retry - запуск ретрайера, где:
+// * ctx - контекст для отмены выполнения ретрайера;
+// * check - функция проверки ошибки выполнения функции fnc;
+// * fnc - данная фукнция выполняется повторно, если функция check возвращает true.
 func (r *retry) Retry(ctx context.Context, check func(error) bool, fnc func() error) error {
 	err := fnc()
 
@@ -46,6 +51,7 @@ func (r *retry) Retry(ctx context.Context, check func(error) bool, fnc func() er
 	return ErrMaxRetryReached
 }
 
+// IsConnectionException - проверка ошибки соединения с БД PostgreSQL
 func IsConnectionException(err error) bool {
 	var pgErr *pgconn.PgError
 	return errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code)
@@ -57,7 +63,7 @@ func wait(ctx context.Context, interval time.Duration) error {
 
 	select {
 	case <-ctx.Done():
-		//nolint //Возвращаем ошибку завершкуния контекста
+		//nolint //Возвращаем ошибку завершения контекста
 		return ctx.Err()
 	case <-timer.C:
 		return nil

@@ -13,6 +13,10 @@ type Server struct {
 	server *http.Server
 }
 
+// New - создание сервера, где:
+// * ctx - контекст отмены запросов, обрабатываемых сервером;
+// * address - хост и порт сервера;
+// * handler - обработчик сервера.
 func New(ctx context.Context, address string, handler http.Handler) *Server {
 	s := &http.Server{
 		BaseContext: func(_ net.Listener) context.Context { return ctx },
@@ -25,6 +29,7 @@ func New(ctx context.Context, address string, handler http.Handler) *Server {
 	}
 }
 
+// Run - запуск сервера.
 func (s *Server) Run() error {
 	log.Printf("Run api")
 
@@ -36,6 +41,7 @@ func (s *Server) Run() error {
 	return nil
 }
 
+// Shutdown - graceful выключение сервера.
 func (s *Server) Shutdown(ctx context.Context) error {
 	//nolint:wrapcheck //no need here
 	return s.server.Shutdown(ctx)
