@@ -12,17 +12,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type Doer interface {
-	Do()
-}
-
 type report struct {
 	client  *http.Client
 	channel <-chan map[string]model.MetricInfoRaw
 	address string
 }
 
-func NewReport(a string, c *http.Client, ch <-chan map[string]model.MetricInfoRaw) Doer {
+func NewReport(a string, c *http.Client, ch <-chan map[string]model.MetricInfoRaw) *report {
 	return &report{
 		address: a,
 		client:  c,
