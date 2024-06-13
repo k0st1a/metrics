@@ -357,3 +357,19 @@ pprof -top -diff_base=profiles/base.pprof profiles/result.pprof
 Исходный код вашего проекта должен проходить статический анализ созданного `multichecker`.
 
 Покрытие вашего кода тестами к концу спринта должно быть не менее 55%.
+
+## Инкремент 20
+
+Добавьте в пакет `cmd/server` и `cmd/agent` глобальные переменные:
+* `var buildVersion string`,
+* `var buildDate string`,
+* `var buildCommit string`.
+
+При старте приложения выводите в stdout сообщение в следующем формате:
+```
+Build version: <buildVersion> (или "N/A" при отсутствии значения)
+Build date: <buildDate> (или "N/A" при отсутствии значения)
+Build commit: <buildCommit> (или "N/A" при отсутствии значения)
+```
+
+Покрытие вашего кода тестами на данный момент должно быть не менее 55%.
