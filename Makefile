@@ -1,3 +1,4 @@
+# for debug use make SHELL="sh -x"
 LAST = 14
 NUMBERS := $(shell seq 1 ${LAST})
 ITERS := $(addprefix iter,${NUMBERS})
@@ -21,10 +22,21 @@ PPROF_SERVER_HOST="0.0.0.0"
 
 METRICSTEST_ARGS = -test.v -source-path=.
 
+# Используем := чтобы переменная содержала значение на на момент определения этой переменной, см
+# https://ftp.gnu.org/old-gnu/Manuals/make-3.79.1/html_chapter/make_6.html#SEC59
+# TODO: так нужно задать все переменные в Makefile
+BUILD_VERSION := 0.0.1
+BUILD_DATE := $(shell date -u +"%Y-%m-%d %H:%M:%S:%N %Z")
+BUILD_COMMIT := $(shell git rev-parse HEAD)
+
+GOLANG_LDFLAGS := -ldflags "-X 'main.buildVersion=${BUILD_VERSION}' \
+                            -X 'main.buildDate=${BUILD_DATE}' \
+                            -X 'main.buildCommit=${BUILD_COMMIT}'"
+
 .PHONY:build
 build:
-	go build -C ./cmd/agent/ -o agent
-	go build -C ./cmd/server/ -o server
+	go build -C ./cmd/agent/ -o agent ${GOLANG_LDFLAGS}
+	go build -C ./cmd/server/ -o server ${GOLANG_LDFLAGS}
 
 .PHONY:clean
 clean:
