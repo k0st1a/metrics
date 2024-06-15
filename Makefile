@@ -47,6 +47,9 @@ clean:
 statictest:
 	go vet -vettool=$$(which statictest) ./...
 
+.PHONY:staticlint
+staticlint:
+	go run cmd/staticlint/main.go ./...
 
 test: build statictest
 	go test -v -race ./...
