@@ -49,7 +49,10 @@ statictest:
 
 
 test: build statictest
-	go test -v ./...
+	go test -v -race ./...
+
+test-analyzer: build statictest
+	go test -v -race ./internal/pkg/analyzer/...
 
 .PHONY: miter7
 miter7: build statictest
