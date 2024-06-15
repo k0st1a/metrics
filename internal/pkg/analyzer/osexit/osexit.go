@@ -8,13 +8,13 @@ import (
 
 var Analyzer = &analysis.Analyzer{
 	Name: "osexit",
-	Doc:  "check for call os.Exit",
+	Doc:  "check direct call os.Exit",
 	Run:  run,
 }
 
 func run(pass *analysis.Pass) (interface{}, error) {
 	for _, file := range pass.Files {
-		if file.Name.Name != "main" {
+		if file.Name.String() != "main" {
 			continue
 		}
 
@@ -30,7 +30,7 @@ func inspect(pass *analysis.Pass) func(ast.Node) bool {
 
 		switch v := node.(type) {
 		case *ast.FuncDecl:
-			if v.Name.Name == "main" {
+			if v.Name.String() == "main" {
 				isMainFunc = true
 			} else {
 				isMainFunc = false
@@ -59,11 +59,11 @@ func isOsExitCallExp(es *ast.ExprStmt, pass *analysis.Pass, isMainFunc bool) {
 		return
 	}
 
-	if i.Name != "os" {
+	if i.String() != "os" {
 		return
 	}
 
-	if se.Sel.Name != "Exit" {
+	if se.Sel.String() != "Exit" {
 		return
 	}
 
