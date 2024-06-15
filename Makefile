@@ -51,9 +51,11 @@ statictest:
 staticlint:
 	go run cmd/staticlint/main.go ./...
 
+.PHONY:test
 test: build statictest
 	go test -v -race ./...
 
+.PHONY:test-analyzer
 test-analyzer: build statictest
 	go test -v -race ./internal/pkg/analyzer/...
 
