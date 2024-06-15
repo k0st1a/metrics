@@ -1,0 +1,22 @@
+name: go test cover
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+jobs:
+  cover:
+    runs-on: ubuntu-latest
+    container: golang:1.21
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Run test cover
+        run: |
+            go test -v -coverpkg=./... -coverprofile=profile.cov.tmp ./... && \
+            cat profile.cov.tmp | grep -v "_easyjson.go" | grep -v "model.go" > profile.cov && \
+            rm profile.cov.tmp && \
+            go tool cover -func profile.cov
