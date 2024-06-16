@@ -22,7 +22,8 @@ RUN \
     DEBIAN_FRONTEND=noninteractive \
         apt-get clean && \
     rm -rf /var/cache/* /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
-    echo "${USER} ALL=NOPASSWD: ALL" > /etc/sudoers.d/${USER}
+    echo "${USER} ALL=NOPASSWD: ALL" > /etc/sudoers.d/${USER} && \
+    git config --global --add safe.directory /home/${USER}/project
 
 WORKDIR /home/${USER}/project
 CMD ["/bin/bash"]
