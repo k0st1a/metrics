@@ -61,6 +61,14 @@ staticlint:
 test: build statictest staticlint
 	go test -v -race -count=1 ./...
 
+.PHONY: cover
+cover:
+	go test -v -coverpkg=./... -coverprofile=cover.profile.tmp ./... && \
+	cat cover.profile.tmp | grep -v "_easyjson.go" | grep -v "model.go" > cover.profile && \
+	rm cover.profile.tmp && \
+	go tool cover -func cover.profile && \
+	go tool cover -html cover.profile -o cover.html
+
 .PHONY:test-analyzer
 test-analyzer:
 	go test -v -race -count=1 ./internal/pkg/analyzer/...
@@ -228,13 +236,6 @@ server-run-with-args: build statictest db-up
 agent-run-with-args: build statictest db-up
 	chmod +x ./cmd/agent/agent && \
 		./cmd/agent/agent -a ${SERVER_HOST}:${SERVER_PORT}
-
-.PHONY: cover
-cover:
-	go test -v -coverpkg=./... -coverprofile=profile.cov.tmp ./... && \
-	cat profile.cov.tmp | grep -v "_easyjson.go" | grep -v "model.go" > profile.cov && \
-	rm profile.cov.tmp && \
-	go tool cover -func profile.cov
 
 .PHONY: pprof-mem-http
 pprof-mem-http:
