@@ -29,6 +29,7 @@ func TestServer(t *testing.T) {
 			fnc: func(code int, body string) http.HandlerFunc {
 				return func(rw http.ResponseWriter, r *http.Request) {
 					rw.WriteHeader(code)
+					//nolint:errcheck,gosec // not need in test
 					rw.Write([]byte(body))
 				}
 			},
@@ -48,7 +49,7 @@ func TestServer(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
 			mux := http.NewServeMux()
-			mux.Handle(test.path, http.HandlerFunc(test.fnc(test.expectedStatusCode, test.expectedBody)))
+			mux.Handle(test.path, test.fnc(test.expectedStatusCode, test.expectedBody))
 
 			srv := New(context.Background(), test.addr, mux)
 
