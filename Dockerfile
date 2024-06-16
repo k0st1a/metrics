@@ -26,4 +26,6 @@ RUN \
     git config --global --add safe.directory /home/${USER}/project
 
 WORKDIR /home/${USER}/project
+# Use ${USER} user inside docker - another method to set user
+USER ${USER}
 CMD ["/bin/bash"]
