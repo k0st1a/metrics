@@ -50,19 +50,28 @@ func TestMiddlewareCompress(t *testing.T) {
 
 	r.Get("/get_application_json", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte("textstring"))
+		_, err := w.Write([]byte("textstring"))
+		if err != nil {
+			panic(err)
+		}
 		w.WriteHeader(http.StatusOK)
 	})
 
 	r.Get("/get_text_html", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
-		w.Write([]byte("textstring"))
+		_, err := w.Write([]byte("textstring"))
+		if err != nil {
+			panic(err)
+		}
 		w.WriteHeader(http.StatusOK)
 	})
 
 	r.Get("/get_unknown_content_type", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "unknown")
-		w.Write([]byte("textstring"))
+		_, err := w.Write([]byte("textstring"))
+		if err != nil {
+			panic(err)
+		}
 		w.WriteHeader(http.StatusOK)
 	})
 
@@ -84,6 +93,7 @@ func TestMiddlewareCompress(t *testing.T) {
 
 			resp, err := tc.Do(req)
 			assert.NoError(t, err)
+			//nolint:errcheck // not need check error in test
 			defer resp.Body.Close()
 
 			var reader io.ReadCloser
@@ -100,7 +110,8 @@ func TestMiddlewareCompress(t *testing.T) {
 			respBody, err := io.ReadAll(reader)
 			assert.NoError(t, err)
 
-			reader.Close()
+			err = reader.Close()
+			assert.NoError(t, err)
 
 			assert.Equal(t, "textstring", string(respBody),
 				"response text doesn't match; expected:%q, got:%q", "textstring", string(respBody))
