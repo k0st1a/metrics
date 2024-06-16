@@ -15,10 +15,9 @@ RUN \
     DEBIAN_FRONTEND=noninteractive \
         apt-get --quiet --yes --no-install-recommends install \
             bash-completion chrpath curl dpkg dialog awscli \
-            git locales make ssh sudo vim tig adduser && \
+            git locales make ssh sudo vim tig adduser mc && \
     adduser --disabled-password --gecos '' ${USER} && \
     chown -Rc ${USER}:${USER} "/home/${USER}/" && \
-    apt-get update && \
     DEBIAN_FRONTEND=noninteractive \
         apt-get clean && \
     rm -rf /var/cache/* /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
