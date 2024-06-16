@@ -26,6 +26,7 @@ func run(pass *analysis.Pass) (interface{}, error) {
 		ast.Inspect(file, inspect(pass))
 	}
 
+	//nolint:nilnil // default return value for analysis
 	return nil, nil
 }
 
