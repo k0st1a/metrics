@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"strconv"
 
 	"github.com/rs/zerolog/log"
 )
@@ -39,10 +40,14 @@ func (c compress) Write(data []byte) (int, error) {
 	in := isNeedCompress(ct)
 	log.Debug().Msgf("Is need compress for Content-Type:%v?(%v) method:%v, uri:%v", ct, in, c.method, c.uri)
 	if !in {
+		// otherwise check_no_compress_for_unknown_Content-Type test fails
+		c.rw.Header().Set("Content-Length", strconv.Itoa(len(data)))
+
 		n, err := c.rw.Write(data)
 		if err != nil {
 			return n, fmt.Errorf("c.rw.Write error:%w", err)
 		}
+
 		return n, nil
 	}
 
@@ -52,6 +57,7 @@ func (c compress) Write(data []byte) (int, error) {
 	if err != nil {
 		return n, fmt.Errorf("c.w.Write error:%w", err)
 	}
+
 	return n, nil
 }
 
@@ -64,9 +70,7 @@ func Compress(next http.Handler) http.Handler {
 		if r.Header.Get("Accept-Encoding") == "gzip" {
 			c := newCompress(rw, r)
 			next.ServeHTTP(c, r)
-			defer func() {
-				c.close()
-			}()
+			defer c.close()
 		} else {
 			next.ServeHTTP(rw, r)
 		}
