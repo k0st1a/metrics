@@ -69,6 +69,10 @@ cover:
 	go tool cover -func cover.profile && \
 	go tool cover -html cover.profile -o cover.html
 
+.PHONY: cover-clean
+cover-clean:
+	rm -v -f cover.profile cover.html
+
 .PHONY:test-analyzer
 test-analyzer:
 	go test -v -race -count=1 ./internal/pkg/analyzer/...
@@ -285,6 +289,7 @@ db-down:
 	PG_IMAGE=${PG_IMAGE} \
 	PG_DOCKER_CONTEINER_NAME=${PG_DOCKER_CONTEINER_NAME} \
 	docker compose -f ./docker-compose.yml down postgres
+
 
 GOLANGCI_LINT_CACHE?=/tmp/praktikum-golangci-lint-cache
 
