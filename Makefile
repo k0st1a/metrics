@@ -58,12 +58,12 @@ staticlint:
 	go run cmd/staticlint/main.go ./...
 
 .PHONY:test
-test: build statictest
-	go test -v -race ./...
+test: build statictest staticlint
+	go test -v -race -count=1 ./...
 
 .PHONY:test-analyzer
-test-analyzer: build statictest
-	go test -v -race ./internal/pkg/analyzer/...
+test-analyzer:
+	go test -v -race -count=1 ./internal/pkg/analyzer/...
 
 .PHONY: miter7
 miter7: build statictest
