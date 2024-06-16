@@ -2,9 +2,13 @@ FROM golang:1.22.4-bookworm
 LABEL author="Konstantin Malikov"
 LABEL description="Toolchain for project"
 
+# Define ARG after FROM to indicate values coming from build arguments are part of the build stage.
+# From https://stackoverflow.com/questions/31198835/can-we-pass-env-variables-through-cmd-line-while-building-a-docker-image-through
+ARG DOCKER_USER
+
+# Create the environment variables and assign the values from the build arguments.
 ENV \
-    USER=k0st1am \
-    TERM=xterm
+    USER=${DOCKER_USER}
 
 RUN \
     adduser --disabled-password --gecos '' ${USER} && \
@@ -16,8 +20,8 @@ RUN \
             git locales make ssh sudo vim tig && \
     DEBIAN_FRONTEND=noninteractive \
         apt-get clean && \
-    echo "${USER} ALL=NOPASSWD: ALL" > /etc/sudoers.d/${USER} &&\
+    rm -rf /var/cache/* /var/lib/apt/lists/* /tmp/* /var/tmp/* && \
+    echo "${USER} ALL=NOPASSWD: ALL" > /etc/sudoers.d/${USER}
 
 WORKDIR /home/${USER}/project
-VOLUME ["/home/${USER}/project"]
 CMD ["/bin/bash"]

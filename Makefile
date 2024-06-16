@@ -1,4 +1,10 @@
 # for debug use make SHELL="sh -x"
+
+# Получаем полный путь к клиенту докера
+DOCKER := $(shell which docker)
+DOCKERFILE := Dockerfile
+PWD := $(shell pwd)
+
 LAST = 14
 NUMBERS := $(shell seq 1 ${LAST})
 ITERS := $(addprefix iter,${NUMBERS})
@@ -310,3 +316,36 @@ _golangci-lint-rm-unformatted-report: _golangci-lint-format-report
 .PHONY: golangci-lint-clean
 golangci-lint-clean:
 	rm -rf ./golangci-lint
+
+# For run metrics in docker
+UUID = $(shell cat /proc/sys/kernel/random/uuid)
+METRICS_IMAGE := "metrics"
+DOCKER_USER := ${USER}
+
+DOCKER_PARAMS = \
+    --volume ${PWD}:/home/${DOCKER_USER}/project \
+	--volume ~/.vimrc:/home/${DOCKER_USER}/.vimrc \
+	--volume ~/.vim:/home/${DOCKER_USER}/.vim \
+    --tmpfs /tmp:exec,size=2G \
+    --env UID=$(shell id -u) \
+    --env GID=$(shell id -g) \
+    --name ${METRICS_IMAGE}-${UUID} \
+    --privileged \
+    --rm \
+	-ti
+
+
+.PHONY:cli
+cli:
+	@${DOCKER} run ${DOCKER_PARAMS} ${METRICS_IMAGE}:${BUILD_VERSION} /usr/bin/bash
+
+.PHONY:toolchain
+toolchain:
+	@${DOCKER} build \
+		--build-arg DOCKER_USER=${DOCKER_USER} \
+		--tag=${METRICS_IMAGE}:${BUILD_VERSION} \
+		--pull ${NO_CACHE} \
+        --rm -f ${DOCKERFILE} \
+        ./
+	@${DOCKER} tag ${METRICS_IMAGE}:${BUILD_VERSION} ${METRICS_IMAGE}:latest
+
