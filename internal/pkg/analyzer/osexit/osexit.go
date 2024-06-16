@@ -2,6 +2,7 @@ package osexit
 
 import (
 	"go/ast"
+	"strings"
 
 	"golang.org/x/tools/go/analysis"
 )
@@ -18,6 +19,10 @@ func run(pass *analysis.Pass) (interface{}, error) {
 			continue
 		}
 
+		if !strings.HasSuffix(pass.Fset.Position(file.Pos()).Filename, ".go") {
+			continue
+		}
+
 		ast.Inspect(file, inspect(pass))
 	}
 
@@ -25,9 +30,9 @@ func run(pass *analysis.Pass) (interface{}, error) {
 }
 
 func inspect(pass *analysis.Pass) func(ast.Node) bool {
-	return func(node ast.Node) bool {
-		var isMainFunc = false
+	var isMainFunc = false
 
+	return func(node ast.Node) bool {
 		switch v := node.(type) {
 		case *ast.FuncDecl:
 			if v.Name.String() == "main" {
@@ -36,14 +41,14 @@ func inspect(pass *analysis.Pass) func(ast.Node) bool {
 				isMainFunc = false
 			}
 		case *ast.ExprStmt:
-			isOsExitCallExp(v, pass, isMainFunc)
+			isOsExitCallExp(v, pass, &isMainFunc)
 		}
 
 		return true
 	}
 }
 
-func isOsExitCallExp(es *ast.ExprStmt, pass *analysis.Pass, isMainFunc bool) {
+func isOsExitCallExp(es *ast.ExprStmt, pass *analysis.Pass, isMainFunc *bool) {
 	ce, ok := es.X.(*ast.CallExpr)
 	if !ok {
 		return
@@ -67,7 +72,7 @@ func isOsExitCallExp(es *ast.ExprStmt, pass *analysis.Pass, isMainFunc bool) {
 		return
 	}
 
-	if isMainFunc {
-		pass.Reportf(i.NamePos, "direct call os.Exit")
+	if *isMainFunc {
+		pass.Reportf(i.NamePos, "direct call os.Exit in main func")
 	}
 }
