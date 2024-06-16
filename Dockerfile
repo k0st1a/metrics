@@ -1,4 +1,4 @@
-FROM golang:1.22.4-bookworm
+FROM golang:1.21
 LABEL author="Konstantin Malikov"
 LABEL description="Toolchain for project"
 
@@ -11,13 +11,14 @@ ENV \
     USER=${DOCKER_USER}
 
 RUN \
-    adduser --disabled-password --gecos '' ${USER} && \
-    chown -Rc ${USER}:${USER} "/home/${USER}/" && \
     apt-get update && \
     DEBIAN_FRONTEND=noninteractive \
         apt-get --quiet --yes --no-install-recommends install \
             bash-completion chrpath curl dpkg dialog awscli \
-            git locales make ssh sudo vim tig && \
+            git locales make ssh sudo vim tig adduser && \
+    adduser --disabled-password --gecos '' ${USER} && \
+    chown -Rc ${USER}:${USER} "/home/${USER}/" && \
+    apt-get update && \
     DEBIAN_FRONTEND=noninteractive \
         apt-get clean && \
     rm -rf /var/cache/* /var/lib/apt/lists/* /tmp/* /var/tmp/* && \

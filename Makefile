@@ -41,8 +41,8 @@ GOLANG_LDFLAGS := -ldflags "-X 'main.buildVersion=${BUILD_VERSION}' \
 
 .PHONY:build
 build:
-	go build -C ./cmd/agent/ -o agent ${GOLANG_LDFLAGS}
-	go build -C ./cmd/server/ -o server ${GOLANG_LDFLAGS}
+	go build -C ./cmd/agent/ -o agent -buildvcs=false ${GOLANG_LDFLAGS}
+	go build -C ./cmd/server/ -o server -buildvcs=false ${GOLANG_LDFLAGS}
 
 .PHONY:clean
 clean:
@@ -326,6 +326,8 @@ DOCKER_PARAMS = \
     --volume ${PWD}:/home/${DOCKER_USER}/project \
 	--volume ~/.vimrc:/home/${DOCKER_USER}/.vimrc \
 	--volume ~/.vim:/home/${DOCKER_USER}/.vim \
+	--volume ~/.gitignore:/home/${DOCKER_USER}/.gitignore \
+	--volume ~/git:/home/${DOCKER_USER}/git \
     --tmpfs /tmp:exec,size=2G \
     --env UID=$(shell id -u) \
     --env GID=$(shell id -g) \
@@ -337,7 +339,7 @@ DOCKER_PARAMS = \
 
 .PHONY:cli
 cli:
-	@${DOCKER} run ${DOCKER_PARAMS} ${METRICS_IMAGE}:${BUILD_VERSION} /usr/bin/bash
+	@${DOCKER} run ${DOCKER_PARAMS} ${METRICS_IMAGE}:${BUILD_VERSION} bash
 
 .PHONY:toolchain
 toolchain:
