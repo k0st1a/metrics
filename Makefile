@@ -321,16 +321,22 @@ golangci-lint-clean:
 UUID = $(shell cat /proc/sys/kernel/random/uuid)
 METRICS_IMAGE := "metrics"
 DOCKER_USER := ${USER}
+UID := $(shell id -u)
+GID := $(shell id -g)
 
 DOCKER_PARAMS = \
     --volume ${PWD}:/home/${DOCKER_USER}/project \
-	--volume ~/.vimrc:/home/${DOCKER_USER}/.vimrc \
-	--volume ~/.vim:/home/${DOCKER_USER}/.vim \
-	--volume ~/.gitignore:/home/${DOCKER_USER}/.gitignore \
-	--volume ~/git:/home/${DOCKER_USER}/git \
+	--volume ~/.vimrc:/home/${DOCKER_USER}/.vimrc:ro \
+	--volume ~/.vim:/home/${DOCKER_USER}/.vim:ro \
+	--volume ~/.gitignore:/home/${DOCKER_USER}/.gitignore:ro \
+	--volume ~/git:/home/${DOCKER_USER}/git:ro \
     --tmpfs /tmp:exec,size=2G \
-    --env UID=$(shell id -u) \
-    --env GID=$(shell id -g) \
+    --env UID=${UID} \
+    --env GID=${GID} \
+	--user ${UID}:${GID} \
+    --volume="/etc/group:/etc/group:ro" \
+    --volume="/etc/passwd:/etc/passwd:ro" \
+    --volume="/etc/shadow:/etc/shadow:ro" \
     --name ${METRICS_IMAGE}-${UUID} \
     --privileged \
     --rm \
