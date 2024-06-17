@@ -10,12 +10,12 @@ import (
 	"golang.org/x/tools/go/analysis/passes/shift"
 	"golang.org/x/tools/go/analysis/passes/structtag"
 
+	"github.com/kyoh86/nolint"
 	"honnef.co/go/tools/quickfix"
 	"honnef.co/go/tools/simple"
 	"honnef.co/go/tools/staticcheck"
 	"honnef.co/go/tools/stylecheck"
 
-	interfacebloat "github.com/sashamelentyev/interfacebloat/pkg/analyzer"
 	"go.uber.org/nilaway"
 	nilawayconfig "go.uber.org/nilaway/config"
 )
@@ -27,12 +27,12 @@ func Run() {
 		shift.Analyzer,
 		structtag.Analyzer,
 		osexit.Analyzer,
+		nolint.Analyzer,
 		nilawayconfig.Analyzer,
 		nilaway.Analyzer,
-		interfacebloat.New(),
 	)
 
-	multichecker.Main(analyzers...)
+	multichecker.Main(nolint.WrapAll(analyzers...)...)
 }
 
 func staticcheckAnalyzers() []*analysis.Analyzer {

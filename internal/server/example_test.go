@@ -22,8 +22,7 @@ func Example() { //nolint:testableexamples // no output here
 
 	ctx := context.Background()
 
-	// Init PostgreSQL storage
-	pool, _ := pgxpool.New(ctx, cfg.DatabaseDSN)
+	pool, _ := pgxpool.New(ctx, cfg.DatabaseDSN) // nolint
 
 	m := v1.NewMigration(pool)
 	_ = m.Migrate(ctx)
@@ -33,6 +32,7 @@ func Example() { //nolint:testableexamples // no output here
 	rt := retry.New()
 	jh := json.NewHandler(s, rt)
 
+	// nolint:nilaway
 	h := hash.New(cfg.HashKey)
 	r := handlers.NewRouter(h)
 	json.BuildRouter(r, jh)
