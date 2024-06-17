@@ -12,15 +12,6 @@ Staticlint - линтер, собранные с использованем go/a
 
 	$ go run cmd/staticlint/main.go -osexit ./...
 
-С использованием только nilaway на пакете github.com/k0st1a/metrics
-(nilaway_config нужен для задания проверяемого пакета)
-
-	$ go run ./cmd/staticlint/main.go -nilaway_config.include-pkgs="github.com/k0st1a/metrics" ./...
-
-С использованием всех анализаторов и nilaway на пакете github.com/k0st1a/metrics
-
-	$ go run ./cmd/staticlint/main.go -nilaway_config.include-pkgs="github.com/k0st1a/metrics" ./...
-
 Все флаги (предоставляются multichecker-ом) можно посмотреть:
 
 	$ go run cmd/staticlint/main.go -h
@@ -62,11 +53,7 @@ Staticlint - линтер, собранные с использованем go/a
 
   - публичные анализаторы:
 
-    -- nilaway (https://github.com/uber-go/nilaway)
-
-    -- nilaway_config (https://github.com/uber-go/nilaway/blob/main/config/config.go)
-
-    -- nolint (https://github.com/kyoh86/nolint)
+    -- interfacebloat (https://github.com/sashamelentyev/interfacebloat)
 
   - собственный анализатор osexit, который запрещает прямой вызова os.Exit в функции main пакета main.
 */

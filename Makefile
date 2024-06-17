@@ -60,7 +60,7 @@ statictest:
 
 .PHONY:staticlint
 staticlint:
-	go run cmd/staticlint/main.go -nilaway_config.include-pkgs="github.com/k0st1a/metrics" ./...
+	go run cmd/staticlint/main.go ./...
 
 .PHONY:test
 test: build statictest staticlint
