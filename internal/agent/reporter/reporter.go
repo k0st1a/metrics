@@ -1,3 +1,4 @@
+// Package reporter is send metrics to HTTP server.
 package reporter
 
 import (

@@ -1,3 +1,4 @@
+// Package gopsutil for collect metrics from gopsutil package.
 package gopsutil
 
 import (

@@ -1,3 +1,4 @@
+// Package text contains the reporter code which work with text format.
 package text
 
 import (

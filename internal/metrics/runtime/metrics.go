@@ -1,3 +1,4 @@
+// Package runtime for collect metrics from runtime package.
 package runtime
 
 import (
