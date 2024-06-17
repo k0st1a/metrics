@@ -49,7 +49,8 @@ Staticlint - линтер, собранные с использованем go/a
 
     -- Performance issues (SA6 groups) (https://staticcheck.io/docs/checks/#SA6)
 
-    -- Dubious code constructs that have a high probability of being wrong (SA9 group) (https://staticcheck.io/docs/checks/#SA9)
+    -- Dubious code constructs that have a high probability of being wrong (SA9 group)
+    (https://staticcheck.io/docs/checks/#SA9)
 
   - анализаторы staticcheck пакета staticcheck.io:
 

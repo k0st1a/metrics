@@ -1,3 +1,4 @@
+// Package collector for collect metrics.
 package collector
 
 import (
