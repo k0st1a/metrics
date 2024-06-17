@@ -3,6 +3,7 @@ package profiler
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"net/http/pprof"
 
@@ -19,5 +20,10 @@ func New(ctx context.Context, address string) (*server.Server, error) {
 	mux.HandleFunc("/debug/pprof/symbol", pprof.Symbol)
 	mux.HandleFunc("/debug/pprof/trace", pprof.Trace)
 
-	return server.New(ctx, address, mux)
+	srv, err := server.New(ctx, address, mux)
+	if err != nil {
+		return nil, fmt.Errorf("profile server new error:%w", err)
+	}
+
+	return srv, nil
 }
