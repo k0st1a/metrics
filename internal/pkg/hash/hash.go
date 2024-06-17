@@ -1,4 +1,4 @@
-// Пакет подписи в формате sha256 и проверки подписи.
+// Package hash is for signature in sha256 format and signature verification.
 package hash
 
 import (

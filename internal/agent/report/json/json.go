@@ -1,3 +1,4 @@
+// Package json contains the reporter code which work with JSON format.
 package json
 
 import (
