@@ -1,3 +1,4 @@
+// Package multichecker for static code analys.
 package multichecker
 
 import (

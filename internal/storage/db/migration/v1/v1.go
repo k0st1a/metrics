@@ -1,3 +1,4 @@
+// Package v1 for migrations of PostgreSQL DB.
 package v1
 
 import (

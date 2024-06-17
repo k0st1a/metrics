@@ -1,3 +1,4 @@
+// Package text is HTTP text handler which work with DB via Storage interface.
 package text
 
 import (

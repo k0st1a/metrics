@@ -1,4 +1,4 @@
-// Пакет для запуска профилировщика pprof.
+// Package profiler for run pprof profiler.
 package profiler
 
 import (

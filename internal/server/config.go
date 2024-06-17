@@ -1,3 +1,4 @@
+// Package server for read config from env and flags.
 package server
 
 import (

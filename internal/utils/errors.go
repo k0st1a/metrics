@@ -1,3 +1,4 @@
+// Package utils contatins errors of metrics.
 package utils
 
 import "errors"

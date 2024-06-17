@@ -1,3 +1,4 @@
+// Package model for serialize/deserialize data to/from JSON.
 package model
 
 import (

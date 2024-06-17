@@ -1,3 +1,4 @@
+// Package db for HTTP ping handler which check connection to DB.
 package db
 
 import (

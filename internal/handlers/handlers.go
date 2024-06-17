@@ -1,3 +1,4 @@
+// Package handlers for create HTTP router.
 package handlers
 
 import (

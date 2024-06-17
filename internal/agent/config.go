@@ -1,3 +1,4 @@
+// Package agent for read config from env and flags.
 package agent
 
 import (

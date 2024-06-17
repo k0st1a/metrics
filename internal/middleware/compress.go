@@ -1,4 +1,4 @@
-// Middleware сжатия данных для Content-Type application/json и text/html на стороне сервера.
+// Package middleware сжатия данных для Content-Type application/json и text/html на стороне сервера.
 package middleware
 
 import (
