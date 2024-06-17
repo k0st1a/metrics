@@ -1,3 +1,4 @@
+// Package json is HTTP JSON handler which work with DB via Storage interface.
 package json
 
 import (

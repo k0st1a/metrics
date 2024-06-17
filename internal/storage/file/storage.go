@@ -1,3 +1,4 @@
+// Package file for save metrics to file system.
 package file
 
 import (

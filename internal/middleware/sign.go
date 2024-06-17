@@ -1,4 +1,4 @@
-// Middleware для подписи отправляемых с клиента данных.
+// Package middleware для подписи отправляемых с клиента данных.
 package middleware
 
 import (

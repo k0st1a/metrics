@@ -1,3 +1,4 @@
+// Package osexit for check direct call os.Exit in main function of main package.
 package osexit
 
 import (

@@ -1,3 +1,4 @@
+// Package retry for to reuse the function if specified errors occur.
 package retry
 
 import (

@@ -1,3 +1,4 @@
+// Package server is some behaviour of HTTP server.
 package server
 
 import (

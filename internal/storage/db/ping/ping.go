@@ -1,3 +1,4 @@
+// Package ping check connection to PostgreSQL DB.
 package ping
 
 import (
