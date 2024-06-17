@@ -1,4 +1,4 @@
-// Package multichecker for static code analys.
+// Package multichecker for static code analys
 package multichecker
 
 import (
@@ -10,14 +10,12 @@ import (
 	"golang.org/x/tools/go/analysis/passes/shift"
 	"golang.org/x/tools/go/analysis/passes/structtag"
 
-	"github.com/kyoh86/nolint"
 	"honnef.co/go/tools/quickfix"
 	"honnef.co/go/tools/simple"
 	"honnef.co/go/tools/staticcheck"
 	"honnef.co/go/tools/stylecheck"
 
-	"go.uber.org/nilaway"
-	nilawayconfig "go.uber.org/nilaway/config"
+	interfacebloat "github.com/sashamelentyev/interfacebloat/pkg/analyzer"
 )
 
 func Run() {
@@ -27,12 +25,10 @@ func Run() {
 		shift.Analyzer,
 		structtag.Analyzer,
 		osexit.Analyzer,
-		nolint.Analyzer,
-		nilawayconfig.Analyzer,
-		nilaway.Analyzer,
+		interfacebloat.New(),
 	)
 
-	multichecker.Main(nolint.WrapAll(analyzers...)...)
+	multichecker.Main(analyzers...)
 }
 
 func staticcheckAnalyzers() []*analysis.Analyzer {
