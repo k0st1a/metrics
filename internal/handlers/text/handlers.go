@@ -224,6 +224,7 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			//nolint // Не за чем оборачивать ошибку
 			return err
 		})
+
 		switch {
 		case errors.Is(err, utils.ErrMetricsNoCounter):
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
@@ -233,7 +234,12 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
 			return
 		default:
-			value = counter2str(*c)
+			if c != nil {
+				value = counter2str(*c)
+			} else {
+				log.Error().Err(err).Msg("nil counter value")
+				http.Error(rw, notFoundMetric, http.StatusInternalServerError)
+			}
 		}
 	case "gauge":
 		var (
@@ -254,7 +260,12 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			http.Error(rw, notFoundMetric, http.StatusInternalServerError)
 			return
 		default:
-			value = gauge2str(*g)
+			if g != nil {
+				value = gauge2str(*g)
+			} else {
+				log.Error().Err(err).Msg("nil gauge value")
+				http.Error(rw, notFoundMetric, http.StatusInternalServerError)
+			}
 		}
 	}
 
