@@ -94,7 +94,10 @@ func Run() error {
 	json.BuildRouter(r, jh)
 	hdbp.BuildRouter(r, dbph)
 
-	srv := server.New(ctx, cfg.ServerAddr, r)
+	srv, err := server.New(ctx, cfg.ServerAddr, r)
+	if err != nil {
+		return fmt.Errorf("metrics server new error:%w", err)
+	}
 
 	go func() {
 		err := srv.Run()
@@ -107,7 +110,11 @@ func Run() error {
 		}
 	}()
 
-	prf := profiler.New(ctx, cfg.PprofServerAddr)
+	prf, err := profiler.New(ctx, cfg.PprofServerAddr)
+	if err != nil {
+		return fmt.Errorf("profiler server new error:%w", err)
+	}
+
 	go func() {
 		err := prf.Run()
 		if errors.Is(err, http.ErrServerClosed) {

@@ -36,7 +36,7 @@ func Example() { //nolint:testableexamples // no output here
 	r := handlers.NewRouter(h)
 	json.BuildRouter(r, jh)
 
-	srv := server.New(ctx, cfg.ServerAddr, r)
+	srv, _ := server.New(ctx, cfg.ServerAddr, r)
 
 	go func() {
 		err := srv.Run()

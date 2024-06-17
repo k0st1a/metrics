@@ -10,7 +10,7 @@ import (
 )
 
 // New - создание сервера и обработчиками pprof.
-func New(ctx context.Context, address string) *server.Server {
+func New(ctx context.Context, address string) (*server.Server, error) {
 	mux := http.NewServeMux()
 
 	mux.HandleFunc("/debug/pprof/", pprof.Index)
