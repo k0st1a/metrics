@@ -1,3 +1,4 @@
+// Package model for work with models of metrics.
 package model
 
 import "strconv"

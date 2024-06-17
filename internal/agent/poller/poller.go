@@ -1,3 +1,4 @@
+// Package poller for poll metrics from system.
 package poller
 
 import (
