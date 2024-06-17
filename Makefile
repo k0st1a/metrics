@@ -49,6 +49,11 @@ clean:
 	-rm -f ./cmd/agent/agent
 	-rm -f ./cmd/server/server
 
+.PHONY:godoc
+godoc:
+	go install golang.org/x/pkgsite/cmd/pkgsite@latest
+	~/go/bin/pkgsite -open .
+
 .PHONY:statictest
 statictest:
 	go vet -vettool=$$(which statictest) ./...
