@@ -96,12 +96,24 @@ func (h *handler) PostUpdatesHandler(rw http.ResponseWriter, r *http.Request) {
 			cv, ok := c[v.ID]
 			switch ok {
 			case true:
-				c[v.ID] = cv + *v.Delta
+				if v.Delta != nil {
+					c[v.ID] = cv + *v.Delta
+				} else {
+					log.Error().Msg("empty ptr v.Delta for counter")
+				}
 			default:
-				c[v.ID] = *v.Delta
+				if v.Delta != nil {
+					c[v.ID] = *v.Delta
+				} else {
+					log.Error().Msg("empty ptr v.Delta for counter")
+				}
 			}
 		case "gauge":
-			g[v.ID] = *v.Value
+			if v.Value != nil {
+				g[v.ID] = *v.Value
+			} else {
+				log.Error().Msg("empty ptr v.Value for gauge")
+			}
 		default:
 			log.Error().
 				Str("unknown MType", v.MType).
