@@ -37,9 +37,17 @@ func Deserialize(b []byte) (map[string]int64, map[string]float64, error) {
 	for _, v := range m.List {
 		switch v.MType {
 		case "counter":
-			c[v.Name] = *v.Delta
+			if v.Delta == nil {
+				log.Error().Msg("empty v.Delta for counter")
+			} else {
+				c[v.Name] = *v.Delta
+			}
 		case "gauge":
-			g[v.Name] = *v.Value
+			if v.Value == nil {
+				log.Error().Msg("empty v.Value for gauge")
+			} else {
+				g[v.Name] = *v.Value
+			}
 		default:
 			log.Error().Msg("unknown MType")
 		}
