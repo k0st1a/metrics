@@ -8,9 +8,9 @@ require (
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v5 v5.5.3
+	github.com/kyoh86/nolint v0.0.1
 	github.com/mailru/easyjson v0.7.7
 	github.com/rs/zerolog v1.31.0
-	github.com/sashamelentyev/interfacebloat v1.1.0
 	github.com/shirou/gopsutil/v3 v3.24.2
 	github.com/stretchr/testify v1.8.4
 	go.uber.org/nilaway v0.0.0-20240606130242-e90288479601

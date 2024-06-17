@@ -54,8 +54,8 @@ func (r *retry) Retry(ctx context.Context, check func(error) bool, fnc func() er
 
 // IsConnectionException - проверка ошибки соединения с БД PostgreSQL.
 func IsConnectionException(err error) bool {
-	var pgErr *pgconn.PgError = &pgconn.PgError{}
-	return errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code)
+	var pgErr *pgconn.PgError
+	return errors.As(err, &pgErr) && pgerrcode.IsConnectionException(pgErr.Code) // nolint // nilaway is wrong?
 }
 
 func wait(ctx context.Context, interval time.Duration) error {

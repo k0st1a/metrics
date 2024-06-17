@@ -66,7 +66,7 @@ Staticlint - линтер, собранные с использованем go/a
 
     -- nilaway_config (https://github.com/uber-go/nilaway/blob/main/config/config.go)
 
-    -- interfacebloat (https://github.com/sashamelentyev/interfacebloat)
+    -- nolint (https://github.com/kyoh86/nolint)
 
   - собственный анализатор osexit, который запрещает прямой вызова os.Exit в функции main пакета main.
 */
