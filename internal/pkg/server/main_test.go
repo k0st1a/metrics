@@ -33,7 +33,7 @@ func TestServer(t *testing.T) {
 					rw.Write([]byte(body))
 				}
 			},
-			addr:               "localhost:8082",
+			addr:               "127.0.0.1:0",
 			path:               "/test/server/",
 			body:               "my test body",
 			expectedBody:       "my test body",
@@ -51,12 +51,14 @@ func TestServer(t *testing.T) {
 			mux := http.NewServeMux()
 			mux.Handle(test.path, test.fnc(test.expectedStatusCode, test.expectedBody))
 
-			srv := New(context.Background(), test.addr, mux)
+			srv, err := New(context.Background(), test.addr, mux)
+			assert.NoError(t, err)
 
 			var wg sync.WaitGroup
 			wg.Add(1)
 			go func() {
 				defer wg.Done()
+
 				err := srv.Run()
 				if errors.Is(err, http.ErrServerClosed) {
 					return
@@ -65,7 +67,7 @@ func TestServer(t *testing.T) {
 			}()
 
 			body := bytes.NewBuffer([]byte(test.body))
-			req, err := http.NewRequest(http.MethodPost, "http://"+test.addr+test.path, body)
+			req, err := http.NewRequest(http.MethodPost, "http://"+srv.Server.Addr+test.path, body)
 			if err != nil {
 				t.Fatal(err)
 			}
