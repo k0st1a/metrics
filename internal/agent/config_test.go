@@ -32,6 +32,7 @@ func TestConfigFromEnv(t *testing.T) {
 			env: map[string]string{
 				"ADDRESS":         "ADDRESS_FROM_ENV",
 				"KEY":             "KEY_FROM_ENV",
+				"CRYPTO_KEY":      "CRYPTO_KEY_FROM_ENV",
 				"POLL_INTERVAL":   "100",
 				"REPORT_INTERVAL": "200",
 				"RATE_LIMIT":      "300",
@@ -39,6 +40,7 @@ func TestConfigFromEnv(t *testing.T) {
 			cfg: Config{
 				ServerAddr:     "ADDRESS_FROM_ENV",
 				HashKey:        "KEY_FROM_ENV",
+				CryptoKey:      "CRYPTO_KEY_FROM_ENV",
 				PollInterval:   100,
 				ReportInterval: 200,
 				RateLimit:      300,
@@ -86,6 +88,7 @@ func TestConfigFromFlags(t *testing.T) {
 				"-p", "100",
 				"-r", "200",
 				"-k", "KEY_FROM_FLAG",
+				"-crypto-key", "CRYPTO_KEY_FROM_FLAG",
 				"-l", "300",
 			},
 			cfg: Config{
@@ -93,6 +96,7 @@ func TestConfigFromFlags(t *testing.T) {
 				PollInterval:   100,
 				ReportInterval: 200,
 				HashKey:        "KEY_FROM_FLAG",
+				CryptoKey:      "CRYPTO_KEY_FROM_FLAG",
 				RateLimit:      300,
 			},
 		},
@@ -139,6 +143,7 @@ func TestConfig(t *testing.T) {
 			env: map[string]string{
 				"ADDRESS":         "ADDRESS_FROM_ENV",
 				"KEY":             "KEY_FROM_ENV",
+				"CRYPTO_KEY":      "CRYPTO_KEY_FROM_ENV",
 				"POLL_INTERVAL":   "100",
 				"REPORT_INTERVAL": "200",
 				"RATE_LIMIT":      "300",
@@ -149,11 +154,13 @@ func TestConfig(t *testing.T) {
 				"-p", "100",
 				"-r", "200",
 				"-k", "KEY_FROM_FLAG",
+				"-crypto-key", "CRYPTO_KEY_FROM_FLAG",
 				"-l", "300",
 			},
 			cfg: Config{
 				ServerAddr:     "ADDRESS_FROM_ENV",
 				HashKey:        "KEY_FROM_ENV",
+				CryptoKey:      "CRYPTO_KEY_FROM_ENV",
 				PollInterval:   100,
 				ReportInterval: 200,
 				RateLimit:      300,

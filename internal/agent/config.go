@@ -16,6 +16,7 @@ const (
 	defaultReportInterval = 10
 	defaultServerAddr     = "localhost:8080"
 	defaultHashKey        = ""
+	defaultCryptoKey      = ""
 	defaultRateLimit      = 1
 )
 
@@ -27,6 +28,10 @@ type Config struct {
 	// HashKey - ключ для подписи передаваемых данных по алгоритму SHA256 (по умолчанию пустая строка).
 	// Задается через флаг `-k=<ЗНАЧЕНИЕ>` или переменную окружения `KEY=<ЗНАЧЕНИЕ>`
 	HashKey string
+	// CryptoKey - путь до файла с открытым ключом (по умолчанию пустая строка). Если путь задан, то
+	// с помощью открытого ключа будут шифровываться сообщения, отправляемые агентом.
+	// Задается через флаг `-crypto-key=<ЗНАЧЕНИЕ>` или переменную окружения `CRYPTO_KEY=<ЗНАЧЕНИЕ>`
+	CryptoKey string
 	// PollInterval - частота опроса метрик из пакета `runtime` (по умолчанию 2 секунды).
 	// Задается через флаг `-p=<ЗНАЧЕНИЕ>` или переменную окружения `POLL_INTERVAL=<ЗНАЧЕНИЕ>`
 	PollInterval int
@@ -55,6 +60,9 @@ func NewConfig() (*Config, error) {
 	flag.StringVar(&cfg.HashKey, "k", defaultHashKey,
 		"Hash key with which the request body will be encoded"+
 			"HTTP Header HashSHA256 will be added to the HTTP request")
+	flag.StringVar(&(cfg.CryptoKey), "crypto-key", defaultCryptoKey,
+		"Путь до файла с открытым ключом (по умолчанию пустая строка). Если путь задан, то " +
+			"с помощью открытого ключа будут шифровываться сообщения, отправляемые агентом.")
 	flag.IntVar(&(cfg.RateLimit), "l", defaultRateLimit, "number of simultaneously outgoing requests to the server")
 
 	flag.Parse()
@@ -73,6 +81,11 @@ func NewConfig() (*Config, error) {
 	k, ok := os.LookupEnv("KEY")
 	if ok {
 		cfg.HashKey = k
+	}
+
+	ck, ok := os.LookupEnv("CRYPTO_KEY")
+	if ok {
+		cfg.CryptoKey = ck
 	}
 
 	pi, ok := os.LookupEnv("POLL_INTERVAL")
@@ -114,6 +127,7 @@ func printConfig(cfg *Config) {
 		Int("cfg.PollInterval", cfg.PollInterval).
 		Int("cfg.ReportInterval", cfg.ReportInterval).
 		Str("cfg.HashKey", cfg.HashKey).
+		Str("cfg.CryptoKey", cfg.CryptoKey).
 		Int("cfg.RateLimit", cfg.RateLimit).
 		Msg("")
 }
