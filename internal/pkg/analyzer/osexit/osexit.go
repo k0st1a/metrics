@@ -50,31 +50,23 @@ func inspect(pass *analysis.Pass) func(ast.Node) bool {
 	}
 }
 
-func isOsExitCallExp(es *ast.ExprStmt, pass *analysis.Pass, isMainFunc *bool) {
-	ce, ok := es.X.(*ast.CallExpr)
+func isOsExitCallExp(expr *ast.ExprStmt, pass *analysis.Pass, isMainFunc *bool) {
+	callexpr, ok := expr.X.(*ast.CallExpr)
 	if !ok {
 		return
 	}
 
-	se, ok := ce.Fun.(*ast.SelectorExpr)
+	selexpr, ok := callexpr.Fun.(*ast.SelectorExpr)
 	if !ok {
 		return
 	}
 
-	i, ok := se.X.(*ast.Ident)
-	if !ok {
+	ident, ok := selexpr.X.(*ast.Ident)
+	if !ok || ident.String() != "os" {
 		return
 	}
 
-	if i.String() != "os" {
-		return
-	}
-
-	if se.Sel.String() != "Exit" {
-		return
-	}
-
-	if *isMainFunc {
-		pass.Reportf(i.NamePos, "direct call os.Exit in main func")
+	if selexpr.Sel.String() == "Exit" && *isMainFunc {
+		pass.Reportf(ident.NamePos, "direct call os.Exit in main func")
 	}
 }
