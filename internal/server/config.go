@@ -26,6 +26,10 @@ type Config struct {
 	// HashKey - ключ для подписи передаваемых данных по алгоритму SHA256 (по умолчанию пустая строка).
 	// Задается через флаг `-k=<ЗНАЧЕНИЕ>` или переменную окружения `KEY=<ЗНАЧЕНИЕ>`
 	HashKey string
+	// CryptoKey - путь до файла с приватным ключом (по умолчанию пустая строка). Если путь задан, то
+	// с помощью приватного ключа будут дешифровываться сообщения, получаемые сервером.
+	// Задается через флаг `-crypto-key=<ЗНАЧЕНИЕ>` или переменную окружения `CRYPTO_KEY=<ЗНАЧЕНИЕ>`
+	CryptoKey string
 	// PprofServerAddr - адрес эндпоинта HTTP-сервера профилировщика pprof (по умолчанию `localhost:8086`).
 	// Задается через флаг `-p=<ЗНАЧЕНИЕ>` или переменную окружения `PPROF_ADDRESS=<ЗНАЧЕНИЕ>`
 	PprofServerAddr string
@@ -46,6 +50,7 @@ const (
 	defaultRestore         = true
 	defaultDatabaseDSN     = ""
 	defaultHashKey         = ""
+	defaultCryptoKey       = ""
 	defaultPprofServerAddr = "localhost:8086"
 )
 
@@ -75,6 +80,9 @@ func NewConfig() (*Config, error) {
 			"вычесленного(от всего тела запроса) хеша.\nПри несовпадении сервер отбрасывает данные и отвечает 400.\n"+
 			"При наличии ключа на этапе формирования ответа сервер вычисляет хеш и передает его в HTTP-заголовке"+
 			"ответа с именем HashSHA256.")
+	flag.StringVar(&(cfg.CryptoKey), "crypto-key", defaultCryptoKey,
+		"Путь до файла с приватным ключом (по умолчанию пустая строка). Если путь задан, то "+
+			"с помощью приватного ключа будут дешифровываться сообщения, получаемые сервером.")
 	flag.StringVar(&cfg.PprofServerAddr, "p", defaultPprofServerAddr, "pprof server address")
 
 	flag.Parse()
@@ -103,6 +111,11 @@ func NewConfig() (*Config, error) {
 	k, ok := os.LookupEnv("KEY")
 	if ok {
 		cfg.HashKey = k
+	}
+
+	ck, ok := os.LookupEnv("CRYPTO_KEY")
+	if ok {
+		cfg.CryptoKey = ck
 	}
 
 	si, ok := os.LookupEnv("STORE_INTERVAL")
@@ -139,5 +152,7 @@ func printConfig(cfg *Config) {
 		Int("cfg.StoreInterval", cfg.StoreInterval).
 		Str("cfg.FileStoragePath", cfg.FileStoragePath).
 		Bool("cfg.Restore", cfg.Restore).
+		Str("cfg.HashKey", cfg.HashKey).
+		Str("cfg.CryptoKey", cfg.CryptoKey).
 		Msg("printConfig")
 }
