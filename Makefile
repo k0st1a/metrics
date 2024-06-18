@@ -68,15 +68,17 @@ test: build statictest staticlint
 
 .PHONY: cover
 cover:
-	go test -v -coverpkg=./... -coverprofile=cover.profile.tmp ./... && \
-	cat cover.profile.tmp | grep -v "_easyjson.go" | grep -v "model.go" > cover.profile && \
-	rm cover.profile.tmp && \
-	go tool cover -func cover.profile && \
-	go tool cover -html cover.profile -o cover.html
+	mkdir -pv ./cover && \
+	go test -v -coverpkg=./... -coverprofile=./cover/cover.profile.tmp ./... && \
+	cat ./cover/cover.profile.tmp | grep -v "_easyjson.go" | grep -v "model.go" > ./cover/cover.profile && \
+	rm ./cover/cover.profile.tmp && \
+	go tool cover -func ./cover/cover.profile && \
+	go tool cover -html ./cover/cover.profile -o ./cover/cover.html
 
 .PHONY: cover-clean
 cover-clean:
-	rm -v -f cover.profile cover.html
+	rm -v -f ./cover/cover.profile ./cover/cover.html && \
+	rm -v -r ./cover
 
 .PHONY:test-analyzer
 test-analyzer:
