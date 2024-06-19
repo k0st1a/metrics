@@ -35,30 +35,3 @@ func TestHashSign(t *testing.T) {
 		})
 	}
 }
-
-func TestHashIs(t *testing.T) {
-	tests := []struct {
-		name string
-		key  string
-		is   bool
-	}{
-		{
-			name: "Проверка hash с не пустым ключом",
-			key:  "какой-то ключ",
-			is:   true,
-		},
-		{
-			name: "Проверка hash с пустым ключом",
-			key:  "",
-			is:   false,
-		},
-	}
-
-	for _, test := range tests {
-		t.Run(test.name, func(t *testing.T) {
-			h := New(test.key)
-
-			assert.Equal(t, test.is, h.Is())
-		})
-	}
-}

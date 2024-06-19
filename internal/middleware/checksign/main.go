@@ -1,4 +1,5 @@
-package middleware
+// Package checksign for check signature HashSHA256 for incoming msg of HTTP server.
+package checksign
 
 import (
 	"bytes"
@@ -6,12 +7,15 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/rs/zerolog/log"
 )
 
-// CheckSignature - middleware проверки подписи HashSHA256 для принимаемых данных на стороне сервера.
-func CheckSignature(h hash.Checker) func(next http.Handler) http.Handler {
+// Checker - интерфейс проверки подписи данных.
+type Checker interface {
+	Check(data []byte, sign []byte) (equal bool)
+}
+
+func New(h Checker) func(next http.Handler) http.Handler {
 	// Подсмотрел в https://github.com/go-chi/chi/blob/master/middleware/content_type.go
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
@@ -19,23 +23,24 @@ func CheckSignature(h hash.Checker) func(next http.Handler) http.Handler {
 			if sign != "" {
 				ds, err := hex.DecodeString(sign)
 				if err != nil {
-					log.Error().Err(err).Msg("hash decode error")
-					http.Error(rw, "hash decode error", http.StatusBadRequest)
+					log.Error().Err(err).Msg("hash decode error while checksign")
+					http.Error(rw, "hash decode error while checksign", http.StatusBadRequest)
 					return
 				}
 
 				b, err := io.ReadAll(r.Body)
-				cerr := r.Body.Close()
-				if cerr != nil {
-					log.Error().Err(err).Msg("body close error")
-				}
 				if err != nil {
-					log.Error().Err(err).Msg("body read error while check signature")
-					http.Error(rw, "body read error", http.StatusBadRequest)
+					log.Error().Err(err).Msg("body read error while checksign")
+					http.Error(rw, "body read error while checksign", http.StatusBadRequest)
 					return
 				}
 
-				if h.Is() && !h.Check(b, ds) {
+				err = r.Body.Close()
+				if err != nil {
+					log.Error().Err(err).Msg("body close error while checksign")
+				}
+
+				if !h.Check(b, ds) {
 					log.Error().Err(err).Msg("wrong signature")
 					http.Error(rw, "wrong signature", http.StatusBadRequest)
 					return

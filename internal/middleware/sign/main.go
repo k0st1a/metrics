@@ -11,6 +11,7 @@ import (
 	"github.com/k0st1a/metrics/internal/middleware/roundtrip"
 )
 
+// Signer - интерфейс подписи данных.
 type Signer interface {
 	Sign([]byte) []byte
 }
