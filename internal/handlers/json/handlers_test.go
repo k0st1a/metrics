@@ -10,7 +10,6 @@ import (
 	"testing"
 
 	"github.com/k0st1a/metrics/internal/handlers"
-	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
 	"github.com/k0st1a/metrics/internal/storage/file"
 
@@ -169,9 +168,6 @@ func TestMetricHandler(t *testing.T) {
 		},
 	}
 
-	h := hash.New("")
-	r := handlers.NewRouter(h)
-
 	tmpfile, err := os.CreateTemp("/tmp/", "json-handlers.*.txt")
 	if err != nil {
 		panic(err)
@@ -184,6 +180,7 @@ func TestMetricHandler(t *testing.T) {
 	rt := retry.New()
 	th := NewHandler(s, rt)
 
+	r := handlers.NewRouter(nil)
 	BuildRouter(r, th)
 
 	testServer := httptest.NewServer(r)
