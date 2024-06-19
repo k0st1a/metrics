@@ -237,16 +237,40 @@ miter14: build statictest db-up
 		-source-path=. ; \
 	go test -v -race ./... ;
 
+CRYPTO_DIR := ./crypto
+CRYPTO_PRIVATE := private.pem
+CRYPTO_PUBLIC := public.pem
+
+.PHONY: crypto-key
+crypto-key:
+	mkdir -pv ${CRYPTO_DIR} && \
+	openssl genrsa -out ${CRYPTO_DIR}/${CRYPTO_PRIVATE} 4096 && \
+	openssl rsa -in ${CRYPTO_DIR}/${CRYPTO_PRIVATE} -outform PEM -pubout -out ${CRYPTO_DIR}/${CRYPTO_PUBLIC}
+
+.PHONY: crypto-key-clean
+crypto-key-clean:
+	rm -v -f  ${CRYPTO_DIR}/${CRYPTO_PRIVATE} ${CRYPTO_DIR}/${CRYPTO_PUBLIC} && \
+	rm -d -f  ${CRYPTO_DIR}
+
+HASH_KEY := "hash key"
+
 .PHONY: server-run-with-args
 server-run-with-args: build statictest db-up
 	chmod +x ./cmd/server/server && \
-		./cmd/server/server -a ${SERVER_HOST}:${SERVER_PORT} -d ${PG_DATABASE_DSN} \
-							-p ${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT}
+		./cmd/server/server \
+			-a ${SERVER_HOST}:${SERVER_PORT} \
+			-d ${PG_DATABASE_DSN} \
+			-p ${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT} \
+			-k ${HASH_KEY} \
+			-crypto-key ./crypto/private.pem
 
 .PHONY: agent-run-with-args
 agent-run-with-args: build statictest db-up
 	chmod +x ./cmd/agent/agent && \
-		./cmd/agent/agent -a ${SERVER_HOST}:${SERVER_PORT}
+		./cmd/agent/agent \
+			-a ${SERVER_HOST}:${SERVER_PORT} \
+			-k ${HASH_KEY} \
+			-crypto-key ./crypto/public.pem
 
 .PHONY: pprof-mem-http
 pprof-mem-http:
