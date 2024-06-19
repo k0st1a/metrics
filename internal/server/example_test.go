@@ -11,6 +11,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/k0st1a/metrics/internal/handlers"
 	"github.com/k0st1a/metrics/internal/handlers/json"
+	"github.com/k0st1a/metrics/internal/middleware"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
 	"github.com/k0st1a/metrics/internal/pkg/server"
@@ -32,8 +33,17 @@ func Example() { //nolint:testableexamples // no output here
 	rt := retry.New()
 	jh := json.NewHandler(s, rt)
 
-	h := hash.New(cfg.HashKey)
-	r := handlers.NewRouter(h)
+	var middlewares []func(http.Handler) http.Handler
+
+	if cfg.HashKey != "" {
+		h := hash.New(cfg.HashKey)
+		middlewares = append(middlewares, middleware.CheckSignature(h))
+	}
+
+	middlewares = append(middlewares, middleware.Logging, middleware.Compress)
+
+	r := handlers.NewRouter(middlewares)
+
 	json.BuildRouter(r, jh)
 
 	srv, _ := server.New(ctx, cfg.ServerAddr, r)

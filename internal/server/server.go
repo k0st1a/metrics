@@ -17,6 +17,7 @@ import (
 	"github.com/k0st1a/metrics/internal/handlers"
 	"github.com/k0st1a/metrics/internal/handlers/json"
 	"github.com/k0st1a/metrics/internal/handlers/text"
+	"github.com/k0st1a/metrics/internal/middleware"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/pkg/profiler"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
@@ -88,8 +89,17 @@ func Run() error {
 	jh := json.NewHandler(s, rt)
 	dbph := hdbp.NewHandler(p)
 
-	h := hash.New(cfg.HashKey)
-	r := handlers.NewRouter(h)
+	var middlewares []func(http.Handler) http.Handler
+
+	if cfg.HashKey != "" {
+		h := hash.New(cfg.HashKey)
+		middlewares = append(middlewares, middleware.CheckSignature(h))
+	}
+
+	middlewares = append(middlewares, middleware.Logging, middleware.Compress)
+
+	r := handlers.NewRouter(middlewares)
+
 	text.BuildRouter(r, th)
 	json.BuildRouter(r, jh)
 	hdbp.BuildRouter(r, dbph)
