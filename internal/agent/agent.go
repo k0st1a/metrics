@@ -13,7 +13,8 @@ import (
 	"github.com/k0st1a/metrics/internal/agent/reporter"
 	"github.com/k0st1a/metrics/internal/metrics/gopsutil"
 	"github.com/k0st1a/metrics/internal/metrics/runtime"
-	"github.com/k0st1a/metrics/internal/middleware"
+	"github.com/k0st1a/metrics/internal/middleware/roundtrip"
+	"github.com/k0st1a/metrics/internal/middleware/sign"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 )
 
@@ -33,11 +34,16 @@ func Run() error {
 	gm := gopsutil.NewMetric()
 	p, pc := poller.NewPoller(cfg.PollInterval, rm, gm)
 
-	// sign
-	h := hash.New(cfg.HashKey)
-	sign := middleware.NewSign(http.DefaultTransport, h)
+	var middlewares []roundtrip.Middleware
 
-	r, rc := reporter.NewReporter(cfg.ServerAddr, cfg.ReportInterval, cfg.RateLimit, sign)
+	if cfg.HashKey != "" {
+		h := hash.New(cfg.HashKey)
+		middlewares = append(middlewares, sign.New(h))
+	}
+
+	rt := roundtrip.New(http.DefaultTransport, middlewares...)
+
+	r, rc := reporter.NewReporter(cfg.ServerAddr, cfg.ReportInterval, cfg.RateLimit, rt)
 
 	var wg sync.WaitGroup
 

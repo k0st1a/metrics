@@ -7,12 +7,6 @@ import (
 	"crypto/sha256"
 )
 
-// Signer - интерфейс подписи данных.
-type Signer interface {
-	Sign(data []byte) (sign []byte)
-	Is() bool
-}
-
 // Checker - интерфейс проверки подписи данных.
 type Checker interface {
 	Check(data []byte, sign []byte) (equal bool)
