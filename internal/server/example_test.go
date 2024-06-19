@@ -12,6 +12,7 @@ import (
 	"github.com/k0st1a/metrics/internal/handlers"
 	"github.com/k0st1a/metrics/internal/handlers/json"
 	"github.com/k0st1a/metrics/internal/middleware"
+	"github.com/k0st1a/metrics/internal/middleware/checksign"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
 	"github.com/k0st1a/metrics/internal/pkg/server"
@@ -37,7 +38,7 @@ func Example() { //nolint:testableexamples // no output here
 
 	if cfg.HashKey != "" {
 		h := hash.New(cfg.HashKey)
-		middlewares = append(middlewares, middleware.CheckSignature(h))
+		middlewares = append(middlewares, checksign.New(h))
 	}
 
 	middlewares = append(middlewares, middleware.Logging, middleware.Compress)

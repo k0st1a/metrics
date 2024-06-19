@@ -1,4 +1,4 @@
-package middleware
+package checksign
 
 import (
 	"bytes"
@@ -35,7 +35,7 @@ func TestCheckSignature(t *testing.T) {
 			key:      "some key",
 			sign:     "bad sign",
 			want:     400,
-			wantBody: "hash decode error\n",
+			wantBody: "hash decode error while checksign\n",
 		},
 		{
 			name:     "Ошибка чтения тела",
@@ -43,7 +43,7 @@ func TestCheckSignature(t *testing.T) {
 			sign:     "2a2629ba328d5376b44f88536047a12500d33bc43045a7407c29a88312bc2a48",
 			body:     errReader(0),
 			want:     400,
-			wantBody: "body read error\n",
+			wantBody: "body read error while checksign\n",
 		},
 		{
 			name:     "Подпись в запросе не верная",
@@ -70,7 +70,7 @@ func TestCheckSignature(t *testing.T) {
 			h := hash.New(test.key)
 
 			r := chi.NewRouter()
-			r.Use(CheckSignature(h))
+			r.Use(New(h))
 			r.Post("/", func(w http.ResponseWriter, r *http.Request) {})
 
 			req := httptest.NewRequest(http.MethodPost, "/", test.body)

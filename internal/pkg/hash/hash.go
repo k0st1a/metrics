@@ -7,12 +7,6 @@ import (
 	"crypto/sha256"
 )
 
-// Checker - интерфейс проверки подписи данных.
-type Checker interface {
-	Check(data []byte, sign []byte) (equal bool)
-	Is() bool
-}
-
 type hash struct {
 	key []byte
 }
@@ -22,11 +16,6 @@ func New(key string) *hash {
 	return &hash{
 		key: []byte(key),
 	}
-}
-
-// Is - проверка есть ли подпись.
-func (h *hash) Is() bool {
-	return !bytes.Equal(h.key, []byte{})
 }
 
 // Sign - подпись в формате sha256.
