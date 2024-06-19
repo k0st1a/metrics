@@ -6,6 +6,56 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+var testBigData = `TEST BIG DATA
+MIIBtzCCASwGByqGSM44BAEwggEfAoGBAJ4vZpJ9H6iJR/UU1gJbHTR6in8oa4vX
+1Vdvj/V53Q1U2lS0VdkAZyZQiWfO9QTO5oM0Y4S7DtTX3UIiuSuKVWMD55piWuTg
+Demf4ZsVAdxcQ6RKCYSwiO0o3O+7RwX2aEzb/KaMqphoHtwRPWhxp5Mbz9kzDD9T
++xQAzsfsuhGVAhUA1kA8zoR9/NuIDs07OdP76UX3UnkCgYEAmB2kVCBqooudn/zU
+0dFeXY8RD2OoobKbvdnFeyl8qG3BskLp+1qzHEVT9zI8+6DmJnSxcxyjuT+/ZO1J
+nUSX9GNPfWwA4khntera6cLe8qm3fJiWRdsen5XZFFYqvj8A6e5x6qdVCehLGc1Z
+Ln0ewTtLDYYpTM/QqFYI7XxKDaEDgYQAAoGAfaNoVmXDVAYAaadSpWgtBuHQNimb
+DqOqVQUyEaITd22YMktkccXgwK2XDr4MJT1aBhnIpgpqQ2u+N+EF3JdyxTCtFdKb
+PgOIF8OiWe2FjlgoMncOz7SLetQ3f6Y4avpjingyyRwLbDLnEpzSw1fp/v6i0KWL
+MIIBtzCCASwGByqGSM44BAEwggEfAoGBAJ4vZpJ9H6iJR/UU1gJbHTR6in8oa4vX
+MIIBtzCCASwGByqGSM44BAEwggEfAoGBAJ4vZpJ9H6iJR/UU1gJbHTR6in8oa4vX
+MIIBtzCCASwGByqGSM44BAEwggEfAoGBAJ4vZpJ9H6iJR/UU1gJbHTR6in8oa4vX
+MIIBtzCCASwGByqGSM44BAEwggEfAoGBAJ4vZpJ9H6iJR/UU1gJbHTR6in8oa4vX
+MIIBtzCCASwGByqGSM44BAEwggEfAoGBAJ4vZpJ9H6iJR/UU1gJbHTR6in8oa4vX
+1Vdvj/V53Q1U2lS0VdkAZyZQiWfO9QTO5oM0Y4S7DtTX3UIiuSuKVWMD55piWuTg
+Demf4ZsVAdxcQ6RKCYSwiO0o3O+7RwX2aEzb/KaMqphoHtwRPWhxp5Mbz9kzDD9T
++xQAzsfsuhGVAhUA1kA8zoR9/NuIDs07OdP76UX3UnkCgYEAmB2kVCBqooudn/zU
+0dFeXY8RD2OoobKbvdnFeyl8qG3BskLp+1qzHEVT9zI8+6DmJnSxcxyjuT+/ZO1J
+nUSX9GNPfWwA4khntera6cLe8qm3fJiWRdsen5XZFFYqvj8A6e5x6qdVCehLGc1Z
+Ln0ewTtLDYYpTM/QqFYI7XxKDaEDgYQAAoGAfaNoVmXDVAYAaadSpWgtBuHQNimb
+DqOqVQUyEaITd22YMktkccXgwK2XDr4MJT1aBhnIpgpqQ2u+N+EF3JdyxTCtFdKb
+PgOIF8OiWe2FjlgoMncOz7SLetQ3f6Y4avpjingyyRwLbDLnEpzSw1fp/v6i0KWL
+1Vdvj/V53Q1U2lS0VdkAZyZQiWfO9QTO5oM0Y4S7DtTX3UIiuSuKVWMD55piWuTg
+Demf4ZsVAdxcQ6RKCYSwiO0o3O+7RwX2aEzb/KaMqphoHtwRPWhxp5Mbz9kzDD9T
++xQAzsfsuhGVAhUA1kA8zoR9/NuIDs07OdP76UX3UnkCgYEAmB2kVCBqooudn/zU
+0dFeXY8RD2OoobKbvdnFeyl8qG3BskLp+1qzHEVT9zI8+6DmJnSxcxyjuT+/ZO1J
+Ln0ewTtLDYYpTM/QqFYI7XxKDaEDgYQAAoGAfaNoVmXDVAYAaadSpWgtBuHQNimb
+DqOqVQUyEaITd22YMktkccXgwK2XDr4MJT1aBhnIpgpqQ2u+N+EF3JdyxTCtFdKb
+PgOIF8OiWe2FjlgoMncOz7SLetQ3f6Y4avpjingyyRwLbDLnEpzSw1fp/v6i0KWL
+DqOqVQUyEaITd22YMktkccXgwK2XDr4MJT1aBhnIpgpqQ2u+N+EF3JdyxTCtFdKb
+PgOIF8OiWe2FjlgoMncOz7SLetQ3f6Y4avpjingyyRwLbDLnEpzSw1fp/v6i0KWL
+1Vdvj/V53Q1U2lS0VdkAZyZQiWfO9QTO5oM0Y4S7DtTX3UIiuSuKVWMD55piWuTg
+Demf4ZsVAdxcQ6RKCYSwiO0o3O+7RwX2aEzb/KaMqphoHtwRPWhxp5Mbz9kzDD9T
++xQAzsfsuhGVAhUA1kA8zoR9/NuIDs07OdP76UX3UnkCgYEAmB2kVCBqooudn/zU
+0dFeXY8RD2OoobKbvdnFeyl8qG3BskLp+1qzHEVT9zI8+6DmJnSxcxyjuT+/ZO1J
+nUSX9GNPfWwA4khntera6cLe8qm3fJiWRdsen5XZFFYqvj8A6e5x6qdVCehLGc1Z
+Ln0ewTtLDYYpTM/QqFYI7XxKDaEDgYQAAoGAfaNoVmXDVAYAaadSpWgtBuHQNimb
+DqOqVQUyEaITd22YMktkccXgwK2XDr4MJT1aBhnIpgpqQ2u+N+EF3JdyxTCtFdKb
+PgOIF8OiWe2FjlgoMncOz7SLetQ3f6Y4avpjingyyRwLbDLnEpzSw1fp/v6i0KWL
+1Vdvj/V53Q1U2lS0VdkAZyZQiWfO9QTO5oM0Y4S7DtTX3UIiuSuKVWMD55piWuTg
+Demf4ZsVAdxcQ6RKCYSwiO0o3O+7RwX2aEzb/KaMqphoHtwRPWhxp5Mbz9kzDD9T
++xQAzsfsuhGVAhUA1kA8zoR9/NuIDs07OdP76UX3UnkCgYEAmB2kVCBqooudn/zU
+0dFeXY8RD2OoobKbvdnFeyl8qG3BskLp+1qzHEVT9zI8+6DmJnSxcxyjuT+/ZO1J
+nUSX9GNPfWwA4khntera6cLe8qm3fJiWRdsen5XZFFYqvj8A6e5x6qdVCehLGc1Z
+Ln0ewTtLDYYpTM/QqFYI7XxKDaEDgYQAAoGAfaNoVmXDVAYAaadSpWgtBuHQNimb
+DqOqVQUyEaITd22YMktkccXgwK2XDr4MJT1aBhnIpgpqQ2u+N+EF3JdyxTCtFdKb
+PgOIF8OiWe2FjlgoMncOz7SLetQ3f6Y4avpjingyyRwLbDLnEpzSw1fp/v6i0KWL
+Tr3hSviZVS0fgEc=`
+
 func TestCrypto(t *testing.T) {
 	// to generate file use:
 	// openssl rsa -in private.pem -outform PEM -pubout -out public.pem
@@ -17,15 +67,32 @@ func TestCrypto(t *testing.T) {
 	prv, err := NewPrivateFromFile("./private.pem")
 	assert.NoError(t, err)
 
-	data := []byte("Hello Gophers")
+	tests := []struct {
+		name string
+		data []byte
+	}{
+		{
+			name: "check encrypt and decrypt",
+			data: []byte("Hello Gophers"),
+		},
+		{
+			name: "check encrypt and decrypt big data",
+			data: []byte(testBigData),
+		},
+	}
 
-	encData, err := pbl.Encrypt(data)
-	assert.NoError(t, err)
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
 
-	decData, err := prv.Decrypt(encData)
-	assert.NoError(t, err)
+			encData, err := pbl.Encrypt(test.data)
+			assert.NoError(t, err)
 
-	assert.Equal(t, data, decData)
+			decData, err := prv.Decrypt(encData)
+			assert.NoError(t, err)
+
+			assert.Equal(t, test.data, decData)
+		})
+	}
 }
 
 func TestPublicNoPEMData(t *testing.T) {
@@ -73,7 +140,7 @@ func TestPublicEncrypt(t *testing.T) {
 	pbl, err := NewPublicFromFile("./public.pem")
 	assert.NoError(t, err)
 
-	pbl.key.N = nil
+	pbl.key.E = -1
 	data, err := pbl.Encrypt([]byte("some bad encrypted data"))
 	assert.Nil(t, data)
 	assert.ErrorContains(t, err, "rsa OAEP encrypt error")

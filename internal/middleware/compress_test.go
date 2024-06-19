@@ -16,7 +16,6 @@ func TestMiddlewareCompress(t *testing.T) {
 		name                    string
 		acceptEncoding          string
 		path                    string
-		body                    io.Reader
 		expectedContentEncoding string
 	}{
 		{

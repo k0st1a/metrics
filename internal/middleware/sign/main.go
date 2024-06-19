@@ -21,12 +21,12 @@ func New(s Signer) func(http.RoundTripper) http.RoundTripper {
 		return roundtrip.HandlerFunc(func(r *http.Request) (*http.Response, error) {
 			body, err := io.ReadAll(r.Body)
 			if err != nil {
-				return nil, fmt.Errorf("body read error while sign")
+				return nil, fmt.Errorf("body read error while sign:%w", err)
 			}
 
 			err = r.Body.Close()
 			if err != nil {
-				return nil, fmt.Errorf("body close error while sign")
+				return nil, fmt.Errorf("body close error while sign:%w", err)
 			}
 
 			r.Body = io.NopCloser(bytes.NewBuffer(body))
