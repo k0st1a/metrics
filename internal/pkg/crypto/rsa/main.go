@@ -8,11 +8,13 @@ import (
 	"crypto/x509"
 	"encoding/pem"
 	"fmt"
+	"hash"
 	"os"
 )
 
 type private struct {
-	key *rsa.PrivateKey
+	key  *rsa.PrivateKey
+	hash hash.Hash
 }
 
 // NewPrivate create rsa private side by data of private key.
@@ -28,7 +30,8 @@ func NewPrivate(data string) (*private, error) {
 	}
 
 	return &private{
-		key: key,
+		key:  key,
+		hash: sha256.New(),
 	}, nil
 }
 
@@ -44,7 +47,29 @@ func NewPrivateFromFile(path string) (*private, error) {
 
 // Decrypt data.
 func (p *private) Decrypt(data []byte) ([]byte, error) {
-	b, err := rsa.DecryptOAEP(sha256.New(), rand.Reader, p.key, data, nil)
+	var decData []byte
+
+	dataLen := len(data)
+	step := p.chunkSize()
+	for begin := 0; begin < dataLen; begin += step {
+		end := begin + step
+		if end > dataLen {
+			end = dataLen
+		}
+
+		decChunk, err := p.decryptChunk(data[begin:end])
+		if err != nil {
+			return nil, fmt.Errorf("decrypt chunk error:%w", err)
+		}
+
+		decData = append(decData, decChunk...)
+	}
+
+	return decData, nil
+}
+
+func (p *private) decryptChunk(data []byte) ([]byte, error) {
+	b, err := rsa.DecryptOAEP(p.hash, rand.Reader, p.key, data, nil)
 	if err != nil {
 		return nil, fmt.Errorf("rsa decrypt OAEP error:%w", err)
 	}
@@ -52,8 +77,13 @@ func (p *private) Decrypt(data []byte) ([]byte, error) {
 	return b, nil
 }
 
+func (p *private) chunkSize() int {
+	return p.key.Size()
+}
+
 type public struct {
-	key *rsa.PublicKey
+	key  *rsa.PublicKey
+	hash hash.Hash
 }
 
 // NewPublic create rsa public side by data of public key.
@@ -74,7 +104,8 @@ func NewPublic(data string) (*public, error) {
 	}
 
 	return &public{
-		key: key,
+		key:  key,
+		hash: sha256.New(),
 	}, nil
 }
 
@@ -90,10 +121,38 @@ func NewPublicFromFile(path string) (*public, error) {
 
 // Encryp data.
 func (p *public) Encrypt(data []byte) ([]byte, error) {
-	b, err := rsa.EncryptOAEP(sha256.New(), rand.Reader, p.key, data, nil)
+	var encData []byte
+
+	dataLen := len(data)
+	step := p.chunkSize()
+	for begin := 0; begin < dataLen; begin += step {
+		end := begin + step
+		if end > dataLen {
+			end = dataLen
+		}
+
+		encChunk, err := p.encryptChunk(data[begin:end])
+		if err != nil {
+			return nil, fmt.Errorf("encrypt chunk error:%w", err)
+		}
+
+		encData = append(encData, encChunk...)
+	}
+
+	return encData, nil
+}
+
+func (p *public) encryptChunk(data []byte) ([]byte, error) {
+	b, err := rsa.EncryptOAEP(p.hash, rand.Reader, p.key, data, nil)
 	if err != nil {
 		return nil, fmt.Errorf("rsa OAEP encrypt error:%w", err)
 	}
 
 	return b, nil
+}
+
+// The message must be no longer than the length of the public modulus minus
+// twice the hash length, minus a further 2.
+func (p *public) chunkSize() int {
+	return p.key.Size() - 2*p.hash.Size() - 2
 }

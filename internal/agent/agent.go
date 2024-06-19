@@ -4,6 +4,7 @@ package agent
 
 import (
 	"context"
+	"fmt"
 	"net/http"
 	"os"
 	"os/signal"
@@ -13,8 +14,10 @@ import (
 	"github.com/k0st1a/metrics/internal/agent/reporter"
 	"github.com/k0st1a/metrics/internal/metrics/gopsutil"
 	"github.com/k0st1a/metrics/internal/metrics/runtime"
+	"github.com/k0st1a/metrics/internal/middleware/encrypt"
 	"github.com/k0st1a/metrics/internal/middleware/roundtrip"
 	"github.com/k0st1a/metrics/internal/middleware/sign"
+	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 )
 
@@ -39,6 +42,15 @@ func Run() error {
 	if cfg.HashKey != "" {
 		h := hash.New(cfg.HashKey)
 		middlewares = append(middlewares, sign.New(h))
+	}
+
+	if cfg.CryptoKey != "" {
+		pbl, err := rsa.NewPublicFromFile(cfg.CryptoKey)
+		if err != nil {
+			return fmt.Errorf("rsa new public from file error:%w", err)
+		}
+
+		middlewares = append(middlewares, encrypt.New(pbl))
 	}
 
 	rt := roundtrip.New(http.DefaultTransport, middlewares...)

@@ -19,6 +19,8 @@ import (
 	"github.com/k0st1a/metrics/internal/handlers/text"
 	"github.com/k0st1a/metrics/internal/middleware"
 	"github.com/k0st1a/metrics/internal/middleware/checksign"
+	"github.com/k0st1a/metrics/internal/middleware/decrypt"
+	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/pkg/profiler"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
@@ -95,6 +97,15 @@ func Run() error {
 	if cfg.HashKey != "" {
 		h := hash.New(cfg.HashKey)
 		middlewares = append(middlewares, checksign.New(h))
+	}
+
+	if cfg.CryptoKey != "" {
+		prv, err := rsa.NewPrivateFromFile(cfg.CryptoKey)
+		if err != nil {
+			return fmt.Errorf("rsa new private from file error:%w", err)
+		}
+
+		middlewares = append(middlewares, decrypt.New(prv))
 	}
 
 	middlewares = append(middlewares, middleware.Logging, middleware.Compress)
