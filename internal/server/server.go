@@ -5,8 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
 	"os/signal"
+	"syscall"
 
 	hdbp "github.com/k0st1a/metrics/internal/handlers/db/ping"
 	sdbs "github.com/k0st1a/metrics/internal/storage/db"
@@ -58,8 +58,8 @@ func Run() error {
 	var s Storage
 	var p Pinger
 
-	ctx, cancelCtx := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer cancelCtx()
+	ctx, cancelFunc := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	defer cancelFunc()
 
 	switch {
 	case cfg.DatabaseDSN != "":
