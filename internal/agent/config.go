@@ -58,10 +58,10 @@ func NewConfig() (*Config, error) {
 	flag.IntVar(&cfg.PollInterval, "p", defaultPollInterval, "metrics polling rate to the server")
 	flag.IntVar(&cfg.ReportInterval, "r", defaultReportInterval, "frequency of sending metrics to the server")
 	flag.StringVar(&cfg.HashKey, "k", defaultHashKey,
-		"Hash key with which the request body will be encoded"+
+		"Hash key with which the request body will be encoded "+
 			"HTTP Header HashSHA256 will be added to the HTTP request")
 	flag.StringVar(&(cfg.CryptoKey), "crypto-key", defaultCryptoKey,
-		"Путь до файла с открытым ключом (по умолчанию пустая строка). Если путь задан, то " +
+		"Путь до файла с открытым ключом (по умолчанию пустая строка). Если путь задан, то "+
 			"с помощью открытого ключа будут шифровываться сообщения, отправляемые агентом.")
 	flag.IntVar(&(cfg.RateLimit), "l", defaultRateLimit, "number of simultaneously outgoing requests to the server")
 
