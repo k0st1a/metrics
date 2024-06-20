@@ -42,7 +42,6 @@ func New(d Decrypter) func(next http.Handler) http.Handler {
 			r.ContentLength = int64(cl)
 			r.Header.Set("Content-Length", strconv.Itoa(cl))
 
-			//nolint:wrapcheck //no need here
 			next.ServeHTTP(rw, r)
 		})
 	}

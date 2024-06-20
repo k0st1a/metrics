@@ -154,5 +154,6 @@ func (p *public) encryptChunk(data []byte) ([]byte, error) {
 // The message must be no longer than the length of the public modulus minus
 // twice the hash length, minus a further 2.
 func (p *public) chunkSize() int {
+	//nolint:gomnd // migic number 2 is from rsa package comment of DecryptOAEP function
 	return p.key.Size() - 2*p.hash.Size() - 2
 }

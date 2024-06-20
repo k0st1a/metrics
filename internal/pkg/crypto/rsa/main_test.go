@@ -17,10 +17,6 @@ Ln0ewTtLDYYpTM/QqFYI7XxKDaEDgYQAAoGAfaNoVmXDVAYAaadSpWgtBuHQNimb
 DqOqVQUyEaITd22YMktkccXgwK2XDr4MJT1aBhnIpgpqQ2u+N+EF3JdyxTCtFdKb
 PgOIF8OiWe2FjlgoMncOz7SLetQ3f6Y4avpjingyyRwLbDLnEpzSw1fp/v6i0KWL
 MIIBtzCCASwGByqGSM44BAEwggEfAoGBAJ4vZpJ9H6iJR/UU1gJbHTR6in8oa4vX
-MIIBtzCCASwGByqGSM44BAEwggEfAoGBAJ4vZpJ9H6iJR/UU1gJbHTR6in8oa4vX
-MIIBtzCCASwGByqGSM44BAEwggEfAoGBAJ4vZpJ9H6iJR/UU1gJbHTR6in8oa4vX
-MIIBtzCCASwGByqGSM44BAEwggEfAoGBAJ4vZpJ9H6iJR/UU1gJbHTR6in8oa4vX
-MIIBtzCCASwGByqGSM44BAEwggEfAoGBAJ4vZpJ9H6iJR/UU1gJbHTR6in8oa4vX
 1Vdvj/V53Q1U2lS0VdkAZyZQiWfO9QTO5oM0Y4S7DtTX3UIiuSuKVWMD55piWuTg
 Demf4ZsVAdxcQ6RKCYSwiO0o3O+7RwX2aEzb/KaMqphoHtwRPWhxp5Mbz9kzDD9T
 +xQAzsfsuhGVAhUA1kA8zoR9/NuIDs07OdP76UX3UnkCgYEAmB2kVCBqooudn/zU
@@ -83,7 +79,6 @@ func TestCrypto(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.name, func(t *testing.T) {
-
 			encData, err := pbl.Encrypt(test.data)
 			assert.NoError(t, err)
 

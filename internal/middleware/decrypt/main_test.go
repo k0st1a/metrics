@@ -95,7 +95,6 @@ func TestDecryptError(t *testing.T) {
 
 			r.ServeHTTP(w, req)
 			resp := w.Result()
-			defer resp.Body.Close()
 
 			require.Equal(t, test.expectedStatus, resp.StatusCode)
 
