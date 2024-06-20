@@ -237,12 +237,12 @@ miter14: build statictest db-up
 		-source-path=. ; \
 	go test -v -race ./... ;
 
-CRYPTO_DIR := ./crypto
+CRYPTO_DIR := ./crypto-key
 CRYPTO_PRIVATE := private.pem
 CRYPTO_PUBLIC := public.pem
 
-.PHONY: crypto-key
-crypto-key:
+.PHONY: crypto-key-generate
+crypto-key-generate:
 	mkdir -pv ${CRYPTO_DIR} && \
 	openssl genrsa -out ${CRYPTO_DIR}/${CRYPTO_PRIVATE} 4096 && \
 	openssl rsa -in ${CRYPTO_DIR}/${CRYPTO_PRIVATE} -outform PEM -pubout -out ${CRYPTO_DIR}/${CRYPTO_PUBLIC}
