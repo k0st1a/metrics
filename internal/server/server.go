@@ -8,10 +8,10 @@ import (
 	"os/signal"
 	"syscall"
 
-	hdbp "github.com/k0st1a/metrics/internal/handlers/db/ping"
-	sdbs "github.com/k0st1a/metrics/internal/storage/db"
-	sdbm "github.com/k0st1a/metrics/internal/storage/db/migration/v1"
-	sdbp "github.com/k0st1a/metrics/internal/storage/db/ping"
+	hping "github.com/k0st1a/metrics/internal/handlers/db/ping"
+	"github.com/k0st1a/metrics/internal/storage/db"
+	"github.com/k0st1a/metrics/internal/storage/db/migration/v1"
+	dbping "github.com/k0st1a/metrics/internal/storage/db/ping"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/k0st1a/metrics/internal/handlers"
@@ -69,14 +69,14 @@ func Run() error {
 			return fmt.Errorf("pgxpool new error:%w", err)
 		}
 
-		m := sdbm.NewMigration(pool)
+		m := v1.NewMigration(pool)
 		err = m.Migrate(ctx)
 		if err != nil {
 			return fmt.Errorf("migrate error:%w", err)
 		}
 
-		p = sdbp.NewPinger(pool)
-		s = sdbs.NewStorage(pool)
+		p = dbping.NewPinger(pool)
+		s = db.NewStorage(pool)
 
 	case cfg.FileStoragePath != "":
 		log.Debug().Msg("Using file storage")
@@ -90,7 +90,7 @@ func Run() error {
 	rt := retry.New()
 	th := text.NewHandler(s, rt)
 	jh := json.NewHandler(s, rt)
-	dbph := hdbp.NewHandler(p)
+	dbph := hping.NewHandler(p)
 
 	var middlewares []func(http.Handler) http.Handler
 
@@ -114,7 +114,7 @@ func Run() error {
 
 	text.BuildRouter(r, th)
 	json.BuildRouter(r, jh)
-	hdbp.BuildRouter(r, dbph)
+	hping.BuildRouter(r, dbph)
 
 	srv, err := server.New(ctx, cfg.ServerAddr, r)
 	if err != nil {
