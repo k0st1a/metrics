@@ -3,6 +3,7 @@ package poller
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/k0st1a/metrics/internal/agent/collector"
@@ -41,15 +42,25 @@ func NewPoller(i int, rm MetricInfoRawer, gm MetricInfoRawer) (*state, <-chan ma
 //   - reporterCh - признак того, что нужно отправить данные в канал reportCH
 func (s *state) Do(ctx context.Context, reporterCh <-chan struct{}) {
 	pollTicker := time.NewTicker(time.Duration(s.pollInterval) * time.Second)
+	var wg sync.WaitGroup
+
 	// runtime
 	collectRuntimeCh := make(chan struct{}, 1)
 	rcl, pollRuntimeCh := collector.NewCollector(collectRuntimeCh, s.runtimeMetrics)
-	go rcl.Do()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		rcl.Do(ctx)
+	}()
 
 	// gopsutil
 	collectGopsutilCh := make(chan struct{}, 1)
 	gcl, pollGopsutilCh := collector.NewCollector(collectGopsutilCh, s.gopsutilMetrics)
-	go gcl.Do()
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		gcl.Do(ctx)
+	}()
 
 	acc := make(map[string]model.MetricInfoRaw)
 
@@ -79,6 +90,7 @@ func (s *state) Do(ctx context.Context, reporterCh <-chan struct{}) {
 		case <-ctx.Done():
 			log.Printf("Poller closed with cause:%s\n", ctx.Err())
 			pollTicker.Stop()
+			wg.Wait()
 			return
 		}
 	}

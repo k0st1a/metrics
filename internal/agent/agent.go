@@ -6,9 +6,9 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"os"
 	"os/signal"
 	"sync"
+	"syscall"
 
 	"github.com/k0st1a/metrics/internal/agent/poller"
 	"github.com/k0st1a/metrics/internal/agent/reporter"
@@ -30,8 +30,8 @@ func Run() error {
 
 	printConfig(cfg)
 
-	ctx, cancelCtx := signal.NotifyContext(context.Background(), os.Interrupt)
-	defer cancelCtx()
+	ctx, cancelFunc := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
+	defer cancelFunc()
 
 	rm := runtime.NewMetric()
 	gm := gopsutil.NewMetric()
