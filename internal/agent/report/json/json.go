@@ -3,6 +3,7 @@ package json
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"net/http"
 	"net/url"
@@ -32,15 +33,25 @@ func NewReport(a string, c *http.Client, ch <-chan map[string]model.MetricInfoRa
 }
 
 // Do - запуск репортера.
-func (r *report) Do() {
-	for mi := range r.channel {
-		log.Printf("mi:%v", mi)
-		mi2 := model.RawMap2InfoList(mi)
-		log.Printf("mi2:%v", mi2)
-		ml := MetricsInfo2Metrics(mi2)
-		log.Printf("ml:%v", ml)
-		r.doReport(ml)
+func (r *report) Do(ctx context.Context) {
+	for {
+		select {
+		case mi := <-r.channel:
+			r.prepareMetricsAndDoReport(mi)
+		case <-ctx.Done():
+			log.Printf("JSON peporter closed with cause:%s\n", ctx.Err())
+			return
+		}
 	}
+}
+
+func (r *report) prepareMetricsAndDoReport(mi map[string]model.MetricInfoRaw) {
+	log.Printf("mi:%v", mi)
+	mi2 := model.RawMap2InfoList(mi)
+	log.Printf("mi2:%v", mi2)
+	ml := MetricsInfo2Metrics(mi2)
+	log.Printf("ml:%v", ml)
+	r.doReport(ml)
 }
 
 func (r *report) doReport(m []models.Metrics) {

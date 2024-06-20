@@ -2,7 +2,10 @@
 package collector
 
 import (
+	"context"
+
 	"github.com/k0st1a/metrics/internal/agent/model"
+	"github.com/rs/zerolog/log"
 )
 
 // MetricInfoRawer - интерфейс формирования метрик.
@@ -30,8 +33,14 @@ func NewCollector(in <-chan struct{}, m MetricInfoRawer) (*state, <-chan []model
 }
 
 // Do - запуск сборщика метрик.
-func (s *state) Do() {
-	for range s.in {
-		s.out <- s.metric.MetricInfoRaw()
+func (s *state) Do(ctx context.Context) {
+	for {
+		select {
+		case <-s.in:
+			s.out <- s.metric.MetricInfoRaw()
+		case <-ctx.Done():
+			log.Printf("Collecter closed with cause:%s\n", ctx.Err())
+			return
+		}
 	}
 }
