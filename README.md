@@ -49,6 +49,10 @@ git fetch template && git checkout template/main .github
 Для для запуска команды `make cover` в docker контейнере предварительно используйте команду `make cli`.
 Если докер контейнер не собран, то нужно предварительно вызвать команду `make toolchain`.
 
+# TODO
+
+TODO лист находится в файле [TODO.md](TODO.md)
+
 # Проблема с godoc
 
 При попытке использования godoc возникла проблема:
