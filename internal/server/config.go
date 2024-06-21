@@ -106,7 +106,6 @@ func newDefaultConfig() *Config {
 }
 
 func (c *Config) applyFromArgsAndEnv() error {
-
 	addr := &netaddr.NetAddress{}
 	err := addr.Set(c.ServerAddr)
 	if err != nil {

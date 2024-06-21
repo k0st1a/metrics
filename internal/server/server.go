@@ -10,7 +10,7 @@ import (
 
 	hping "github.com/k0st1a/metrics/internal/handlers/db/ping"
 	"github.com/k0st1a/metrics/internal/storage/db"
-	"github.com/k0st1a/metrics/internal/storage/db/migration/v1"
+	v1 "github.com/k0st1a/metrics/internal/storage/db/migration/v1"
 	dbping "github.com/k0st1a/metrics/internal/storage/db/ping"
 
 	"github.com/jackc/pgx/v5/pgxpool"
