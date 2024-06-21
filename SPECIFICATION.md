@@ -394,7 +394,7 @@ Build commit: <buildCommit> (или "N/A" при отсутствии значе
     "address": "localhost:8080", // аналог переменной окружения ADDRESS или флага -a
     "restore": true, // аналог переменной окружения RESTORE или флага -r
     "store_interval": "1s", // аналог переменной окружения STORE_INTERVAL или флага -i
-    "store_file": "/path/to/file.db", // аналог переменной окружения STORE_FILE или -f
+    "file_storage_path": "/path/to/file.db", // аналог переменной окружения FILE_STORAGE_PATH или -f
     "database_dsn": "", // аналог переменной окружения DATABASE_DSN или флага -d
     "crypto_key": "/path/to/key.pem" // аналог переменной окружения CRYPTO_KEY или флага -crypto-key
 }
