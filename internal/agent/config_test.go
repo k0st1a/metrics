@@ -8,6 +8,68 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+func TestConfigFromFile(t *testing.T) {
+	origStateFun := func() {
+		func(args []string) {
+			//nolint:reassign //for tests only
+			os.Args = args
+		}(os.Args)
+
+		func(cl *flag.FlagSet) {
+			//nolint:reassign //for tests only
+			flag.CommandLine = cl
+		}(flag.CommandLine)
+	}
+	defer origStateFun()
+
+	tests := []struct {
+		name string
+		env  map[string]string
+		args []string
+		cfg  Config
+	}{
+		{
+			name: "Check config from file",
+			env: map[string]string{
+				"CONFIG": "./config_test.json",
+			},
+			args: []string{
+				"cmd",
+				"-c", "./config_test.json",
+			},
+			cfg: Config{
+				ServerAddr:     "localhost:8090",
+				ReportInterval: 600,
+				PollInterval:   700,
+				CryptoKey:      "CRYPTO_KEY_FROM_FILE",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			for k, v := range test.env {
+				t.Setenv(k, v)
+			}
+
+			//nolint:reassign //for tests only
+			flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+
+			//nolint:reassign //for tests only
+			os.Args = test.args
+
+			cfg, err := NewConfig()
+			assert.NoError(t, err)
+
+			assert.Equal(t, test.cfg.ServerAddr, cfg.ServerAddr)
+			assert.Equal(t, test.cfg.ReportInterval, cfg.ReportInterval)
+			assert.Equal(t, test.cfg.PollInterval, cfg.PollInterval)
+			assert.Equal(t, test.cfg.CryptoKey, cfg.CryptoKey)
+			origStateFun()
+		})
+	}
+}
+
 func TestConfigFromEnv(t *testing.T) {
 	origStateFun := func() {
 		func(args []string) {
@@ -54,9 +116,13 @@ func TestConfigFromEnv(t *testing.T) {
 				t.Setenv(k, v)
 			}
 
+			//nolint:reassign //for tests only
+			flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
+
 			cfg, err := NewConfig()
 			assert.NoError(t, err)
 			assert.Equal(t, test.cfg, *cfg)
+			origStateFun()
 		})
 	}
 }
