@@ -53,7 +53,7 @@ func Run() error {
 		return err
 	}
 
-	printConfig(cfg)
+	log.Printf("Cfg:%+v", cfg)
 
 	var s Storage
 	var p Pinger
