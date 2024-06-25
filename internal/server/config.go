@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/k0st1a/metrics/internal/pkg/netaddr"
-	"github.com/rs/zerolog/log"
 )
 
 // Config - структура с конфигурационными параметрами сервера.
@@ -192,18 +191,6 @@ func (c *Config) applyFromArgsAndEnv() error {
 	}
 
 	return nil
-}
-
-func printConfig(cfg *Config) {
-	log.Debug().
-		Str("cfg.DatabaseDSN", cfg.DatabaseDSN).
-		Str("cfg.ServerAddr", cfg.ServerAddr).
-		Int("cfg.StoreInterval", cfg.StoreInterval).
-		Str("cfg.FileStoragePath", cfg.FileStoragePath).
-		Bool("cfg.Restore", cfg.Restore).
-		Str("cfg.HashKey", cfg.HashKey).
-		Str("cfg.CryptoKey", cfg.CryptoKey).
-		Msg("printConfig")
 }
 
 // JSONConfig - промежуточная структура с конфигурационными параметрами сервера.

@@ -19,6 +19,7 @@ import (
 	"github.com/k0st1a/metrics/internal/middleware/sign"
 	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
+	"github.com/rs/zerolog/log"
 )
 
 // Run - запуск агента.
@@ -28,7 +29,7 @@ func Run() error {
 		return err
 	}
 
-	printConfig(cfg)
+	log.Printf("Cfg:%+v", cfg)
 
 	ctx, cancelFunc := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	defer cancelFunc()

@@ -10,7 +10,6 @@ import (
 	"time"
 
 	"github.com/k0st1a/metrics/internal/pkg/netaddr"
-	"github.com/rs/zerolog/log"
 )
 
 const (
@@ -164,17 +163,6 @@ func (c *Config) applyFromArgsAndEnv() error {
 	}
 
 	return nil
-}
-
-func printConfig(cfg *Config) {
-	log.Debug().
-		Str("cfg.ServerAddr", cfg.ServerAddr).
-		Int("cfg.PollInterval", cfg.PollInterval).
-		Int("cfg.ReportInterval", cfg.ReportInterval).
-		Str("cfg.HashKey", cfg.HashKey).
-		Str("cfg.CryptoKey", cfg.CryptoKey).
-		Int("cfg.RateLimit", cfg.RateLimit).
-		Msg("")
 }
 
 // JSONConfig - промежуточная структура с конфигурационными параметрами сервера.
