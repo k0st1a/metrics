@@ -5,6 +5,7 @@ go 1.21
 toolchain go1.21.11
 
 require (
+	github.com/3th1nk/cidr v0.2.0
 	github.com/go-chi/chi/v5 v5.0.10
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v5 v5.5.3
