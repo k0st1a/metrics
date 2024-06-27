@@ -7,6 +7,7 @@ toolchain go1.21.11
 require (
 	github.com/3th1nk/cidr v0.2.0
 	github.com/go-chi/chi/v5 v5.0.10
+	github.com/google/gopacket v1.1.20-0.20220810144506-32ee38206866
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v5 v5.5.3
 	github.com/mailru/easyjson v0.7.7
