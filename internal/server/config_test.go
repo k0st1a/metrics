@@ -42,6 +42,7 @@ func TestConfigFromFile(t *testing.T) {
 				ServerAddr:      "localhost:8090",
 				FileStoragePath: "FILE_STORAGE_PATH_FROM_FILE",
 				CryptoKey:       "CRYPTO_KEY_FROM_FILE",
+				TrustedSubnet:   "TRUSTED_SUBNET_FROM_FILE",
 				StoreInterval:   500,
 				Restore:         false,
 			},
@@ -104,6 +105,7 @@ func TestConfigFromEnv(t *testing.T) {
 				"STORE_INTERVAL":    "100",
 				"RESTORE":           "true",
 				"PPROF_ADDRESS":     "localhost:9090",
+				"TRUSTED_SUBNET":    "TRUSTED_SUBNET_FROM_ENV",
 			},
 			cfg: Config{
 				DatabaseDSN:     "DATABASE_DSN_FROM_ENV",
@@ -114,6 +116,7 @@ func TestConfigFromEnv(t *testing.T) {
 				StoreInterval:   100,
 				Restore:         true,
 				PprofServerAddr: "localhost:9090",
+				TrustedSubnet:   "TRUSTED_SUBNET_FROM_ENV",
 			},
 		},
 	}
@@ -166,6 +169,7 @@ func TestConfigFromFlags(t *testing.T) {
 				"-i", "200",
 				"-r=false",
 				"-p", "localhost:9091",
+				"-t", "TRUSTED_SUBNET_FROM_FLAG",
 			},
 			cfg: Config{
 				DatabaseDSN:     "DATABASE_DSN_FROM_FLAG",
@@ -176,6 +180,7 @@ func TestConfigFromFlags(t *testing.T) {
 				StoreInterval:   200,
 				Restore:         false,
 				PprofServerAddr: "localhost:9091",
+				TrustedSubnet:   "TRUSTED_SUBNET_FROM_FLAG",
 			},
 		},
 	}
@@ -227,6 +232,7 @@ func TestConfig(t *testing.T) {
 				"STORE_INTERVAL":    "300",
 				"RESTORE":           "true",
 				"PPROF_ADDRESS":     "localhost:9090",
+				"TRUSTED_SUBNET":    "TRUSTED_SUBNET_FROM_ENV",
 			},
 			args: []string{
 				"cmd",
@@ -237,6 +243,7 @@ func TestConfig(t *testing.T) {
 				"-i", "400",
 				"-r=false",
 				"-p", "localhost:9091",
+				"-t", "TRUSTED_SUBNET_FROM_FLAG",
 			},
 			cfg: Config{
 				DatabaseDSN:     "DATABASE_DSN_FROM_ENV",
@@ -247,6 +254,7 @@ func TestConfig(t *testing.T) {
 				StoreInterval:   300,
 				Restore:         true,
 				PprofServerAddr: "localhost:9090",
+				TrustedSubnet:   "TRUSTED_SUBNET_FROM_ENV",
 			},
 		},
 	}

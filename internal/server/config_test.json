@@ -4,5 +4,6 @@
     "store_interval": "500s",
     "file_storage_path": "FILE_STORAGE_PATH_FROM_FILE",
     "database_dsn": "DATABASE_DSN_FROM_FILE",
-    "crypto_key": "CRYPTO_KEY_FROM_FILE"
+    "crypto_key": "CRYPTO_KEY_FROM_FILE",
+    "trusted_subnet": "TRUSTED_SUBNET_FROM_FILE"
 }
