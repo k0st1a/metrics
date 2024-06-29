@@ -22,7 +22,9 @@ PG_IMAGE = "postgres:13.13-bullseye"
 PG_DOCKER_CONTEINER_NAME = "metrics-pg-13.3"
 
 SERVER_PORT="8080"
-SERVER_HOST="localhost"
+SERVER_HOST="127.0.0.1"
+SERVER_TRUSTED_SUBNET="127.0.0.1/32"
+#SERVER_TRUSTED_SUBNET="192.168.1.1/32"
 PPROF_SERVER_PORT="8086"
 PPROF_SERVER_HOST="0.0.0.0"
 
@@ -262,6 +264,7 @@ server-run-with-args: build statictest db-up
 			-d ${PG_DATABASE_DSN} \
 			-p ${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT} \
 			-k ${HASH_KEY} \
+			-t ${SERVER_TRUSTED_SUBNET} \
 			-crypto-key ${CRYPTO_PRIVATE}
 
 .PHONY: agent-run-with-args
