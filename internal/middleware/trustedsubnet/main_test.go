@@ -2,7 +2,6 @@ package trustedsubnet
 
 import (
 	"bytes"
-	"errors"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -13,27 +12,6 @@ import (
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
-
-type errReader int
-
-func (errReader) Read(p []byte) (int, error) {
-	return 0, errors.New("test read error")
-}
-
-type errCloser int
-
-func (errCloser) Read(p []byte) (int, error) {
-	return 0, io.EOF
-}
-func (errCloser) Close() error {
-	return errors.New("test close error")
-}
-
-type errDecrypter int
-
-func (errDecrypter) Decrypt(_ []byte) ([]byte, error) {
-	return nil, errors.New("test decrypt error")
-}
 
 func TestTrustedSubnetError(t *testing.T) {
 	tests := []struct {
@@ -80,7 +58,9 @@ func TestTrustedSubnetError(t *testing.T) {
 
 				assert.Equal(t, []byte(test.body), body)
 
-				rw.Write(body)
+				_, err = rw.Write(body)
+				require.NoError(t, err)
+
 				rw.WriteHeader(http.StatusOK)
 			})
 

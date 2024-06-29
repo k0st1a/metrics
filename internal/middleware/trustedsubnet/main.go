@@ -14,8 +14,6 @@ type Container interface {
 func New(c Container) func(next http.Handler) http.Handler {
 	return func(next http.Handler) http.Handler {
 		return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
-			defer r.Body.Close()
-
 			ip := r.Header.Get("X-Real-IP")
 
 			if !c.Contains(ip) {
