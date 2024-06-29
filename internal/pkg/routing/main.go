@@ -8,26 +8,40 @@ import (
 	"github.com/google/gopacket/routing"
 )
 
-func Route(dst string) (string, error) {
-	router, err := routing.New()
+type router struct {
+	router routing.Router
+}
+
+func New() (*router, error) {
+	r, err := routing.New()
 	if err != nil {
-		return "", fmt.Errorf("router create error:%w", err)
+		return nil, fmt.Errorf("router create error:%w", err)
 	}
 
-	host, _, err := net.SplitHostPort(dst)
+	return &router{
+		router: r,
+	}, nil
+}
+
+func (r *router) Route(dst net.IP) (net.IP, error) {
+	_, _, src, err := r.router.Route(dst)
 	if err != nil {
-		return "", fmt.Errorf("spliet dst error:%w", err)
+		return nil, fmt.Errorf("route error:%w", err)
+	}
+
+	return src, nil
+}
+
+func ParseHost(a string) (net.IP, error) {
+	host, _, err := net.SplitHostPort(a)
+	if err != nil {
+		return nil, fmt.Errorf("split address error:%w", err)
 	}
 
 	ip := net.ParseIP(host)
 	if ip == nil {
-		return "", fmt.Errorf("bad dst address")
+		return nil, fmt.Errorf("bad host address:%v", host)
 	}
 
-	_, _, src, err := router.Route(ip)
-	if err != nil {
-		return "", fmt.Errorf("route error:%w", err)
-	}
-
-	return src.String(), nil
+	return ip, nil
 }

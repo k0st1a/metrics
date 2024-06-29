@@ -56,12 +56,22 @@ func Run() error {
 		middlewares = append(middlewares, encrypt.New(pbl))
 	}
 
-	src, err := routing.Route(cfg.ServerAddr)
+	host, err := routing.ParseHost(cfg.ServerAddr)
 	if err != nil {
-		return fmt.Errorf("route to server error:%w", err)
+		return fmt.Errorf("parse server address error:%w", err)
 	}
 
-	middlewares = append(middlewares, realip.New(src))
+	router, err := routing.New()
+	if err != nil {
+		return fmt.Errorf("create router error:%w", err)
+	}
+
+	src, err := router.Route(host)
+	if err != nil {
+		return fmt.Errorf("route to server address error:%w", err)
+	}
+
+	middlewares = append(middlewares, realip.New(src.String()))
 
 	rt := roundtrip.New(http.DefaultTransport, middlewares...)
 
