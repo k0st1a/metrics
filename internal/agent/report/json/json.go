@@ -81,6 +81,8 @@ func (r *report) doReport(m []models.Metrics) {
 		return
 	}
 
+	log.Printf("Response StatusCode:%v", resp.StatusCode)
+
 	err = resp.Body.Close()
 	if err != nil {
 		log.Error().Err(err).Msg("resp.Body.Close error")

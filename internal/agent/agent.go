@@ -15,10 +15,12 @@ import (
 	"github.com/k0st1a/metrics/internal/metrics/gopsutil"
 	"github.com/k0st1a/metrics/internal/metrics/runtime"
 	"github.com/k0st1a/metrics/internal/middleware/encrypt"
+	"github.com/k0st1a/metrics/internal/middleware/realip"
 	"github.com/k0st1a/metrics/internal/middleware/roundtrip"
 	"github.com/k0st1a/metrics/internal/middleware/sign"
 	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
+	"github.com/k0st1a/metrics/internal/pkg/routing"
 	"github.com/rs/zerolog/log"
 )
 
@@ -53,6 +55,23 @@ func Run() error {
 
 		middlewares = append(middlewares, encrypt.New(pbl))
 	}
+
+	host, err := routing.ParseHost(cfg.ServerAddr)
+	if err != nil {
+		return fmt.Errorf("parse server address error:%w", err)
+	}
+
+	router, err := routing.New()
+	if err != nil {
+		return fmt.Errorf("create router error:%w", err)
+	}
+
+	src, err := router.Route(host)
+	if err != nil {
+		return fmt.Errorf("route to server address error:%w", err)
+	}
+
+	middlewares = append(middlewares, realip.New(src.String()))
 
 	rt := roundtrip.New(http.DefaultTransport, middlewares...)
 

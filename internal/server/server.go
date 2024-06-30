@@ -13,6 +13,7 @@ import (
 	v1 "github.com/k0st1a/metrics/internal/storage/db/migration/v1"
 	dbping "github.com/k0st1a/metrics/internal/storage/db/ping"
 
+	"github.com/3th1nk/cidr"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/k0st1a/metrics/internal/handlers"
 	"github.com/k0st1a/metrics/internal/handlers/json"
@@ -20,6 +21,7 @@ import (
 	"github.com/k0st1a/metrics/internal/middleware"
 	"github.com/k0st1a/metrics/internal/middleware/checksign"
 	"github.com/k0st1a/metrics/internal/middleware/decrypt"
+	"github.com/k0st1a/metrics/internal/middleware/trustedsubnet"
 	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/pkg/profiler"
@@ -106,6 +108,15 @@ func Run() error {
 		}
 
 		middlewares = append(middlewares, decrypt.New(prv))
+	}
+
+	if cfg.TrustedSubnet != "" {
+		subnet, err := cidr.Parse(cfg.TrustedSubnet)
+		if err != nil {
+			return fmt.Errorf("cidr parse trusted subnet error:%w", err)
+		}
+
+		middlewares = append(middlewares, trustedsubnet.New(subnet))
 	}
 
 	middlewares = append(middlewares, middleware.Logging, middleware.Compress)

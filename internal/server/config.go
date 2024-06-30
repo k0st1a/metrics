@@ -37,6 +37,12 @@ type Config struct {
 	// Config - путь до файла конфигурации сервера (по умолчанию пустая строка).
 	// Задается через флаг `-c=<ЗНАЧЕНИЕ>` или переменную окружения `CONFIG=<ЗНАЧЕНИЕ>`
 	Config string
+	// TrustedSubnet - строковое представление бесклассовой адресации (CIDR) (по умолчанию пуcтая строка).
+	// При пустом значении запросы на сервере обрабатываются без дополнительных ограничений.
+	// Если не пустая строка, серверу нужно проверять, что переданный в заголовке запроса X-Real-IP IP-адрес клиента
+	// входит в доверенную подсеть, в противном случае возвращать статус ответа 403 Forbidden.
+	// Задается через флаг `-t=<ЗНАЧЕНИЕ>` или переменную окружения `TRUSTED_SUBNET=<ЗНАЧЕНИЕ>`
+	TrustedSubnet string
 	// StoreInterval - интервал времени в секундах, по истечении которого текущие показания сервера сохраняются на
 	// диск (по умолчанию 300 секунд, значение `0` делает запись синхронной).
 	// Задается через флаг `-i=<ЗНАЧЕНИЕ>` или переменную окружения `STORE_INTERVAL=<ЗНАЧЕНИЕ>`
@@ -57,6 +63,7 @@ const (
 	defaultCryptoKey       = ""
 	defaultPprofServerAddr = "localhost:8086"
 	defaultConfig          = ""
+	defaultTrustedSubnet   = ""
 )
 
 // NewConfig - создать конфигурацию сервера из файла конфигурации, аргументов командой строки и переменных окружения.
@@ -98,6 +105,7 @@ func newDefaultConfig() *Config {
 		HashKey:         defaultHashKey,
 		CryptoKey:       defaultCryptoKey,
 		PprofServerAddr: defaultPprofServerAddr,
+		TrustedSubnet:   defaultTrustedSubnet,
 		Config:          defaultConfig,
 		StoreInterval:   defaultStoreInterval,
 		Restore:         defaultRestore,
@@ -132,6 +140,13 @@ func (c *Config) applyFromArgsAndEnv() error {
 		"Путь до файла с приватным ключом (по умолчанию пустая строка).\nЕсли путь задан, то "+
 			"с помощью приватного ключа будут дешифровываться сообщения, получаемые сервером.")
 	flag.StringVar(&c.PprofServerAddr, "p", c.PprofServerAddr, "pprof server address")
+	flag.StringVar(&c.TrustedSubnet, "t", c.TrustedSubnet,
+		"Cтроковое представление бесклассовой адресации (CIDR) (по умолчанию пуcтая строка).\n"+
+			"При пустом значении запросы на сервере обрабатываются без дополнительных ограничений.\n"+
+			"Если не пустая строка, серверу нужно проверять, что переданный в заголовке запроса \n"+
+			"X-Real-IP IP-адрес клиента входит в доверенную подсеть, в противном случае возвращать\n"+
+			"статус ответа 403 Forbidden.\n"+
+			"Задается через флаг `-t=<ЗНАЧЕНИЕ>` или переменную окружения `TRUSTED_SUBNET=<ЗНАЧЕНИЕ>")
 
 	flag.Parse()
 
@@ -190,6 +205,11 @@ func (c *Config) applyFromArgsAndEnv() error {
 		c.PprofServerAddr = ppa
 	}
 
+	ts, ok := os.LookupEnv("TRUSTED_SUBNET")
+	if ok {
+		c.TrustedSubnet = ts
+	}
+
 	return nil
 }
 
@@ -201,6 +221,7 @@ type JSONConfig struct {
 	DatabaseDSN     string `json:"database_dsn"`
 	FileStoragePath string `json:"file_storage_path"`
 	CryptoKey       string `json:"crypto_key"`
+	TrustedSubnet   string `json:"trusted_subnet"`
 	StoreInterval   string `json:"store_interval"`
 	Restore         bool   `json:"restore"`
 }
@@ -242,6 +263,10 @@ func (c *Config) applyFromFile(path string) error {
 
 	if cfg.CryptoKey != "" {
 		c.CryptoKey = cfg.CryptoKey
+	}
+
+	if cfg.TrustedSubnet != "" {
+		c.TrustedSubnet = cfg.TrustedSubnet
 	}
 
 	return nil
