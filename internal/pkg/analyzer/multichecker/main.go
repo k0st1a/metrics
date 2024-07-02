@@ -3,6 +3,7 @@ package multichecker
 
 import (
 	"github.com/k0st1a/metrics/internal/pkg/analyzer/osexit"
+	"github.com/k0st1a/metrics/internal/pkg/analyzer/skipgenerated"
 
 	"golang.org/x/tools/go/analysis"
 	"golang.org/x/tools/go/analysis/multichecker"
@@ -27,6 +28,7 @@ func Run() {
 		osexit.Analyzer,
 		interfacebloat.New(),
 	)
+	skipgenerated.WrapList(analyzers)
 
 	multichecker.Main(analyzers...)
 }
