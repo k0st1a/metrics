@@ -43,5 +43,5 @@ message StoreMetricListResponse {
 service Metrics {
     rpc GetMetric(GetMetricRequest) returns (GetMetricResponse);
     rpc StoreMetric(StoreMetricRequest) returns (StoreMetricResponse);
-    rpc StoreMetricList(stream StoreMetricListRequest) returns (StoreMetricListResponse);
+    rpc StoreMetricList(StoreMetricListRequest) returns (StoreMetricListResponse);
 }
