@@ -157,13 +157,14 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	if m.ID == "" {
+		log.Error().Err(err).Msg("m.ID is empty")
+		http.Error(rw, emptyMetricID, http.StatusBadRequest)
+		return
+	}
+
 	switch m.MType {
 	case "counter":
-		if m.ID == "" {
-			log.Error().Err(err).Msg("m.ID is empty")
-			http.Error(rw, emptyMetricID, http.StatusBadRequest)
-			return
-		}
 		if m.Delta == nil {
 			log.Error().Err(err).Msg("m.Value is nil")
 			http.Error(rw, nilMetricDelta, http.StatusBadRequest)
@@ -180,11 +181,6 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 			return
 		}
 	case "gauge":
-		if m.ID == "" {
-			log.Error().Err(err).Msg("m.ID is empty")
-			http.Error(rw, emptyMetricID, http.StatusBadRequest)
-			return
-		}
 		if m.Value == nil {
 			log.Error().Err(err).Msg("m.Value is nil")
 			http.Error(rw, nilMetricValue, http.StatusBadRequest)
