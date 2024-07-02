@@ -46,6 +46,8 @@ proto-install:
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	export PATH="${PATH}:$(go env GOPATH)/bin"
 
+PROTOBUF_PATH := "./internal/proto"
+
 .PHONY:proto-generate
 proto-generate:
 	protoc \
@@ -53,7 +55,7 @@ proto-generate:
 		--go_opt=paths=source_relative \
 		--go-grpc_out=. \
 		--go-grpc_opt=paths=source_relative \
-		./internal/proto/model.proto
+		${PROTOBUF_PATH}/model.proto
 
 GOLANG_LDFLAGS := -ldflags "-X 'main.buildVersion=${BUILD_VERSION}' \
                             -X 'main.buildDate=${BUILD_DATE}' \
@@ -90,7 +92,11 @@ test: build statictest staticlint
 cover:
 	mkdir -pv ./cover && \
 	go test -v -coverpkg=./... -coverprofile=./cover/cover.profile.tmp ./... && \
-	cat ./cover/cover.profile.tmp | grep -v "_easyjson.go" | grep -v "model.go" > ./cover/cover.profile && \
+	cat ./cover/cover.profile.tmp \
+		| grep -v "_easyjson.go" \
+		| grep -v "model.go" \
+		| grep -v "${PROTOBUF_PATH}" \
+		> ./cover/cover.profile && \
 	rm ./cover/cover.profile.tmp && \
 	go tool cover -func ./cover/cover.profile && \
 	go tool cover -html ./cover/cover.profile -o ./cover/cover.html
