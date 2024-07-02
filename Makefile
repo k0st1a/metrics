@@ -48,11 +48,12 @@ proto-install:
 
 .PHONY:proto-generate
 proto-generate:
-	protoc --go_out=./internal/proto/ \
-		   --go_opt=paths=source_relative \
-		   --go-grpc_out=./internal/proto/ \
-		   --go-grpc_opt=paths=source_relative \
-		   ./internal/proto/model.proto
+	protoc \
+		--go_out=. \
+		--go_opt=paths=source_relative \
+		--go-grpc_out=. \
+		--go-grpc_opt=paths=source_relative \
+		./internal/proto/model.proto
 
 GOLANG_LDFLAGS := -ldflags "-X 'main.buildVersion=${BUILD_VERSION}' \
                             -X 'main.buildDate=${BUILD_DATE}' \
