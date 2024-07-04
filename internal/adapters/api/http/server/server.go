@@ -45,7 +45,7 @@ func Run() error {
 
 	cfg, err := config.New()
 	if err != nil {
-		return err
+		return fmt.Errorf("config create error:%w", err)
 	}
 
 	log.Printf("Cfg:%+v", cfg)
