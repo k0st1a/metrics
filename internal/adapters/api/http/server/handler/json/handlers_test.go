@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	handlers "github.com/k0st1a/metrics/internal/adapters/api/http/server/handler"
+	"github.com/k0st1a/metrics/internal/adapters/storage/file"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
-	"github.com/k0st1a/metrics/internal/storage/file"
 
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

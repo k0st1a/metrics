@@ -10,9 +10,9 @@ import (
 	"syscall"
 
 	hping "github.com/k0st1a/metrics/internal/adapters/api/http/server/handler/db/ping"
-	"github.com/k0st1a/metrics/internal/storage/db"
-	v1 "github.com/k0st1a/metrics/internal/storage/db/migration/v1"
-	dbping "github.com/k0st1a/metrics/internal/storage/db/ping"
+	"github.com/k0st1a/metrics/internal/adapters/storage/db"
+	v1 "github.com/k0st1a/metrics/internal/adapters/storage/db/migration/v1"
+	dbping "github.com/k0st1a/metrics/internal/adapters/storage/db/ping"
 
 	"github.com/3th1nk/cidr"
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -25,13 +25,13 @@ import (
 	"github.com/k0st1a/metrics/internal/adapters/api/http/server/handler"
 	"github.com/k0st1a/metrics/internal/adapters/api/http/server/handler/json"
 	"github.com/k0st1a/metrics/internal/adapters/api/http/server/handler/text"
+	"github.com/k0st1a/metrics/internal/adapters/storage/file"
+	"github.com/k0st1a/metrics/internal/adapters/storage/inmemory"
 	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/pkg/profiler"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
 	"github.com/k0st1a/metrics/internal/pkg/server"
-	"github.com/k0st1a/metrics/internal/storage/file"
-	"github.com/k0st1a/metrics/internal/storage/inmemory"
 	"github.com/rs/zerolog/log"
 )
 

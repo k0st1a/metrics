@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/k0st1a/metrics/internal/storage/file/model"
+	"github.com/k0st1a/metrics/internal/adapters/storage/file/model"
 	"github.com/rs/zerolog/log"
 )
 

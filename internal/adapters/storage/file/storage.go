@@ -6,8 +6,8 @@ import (
 	"fmt"
 	"sync"
 
-	"github.com/k0st1a/metrics/internal/storage/file/io"
-	"github.com/k0st1a/metrics/internal/storage/inmemory"
+	"github.com/k0st1a/metrics/internal/adapters/storage/file/io"
+	"github.com/k0st1a/metrics/internal/adapters/storage/inmemory"
 	"github.com/rs/zerolog/log"
 )
 

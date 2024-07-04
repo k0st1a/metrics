@@ -5,8 +5,8 @@ import (
 	"errors"
 	"net/http"
 
-	"github.com/k0st1a/metrics/internal/storage/db"
-	v1 "github.com/k0st1a/metrics/internal/storage/db/migration/v1"
+	"github.com/k0st1a/metrics/internal/adapters/storage/db"
+	v1 "github.com/k0st1a/metrics/internal/adapters/storage/db/migration/v1"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/checksign"
