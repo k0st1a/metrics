@@ -12,7 +12,7 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
-	"github.com/k0st1a/metrics/internal/utils"
+	"github.com/k0st1a/metrics/internal/ports"
 	"github.com/rs/zerolog/log"
 )
 
@@ -30,36 +30,18 @@ const (
 	notFoundMetric   = "metric not found"
 )
 
-// Storage - интерфейс работы с хранилищем метрик.
-type Storage interface {
-	// GetGauge - возвращает метрику типа gauge с именем name.
-	GetGauge(ctx context.Context, name string) (*float64, error)
-	// StoreGauge - сохраняет метрику типа gauge с именем name и значенем value.
-	StoreGauge(ctx context.Context, name string, value float64) error
-
-	// GetCounter - возвращает метрику типа gauge с именем name.
-	GetCounter(ctx context.Context, name string) (*int64, error)
-	// StoreCounter - сохраняет метрику типа counter с именем name и значенем value.
-	StoreCounter(ctx context.Context, name string, value int64) error
-
-	// StoreAll - сохраняет группу метрик типа counter и gauge.
-	StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error
-	// GetAll - возвращает все метрики типа counter и gauge.
-	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
-}
-
 // Retryer - интерфейс повторного обращения к хранилищу.
 type Retryer interface {
 	Retry(ctx context.Context, check func(error) bool, fnc func() error) error
 }
 
 type handler struct {
-	storage Storage
+	storage ports.Storage
 	retry   Retryer
 }
 
 // NewHandler - создание HTTP обработчика взаимодействия с хранилищем метрик.
-func NewHandler(s Storage, r Retryer) *handler {
+func NewHandler(s ports.Storage, r Retryer) *handler {
 	return &handler{
 		storage: s,
 		retry:   r,
@@ -226,7 +208,7 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 		})
 
 		switch {
-		case errors.Is(err, utils.ErrMetricsNoCounter):
+		case errors.Is(err, ports.ErrMetricsNoCounter):
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
 			return
 		case err != nil:
@@ -252,7 +234,7 @@ func (h *handler) GetMetricHandler(rw http.ResponseWriter, r *http.Request) {
 			return err
 		})
 		switch {
-		case errors.Is(err, utils.ErrMetricsNoGauge):
+		case errors.Is(err, ports.ErrMetricsNoGauge):
 			http.Error(rw, notFoundMetric, http.StatusNotFound)
 			return
 		case err != nil:

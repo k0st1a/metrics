@@ -1,5 +1,5 @@
-// Package utils contatins errors of metrics.
-package utils
+// Package ports contatins errors of metrics.
+package ports
 
 import "errors"
 

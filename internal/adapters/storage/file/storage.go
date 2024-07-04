@@ -8,22 +8,12 @@ import (
 
 	"github.com/k0st1a/metrics/internal/adapters/storage/file/io"
 	"github.com/k0st1a/metrics/internal/adapters/storage/inmemory"
+	"github.com/k0st1a/metrics/internal/ports"
 	"github.com/rs/zerolog/log"
 )
 
-type Storage interface {
-	GetGauge(ctx context.Context, name string) (*float64, error)
-	StoreGauge(ctx context.Context, name string, value float64) error
-
-	GetCounter(ctx context.Context, name string) (*int64, error)
-	StoreCounter(ctx context.Context, name string, value int64) error
-
-	StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error
-	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
-}
-
 type FileStorage struct {
-	storage Storage
+	storage ports.Storage
 	writer  io.Writer
 	mutex   sync.Mutex
 }
@@ -33,12 +23,12 @@ type FileStorage struct {
 //   - path - путь на файловой системе до файла, куда будут сохраняться метрики;
 //   - interval - интервал в секундах, через который по пути path будут сохраняться все метрики;
 //   - restore - при запуске загружать метрики из файла по пути path?
-func NewStorage(ctx context.Context, path string, interval int, restore bool) Storage {
+func NewStorage(ctx context.Context, path string, interval int, restore bool) ports.Storage {
 	if path == "" {
 		return inmemory.NewStorage()
 	}
 
-	var s Storage
+	var s ports.Storage
 
 	if restore {
 		c, g, err := io.Read(path)

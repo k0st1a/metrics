@@ -32,19 +32,9 @@ import (
 	"github.com/k0st1a/metrics/internal/pkg/profiler"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
 	"github.com/k0st1a/metrics/internal/pkg/server"
+	"github.com/k0st1a/metrics/internal/ports"
 	"github.com/rs/zerolog/log"
 )
-
-type Storage interface {
-	GetGauge(ctx context.Context, name string) (*float64, error)
-	StoreGauge(ctx context.Context, name string, value float64) error
-
-	GetCounter(ctx context.Context, name string) (*int64, error)
-	StoreCounter(ctx context.Context, name string, value int64) error
-
-	StoreAll(ctx context.Context, counter map[string]int64, gauge map[string]float64) error
-	GetAll(ctx context.Context) (counter map[string]int64, gauge map[string]float64, err error)
-}
 
 type Pinger interface {
 	Ping(ctx context.Context) error
@@ -60,7 +50,7 @@ func Run() error {
 
 	log.Printf("Cfg:%+v", cfg)
 
-	var s Storage
+	var s ports.Storage
 	var p Pinger
 
 	ctx, cancelFunc := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)

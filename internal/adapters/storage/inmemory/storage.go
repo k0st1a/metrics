@@ -5,7 +5,7 @@ import (
 	"context"
 	"maps"
 
-	"github.com/k0st1a/metrics/internal/utils"
+	"github.com/k0st1a/metrics/internal/ports"
 	"github.com/rs/zerolog/log"
 )
 
@@ -48,7 +48,7 @@ func (s *Storage) GetGauge(ctx context.Context, name string) (*float64, error) {
 		return &v, nil
 	}
 
-	return nil, utils.ErrMetricsNoGauge
+	return nil, ports.ErrMetricsNoGauge
 }
 
 // StoreCounter - сохраняет метрику типа counter с именем name и значенем value.
@@ -65,7 +65,7 @@ func (s *Storage) GetCounter(ctx context.Context, name string) (*int64, error) {
 	if ok {
 		return &v, nil
 	}
-	return nil, utils.ErrMetricsNoCounter
+	return nil, ports.ErrMetricsNoCounter
 }
 
 // StoreAll - сохраняет группу метрик типа counter и gauge.

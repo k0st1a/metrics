@@ -9,7 +9,7 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/k0st1a/metrics/internal/utils"
+	"github.com/k0st1a/metrics/internal/ports"
 	"github.com/rs/zerolog/log"
 )
 
@@ -46,7 +46,7 @@ func (s *DBStorage) GetGauge(ctx context.Context, name string) (*float64, error)
 
 	err := s.c.QueryRow(ctx, "SELECT value FROM gauges WHERE name = $1 LIMIT 1", name).Scan(&v)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, utils.ErrMetricsNoGauge
+		return nil, ports.ErrMetricsNoGauge
 	}
 	if err != nil {
 		return nil, fmt.Errorf("get gauge query error:%w", err)
@@ -76,7 +76,7 @@ func (s *DBStorage) GetCounter(ctx context.Context, name string) (*int64, error)
 
 	err := s.c.QueryRow(ctx, "SELECT delta FROM counters WHERE name = $1 LIMIT 1", name).Scan(&d)
 	if errors.Is(err, pgx.ErrNoRows) {
-		return nil, utils.ErrMetricsNoCounter
+		return nil, ports.ErrMetricsNoCounter
 	}
 	if err != nil {
 		return nil, fmt.Errorf("get counter query error:%w", err)
