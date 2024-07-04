@@ -46,7 +46,7 @@ protobuf-install:
 	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
 	export PATH="${PATH}:$(go env GOPATH)/bin"
 
-PROTOBUF_PATH := "./internal/protobuf"
+PROTOBUF_PATH := "./internal/adapters/api/grpc/protobuf"
 
 .PHONY:protobuf-generate
 protobuf-generate:
