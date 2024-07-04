@@ -18,9 +18,10 @@ import (
 	"github.com/k0st1a/metrics/internal/handlers"
 	"github.com/k0st1a/metrics/internal/handlers/json"
 	"github.com/k0st1a/metrics/internal/handlers/text"
-	"github.com/k0st1a/metrics/internal/middleware"
 	"github.com/k0st1a/metrics/internal/middleware/checksign"
+	"github.com/k0st1a/metrics/internal/middleware/compress"
 	"github.com/k0st1a/metrics/internal/middleware/decrypt"
+	"github.com/k0st1a/metrics/internal/middleware/logging"
 	"github.com/k0st1a/metrics/internal/middleware/trustedsubnet"
 	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
@@ -119,7 +120,7 @@ func Run() error {
 		middlewares = append(middlewares, trustedsubnet.New(subnet))
 	}
 
-	middlewares = append(middlewares, middleware.Logging, middleware.Compress)
+	middlewares = append(middlewares, logging.New, compress.New)
 
 	r := handlers.NewRouter(middlewares)
 

@@ -1,5 +1,5 @@
-// Package middleware сжатия данных для Content-Type application/json и text/html на стороне сервера.
-package middleware
+// Package compress сжатия данных для Content-Type application/json и text/html на стороне сервера.
+package compress
 
 import (
 	"compress/gzip"
@@ -65,7 +65,7 @@ func (c compress) WriteHeader(statusCode int) {
 	c.rw.WriteHeader(statusCode)
 }
 
-func Compress(next http.Handler) http.Handler {
+func New(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(rw http.ResponseWriter, r *http.Request) {
 		if r.Header.Get("Accept-Encoding") == "gzip" {
 			c := newCompress(rw, r)

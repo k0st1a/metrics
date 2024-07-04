@@ -1,4 +1,4 @@
-package middleware
+package compress
 
 import (
 	"compress/gzip"
@@ -45,7 +45,7 @@ func TestMiddlewareCompress(t *testing.T) {
 	}
 
 	r := chi.NewRouter()
-	r.Use(Compress)
+	r.Use(New)
 
 	r.Get("/get_application_json", func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")

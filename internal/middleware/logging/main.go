@@ -1,5 +1,5 @@
-// Package middleware логирования запросов на стороне сервера.
-package middleware
+// Package logging логирования запросов на стороне сервера.
+package logging
 
 import (
 	"fmt"
@@ -44,7 +44,7 @@ func (lr logging) WriteHeader(statusCode int) {
 	lr.rd.statusCode = statusCode
 }
 
-func Logging(next http.Handler) http.Handler {
+func New(next http.Handler) http.Handler {
 	logFn := func(rw http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 
