@@ -16,10 +16,10 @@ import (
 	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/sign"
 	"github.com/k0st1a/metrics/internal/agent/poller"
 	"github.com/k0st1a/metrics/internal/agent/reporter"
-	"github.com/k0st1a/metrics/internal/metrics/gopsutil"
-	"github.com/k0st1a/metrics/internal/metrics/runtime"
 	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
+	"github.com/k0st1a/metrics/internal/pkg/metric/gopsutil"
+	"github.com/k0st1a/metrics/internal/pkg/metric/runtime"
 	"github.com/k0st1a/metrics/internal/pkg/routing"
 	"github.com/rs/zerolog/log"
 )
