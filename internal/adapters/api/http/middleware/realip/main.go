@@ -4,7 +4,7 @@ package realip
 import (
 	"net/http"
 
-	"github.com/k0st1a/metrics/internal/middleware/roundtrip"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/roundtrip"
 )
 
 func New(ip string) func(http.RoundTripper) http.RoundTripper {

@@ -10,8 +10,8 @@ import (
 	"testing"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/k0st1a/metrics/internal/middleware/decrypt"
-	"github.com/k0st1a/metrics/internal/middleware/roundtrip"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/decrypt"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/roundtrip"
 	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"

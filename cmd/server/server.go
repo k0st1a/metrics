@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/k0st1a/metrics/internal/server"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/server"
 	"github.com/rs/zerolog/log"
 )
 

@@ -6,7 +6,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/k0st1a/metrics/internal/handlers"
+	handlers "github.com/k0st1a/metrics/internal/adapters/api/http/server/handler"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
 	"github.com/k0st1a/metrics/internal/storage/inmemory"
 

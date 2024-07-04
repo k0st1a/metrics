@@ -9,8 +9,8 @@ import (
 	"net/url"
 	"strconv"
 
+	models "github.com/k0st1a/metrics/internal/adapters/api/http/model"
 	"github.com/k0st1a/metrics/internal/agent/model"
-	"github.com/k0st1a/metrics/internal/models"
 	"github.com/rs/zerolog/log"
 )
 

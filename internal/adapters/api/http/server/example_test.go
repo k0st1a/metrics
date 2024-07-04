@@ -9,11 +9,12 @@ import (
 	v1 "github.com/k0st1a/metrics/internal/storage/db/migration/v1"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/k0st1a/metrics/internal/handlers"
-	"github.com/k0st1a/metrics/internal/handlers/json"
-	"github.com/k0st1a/metrics/internal/middleware/checksign"
-	"github.com/k0st1a/metrics/internal/middleware/compress"
-	"github.com/k0st1a/metrics/internal/middleware/logging"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/checksign"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/compress"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/logging"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/server/config"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/server/handler"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/server/handler/json"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
 	"github.com/k0st1a/metrics/internal/pkg/server"
@@ -21,7 +22,7 @@ import (
 )
 
 func Example() { //nolint:testableexamples // no output here
-	cfg, _ := NewConfig()
+	cfg, _ := config.New()
 
 	ctx := context.Background()
 
@@ -44,7 +45,7 @@ func Example() { //nolint:testableexamples // no output here
 
 	middlewares = append(middlewares, logging.New, compress.New)
 
-	r := handlers.NewRouter(middlewares)
+	r := handler.NewRouter(middlewares)
 
 	json.BuildRouter(r, jh)
 

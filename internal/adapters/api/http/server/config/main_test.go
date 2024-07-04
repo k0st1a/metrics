@@ -1,4 +1,4 @@
-package server
+package config
 
 import (
 	"flag"
@@ -61,7 +61,7 @@ func TestConfigFromFile(t *testing.T) {
 			//nolint:reassign //for tests only
 			os.Args = test.args
 
-			cfg, err := NewConfig()
+			cfg, err := New()
 			assert.NoError(t, err)
 
 			assert.Equal(t, test.cfg.DatabaseDSN, cfg.DatabaseDSN)
@@ -130,7 +130,7 @@ func TestConfigFromEnv(t *testing.T) {
 			//nolint:reassign //for tests only
 			flag.CommandLine = flag.NewFlagSet(os.Args[0], flag.ExitOnError)
 
-			cfg, err := NewConfig()
+			cfg, err := New()
 			assert.NoError(t, err)
 			assert.Equal(t, test.cfg, *cfg)
 			origStateFun()
@@ -193,7 +193,7 @@ func TestConfigFromFlags(t *testing.T) {
 			//nolint:reassign //for tests only
 			os.Args = test.args
 
-			cfg, err := NewConfig()
+			cfg, err := New()
 			assert.NoError(t, err)
 			assert.Equal(t, test.cfg, *cfg)
 			origStateFun()
@@ -270,7 +270,7 @@ func TestConfig(t *testing.T) {
 			//nolint:reassign //for tests only
 			os.Args = test.args
 
-			cfg, err := NewConfig()
+			cfg, err := New()
 			assert.NoError(t, err)
 			assert.Equal(t, test.cfg, *cfg)
 			origStateFun()

@@ -8,7 +8,7 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/k0st1a/metrics/internal/middleware/roundtrip"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/roundtrip"
 )
 
 // Signer - интерфейс подписи данных.

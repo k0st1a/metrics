@@ -1,3 +1,4 @@
+// Package server is http server for process metrics from requests.
 package server
 
 import (
@@ -8,21 +9,22 @@ import (
 	"os/signal"
 	"syscall"
 
-	hping "github.com/k0st1a/metrics/internal/handlers/db/ping"
+	hping "github.com/k0st1a/metrics/internal/adapters/api/http/server/handler/db/ping"
 	"github.com/k0st1a/metrics/internal/storage/db"
 	v1 "github.com/k0st1a/metrics/internal/storage/db/migration/v1"
 	dbping "github.com/k0st1a/metrics/internal/storage/db/ping"
 
 	"github.com/3th1nk/cidr"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/k0st1a/metrics/internal/handlers"
-	"github.com/k0st1a/metrics/internal/handlers/json"
-	"github.com/k0st1a/metrics/internal/handlers/text"
-	"github.com/k0st1a/metrics/internal/middleware/checksign"
-	"github.com/k0st1a/metrics/internal/middleware/compress"
-	"github.com/k0st1a/metrics/internal/middleware/decrypt"
-	"github.com/k0st1a/metrics/internal/middleware/logging"
-	"github.com/k0st1a/metrics/internal/middleware/trustedsubnet"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/checksign"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/compress"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/decrypt"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/logging"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/trustedsubnet"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/server/config"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/server/handler"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/server/handler/json"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/server/handler/text"
 	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/pkg/profiler"
@@ -51,7 +53,7 @@ type Pinger interface {
 func Run() error {
 	log.Debug().Msg("Run server")
 
-	cfg, err := NewConfig()
+	cfg, err := config.New()
 	if err != nil {
 		return err
 	}
@@ -122,7 +124,7 @@ func Run() error {
 
 	middlewares = append(middlewares, logging.New, compress.New)
 
-	r := handlers.NewRouter(middlewares)
+	r := handler.NewRouter(middlewares)
 
 	text.BuildRouter(r, th)
 	json.BuildRouter(r, jh)

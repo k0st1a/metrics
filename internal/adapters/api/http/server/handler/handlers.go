@@ -1,5 +1,5 @@
-// Package handlers for create HTTP router.
-package handlers
+// Package handler for create HTTP router.
+package handler
 
 import (
 	"net/http"

@@ -8,7 +8,7 @@ import (
 	"net/http"
 
 	"github.com/go-chi/chi/v5"
-	"github.com/k0st1a/metrics/internal/models"
+	models "github.com/k0st1a/metrics/internal/adapters/api/http/model"
 	"github.com/k0st1a/metrics/internal/pkg/retry"
 	"github.com/k0st1a/metrics/internal/utils"
 	"github.com/rs/zerolog/log"

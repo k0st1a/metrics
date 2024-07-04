@@ -8,7 +8,7 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"github.com/k0st1a/metrics/internal/middleware/roundtrip"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/roundtrip"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 
 	"github.com/stretchr/testify/assert"
