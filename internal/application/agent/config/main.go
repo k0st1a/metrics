@@ -1,5 +1,5 @@
-// Package agent for read config from env and flags.
-package agent
+// Package config for read config from env and flags.
+package config
 
 import (
 	"encoding/json"
@@ -48,8 +48,8 @@ type Config struct {
 	RateLimit int
 }
 
-// NewConfig - создать конфигурацию агента из файла конфигурации, аргументов командой строки и переменных окружения.
-func NewConfig() (*Config, error) {
+// New - создать конфигурацию агента из файла конфигурации, аргументов командой строки и переменных окружения.
+func New() (*Config, error) {
 	var path string
 
 	flag.StringVar(&path, "c", defaultConfig,

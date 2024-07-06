@@ -15,6 +15,7 @@ import (
 	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/realip"
 	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/roundtrip"
 	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/sign"
+	"github.com/k0st1a/metrics/internal/application/agent/config"
 	"github.com/k0st1a/metrics/internal/pkg/agent"
 	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
@@ -29,19 +30,15 @@ import (
 
 // Run - запуск агента.
 func Run() error {
-	cfg, err := NewConfig()
+	cfg, err := config.New()
 	if err != nil {
-		return err
+		return fmt.Errorf("make config error:%w", err)
 	}
 
 	log.Printf("Cfg:%+v", cfg)
 
 	ctx, cancelFunc := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	defer cancelFunc()
-
-	rm := runtime.NewMetric()
-	gm := gopsutil.NewMetric()
-	p, pc := poller.NewPoller(cfg.PollInterval, rm, gm)
 
 	var middlewares []roundtrip.Middleware
 
@@ -83,6 +80,10 @@ func Run() error {
 	rl := ratelimit.New(cfg.RateLimit)
 
 	r, rc, clientCh := reporter.New(cfg.ReportInterval)
+
+	rm := runtime.NewMetric()
+	gm := gopsutil.NewMetric()
+	p, pc := poller.NewPoller(cfg.PollInterval, rm, gm)
 
 	var wg sync.WaitGroup
 
