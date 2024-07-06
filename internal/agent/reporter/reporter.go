@@ -3,54 +3,36 @@ package reporter
 
 import (
 	"context"
-	"sync"
 	"time"
 
-	"github.com/k0st1a/metrics/internal/agent/report/json"
 	"github.com/k0st1a/metrics/internal/pkg/rawmetric"
-	"github.com/k0st1a/metrics/internal/ports"
 	"github.com/rs/zerolog/log"
 )
 
 type state struct {
-	client         ports.DoBatcher
 	pollerCh       chan<- struct{}
-	serverAddr     string
+	clientCh       chan<- map[string]rawmetric.Info
 	reportInterval int
-	rateLimit      int
 }
 
 // NewReporter - создание репортера, который отправляет метрики на сервер, где:
-//   - serverAddr - адрес сервера;
 //   - reportInterval - интервал между отправками на сервер, в секундах;
-//   - rateLimit - количество одновременных запросов на сервер;
-//   - sign - функция подписи передаваемых на сервер данных.
-//
-//nolint:lll //no need here
-func NewReporter(serverAddr string, reportInterval int, rateLimit int, client ports.DoBatcher) (*state, <-chan struct{}) {
+//   - clientCh - канал, который слушает(ют) клиенты для отправки на сервер.
+func NewReporter(reportInterval int) (*state, <-chan struct{}, <-chan map[string]rawmetric.Info) {
 	pollerCh := make(chan struct{})
+	clientCh := make(chan map[string]rawmetric.Info)
+
 	return &state{
-		serverAddr:     serverAddr,
 		reportInterval: reportInterval,
-		rateLimit:      rateLimit,
 		pollerCh:       pollerCh,
-		client:         client,
-	}, pollerCh
+		clientCh:       clientCh,
+	}, pollerCh, clientCh
 }
 
 // Do - запуск репортера, где:
 //   - ctx - контекст отмены репортера;
-//   - reportCh - канал получения метрик.
+//   - reportCh - канал, через который получаем метрики.
 func (s *state) Do(ctx context.Context, reportCh <-chan map[string]rawmetric.Info) {
-	var wg sync.WaitGroup
-	agentCh := make(chan map[string]rawmetric.Info)
-	for i := 0; i < s.rateLimit; i++ {
-		wg.Add(1)
-		go func() {
-			defer wg.Done()
-			json.NewReport(s.serverAddr, s.client, agentCh).Do(ctx)
-		}()
-	}
 
 	reportTicker := time.NewTicker(time.Duration(s.reportInterval) * time.Second)
 
@@ -63,11 +45,10 @@ func (s *state) Do(ctx context.Context, reportCh <-chan map[string]rawmetric.Inf
 			if len(m) == 0 {
 				continue
 			}
-			agentCh <- m
+			s.clientCh <- m
 		case <-ctx.Done():
 			log.Printf("Reporter closed with cause:%s\n", ctx.Err())
 			reportTicker.Stop()
-			wg.Wait()
 			return
 		}
 	}

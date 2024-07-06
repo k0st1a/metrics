@@ -16,11 +16,13 @@ import (
 	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/roundtrip"
 	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/sign"
 	"github.com/k0st1a/metrics/internal/agent/reporter"
+	"github.com/k0st1a/metrics/internal/pkg/agent"
 	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/pkg/metric/gopsutil"
 	"github.com/k0st1a/metrics/internal/pkg/metric/runtime"
 	"github.com/k0st1a/metrics/internal/pkg/poller"
+	"github.com/k0st1a/metrics/internal/pkg/ratelimit"
 	"github.com/k0st1a/metrics/internal/pkg/routing"
 	"github.com/rs/zerolog/log"
 )
@@ -78,9 +80,19 @@ func Run() error {
 
 	c := client.New(cfg.ServerAddr, rt)
 
-	r, rc := reporter.NewReporter(cfg.ServerAddr, cfg.ReportInterval, cfg.RateLimit, c)
+	rl := ratelimit.New(cfg.RateLimit)
+
+	r, rc, clientCh := reporter.NewReporter(cfg.ReportInterval)
 
 	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		defer wg.Done()
+		rl.Run(func() {
+			agent.New(c, clientCh).Do(ctx)
+		})
+	}()
 
 	wg.Add(1)
 	go func() {
