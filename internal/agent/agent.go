@@ -10,6 +10,7 @@ import (
 	"sync"
 	"syscall"
 
+	"github.com/k0st1a/metrics/internal/adapters/api/http/client"
 	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/encrypt"
 	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/realip"
 	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/roundtrip"
@@ -75,7 +76,9 @@ func Run() error {
 
 	rt := roundtrip.New(http.DefaultTransport, middlewares...)
 
-	r, rc := reporter.NewReporter(cfg.ServerAddr, cfg.ReportInterval, cfg.RateLimit, rt)
+	c := client.New(cfg.ServerAddr, rt)
+
+	r, rc := reporter.NewReporter(cfg.ServerAddr, cfg.ReportInterval, cfg.RateLimit, c)
 
 	var wg sync.WaitGroup
 

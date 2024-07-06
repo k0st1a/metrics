@@ -3,17 +3,17 @@ package reporter
 
 import (
 	"context"
-	"net/http"
 	"sync"
 	"time"
 
 	"github.com/k0st1a/metrics/internal/agent/model"
 	"github.com/k0st1a/metrics/internal/agent/report/json"
+	"github.com/k0st1a/metrics/internal/ports"
 	"github.com/rs/zerolog/log"
 )
 
 type state struct {
-	sign           http.RoundTripper
+	client         ports.DoBatcher
 	pollerCh       chan<- struct{}
 	serverAddr     string
 	reportInterval int
@@ -27,14 +27,14 @@ type state struct {
 //   - sign - функция подписи передаваемых на сервер данных.
 //
 //nolint:lll //no need here
-func NewReporter(serverAddr string, reportInterval int, rateLimit int, sign http.RoundTripper) (*state, <-chan struct{}) {
+func NewReporter(serverAddr string, reportInterval int, rateLimit int, client ports.DoBatcher) (*state, <-chan struct{}) {
 	pollerCh := make(chan struct{})
 	return &state{
 		serverAddr:     serverAddr,
 		reportInterval: reportInterval,
 		rateLimit:      rateLimit,
 		pollerCh:       pollerCh,
-		sign:           sign,
+		client:         client,
 	}, pollerCh
 }
 
@@ -45,13 +45,10 @@ func (s *state) Do(ctx context.Context, reportCh <-chan map[string]model.MetricI
 	var wg sync.WaitGroup
 	agentCh := make(chan map[string]model.MetricInfoRaw)
 	for i := 0; i < s.rateLimit; i++ {
-		c := &http.Client{
-			Transport: s.sign,
-		}
 		wg.Add(1)
 		go func() {
 			defer wg.Done()
-			json.NewReport(s.serverAddr, c, agentCh).Do(ctx)
+			json.NewReport(s.serverAddr, s.client, agentCh).Do(ctx)
 		}()
 	}
 
