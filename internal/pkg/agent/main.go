@@ -10,26 +10,25 @@ import (
 )
 
 type state struct {
-	client  ports.DoBatcher
-	channel <-chan map[string]rawmetric.Info
+	client ports.DoBatcher
 }
 
 // New - создание агента, который получает метрики через канал и заставляет клиента
 // отправлять метрики на сервер, где:
 //   - с - клиент;
-//   - ch - через данный канал получаем метрики для отправки клиентом на сервер.
-func New(c ports.DoBatcher, ch <-chan map[string]rawmetric.Info) *state {
+func New(c ports.DoBatcher) *state {
 	return &state{
-		client:  c,
-		channel: ch,
+		client: c,
 	}
 }
 
-// Do - запуск репортера.
-func (s *state) Do(ctx context.Context) {
+// Do - запуск репортера, где:
+//   - ctx - контекст;
+//   - ch - через данный канал получаем метрики для отправки клиентом на сервер.
+func (s *state) Do(ctx context.Context, ch <-chan map[string]rawmetric.Info) {
 	for {
 		select {
-		case m := <-s.channel:
+		case m := <-ch:
 			s.client.DoBatch(rawmetric.Map2List(m))
 		case <-ctx.Done():
 			log.Printf("Reporter closed with cause:%s\n", ctx.Err())

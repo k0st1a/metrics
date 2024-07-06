@@ -90,7 +90,7 @@ func Run() error {
 	go func() {
 		defer wg.Done()
 		rl.Run(func() {
-			agent.New(c, clientCh).Do(ctx)
+			agent.New(c).Do(ctx, clientCh)
 		})
 	}()
 
