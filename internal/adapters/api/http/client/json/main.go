@@ -1,5 +1,5 @@
-// Package client is HTTP client for send metrics in JSON format.
-package client
+// Package json is HTTP client for send metrics in JSON format.
+package json
 
 import (
 	"bytes"

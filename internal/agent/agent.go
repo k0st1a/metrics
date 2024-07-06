@@ -10,7 +10,7 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/k0st1a/metrics/internal/adapters/api/http/client"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/client/json"
 	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/encrypt"
 	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/realip"
 	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/roundtrip"
@@ -75,7 +75,7 @@ func Run() error {
 
 	rt := roundtrip.New(http.DefaultTransport, middlewares...)
 
-	c := client.New(cfg.ServerAddr, rt)
+	c := json.New(cfg.ServerAddr, rt)
 
 	rl := ratelimit.New(cfg.RateLimit)
 
