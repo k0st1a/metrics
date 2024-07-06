@@ -1,5 +1,5 @@
-// Package models for serialize/deserialize to/from JSON.
-package models
+// Package model for serialize/deserialize to/from JSON.
+package model
 
 import (
 	"fmt"

@@ -1,5 +1,5 @@
-// Package model for work with models of metrics.
-package model
+// Package rawmetric for work with intermal representation of metrics.
+package rawmetric
 
 type Type int
 

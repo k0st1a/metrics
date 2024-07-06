@@ -4,18 +4,18 @@ package collector
 import (
 	"context"
 
-	"github.com/k0st1a/metrics/internal/agent/model"
+	"github.com/k0st1a/metrics/internal/pkg/rawmetric"
 	"github.com/rs/zerolog/log"
 )
 
 // MetricInfoRawer - интерфейс формирования метрик.
 type MetricInfoRawer interface {
-	MetricInfoRaw() []model.MetricInfoRaw
+	MetricInfoRaw() []rawmetric.MetricInfoRaw
 }
 
 type state struct {
 	in     <-chan struct{}
-	out    chan<- []model.MetricInfoRaw
+	out    chan<- []rawmetric.MetricInfoRaw
 	metric MetricInfoRawer
 }
 
@@ -23,8 +23,8 @@ type state struct {
 //   - in - при получении данных с данного канала запускается формирование метрик;
 //   - m - функция формирование метрик;
 //   - out - сформированные метрики отправляются в данный канал.
-func NewCollector(in <-chan struct{}, m MetricInfoRawer) (*state, <-chan []model.MetricInfoRaw) {
-	out := make(chan []model.MetricInfoRaw)
+func NewCollector(in <-chan struct{}, m MetricInfoRawer) (*state, <-chan []rawmetric.MetricInfoRaw) {
+	out := make(chan []rawmetric.MetricInfoRaw)
 	return &state{
 		in:     in,
 		out:    out,

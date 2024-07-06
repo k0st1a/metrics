@@ -1,11 +1,11 @@
 package ports
 
-import "github.com/k0st1a/metrics/internal/agent/model"
+import "github.com/k0st1a/metrics/internal/pkg/rawmetric"
 
 type DoBatcher interface {
-	DoBatch([]model.MetricInfoRaw) error
+	DoBatch([]rawmetric.MetricInfoRaw) error
 }
 
 type Doer interface {
-	Do(model.MetricInfoRaw) error
+	Do(rawmetric.MetricInfoRaw) error
 }

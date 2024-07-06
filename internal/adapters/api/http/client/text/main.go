@@ -8,7 +8,7 @@ import (
 	"reflect"
 	"strconv"
 
-	"github.com/k0st1a/metrics/internal/agent/model"
+	"github.com/k0st1a/metrics/internal/pkg/rawmetric"
 	"github.com/rs/zerolog/log"
 )
 
@@ -26,14 +26,14 @@ func New(a string, t http.RoundTripper) *client {
 	}
 }
 
-func (c *client) Do(r model.MetricInfoRaw) error {
+func (c *client) Do(r rawmetric.MetricInfoRaw) error {
 	var (
 		value string
 		mtype string
 	)
 
 	switch r.Type {
-	case model.Gauge:
+	case rawmetric.Gauge:
 		v, ok := r.Value.(float64)
 		if !ok {
 			return fmt.Errorf("for gauge(%v) value type not float64", r)
@@ -41,7 +41,7 @@ func (c *client) Do(r model.MetricInfoRaw) error {
 
 		value = strconv.FormatFloat(v, 'g', -1, 64)
 		mtype = "gauge"
-	case model.Counter:
+	case rawmetric.Counter:
 		v, ok := r.Value.(int64)
 		if !ok {
 			return fmt.Errorf("for counter(%v) value type not int64", r)

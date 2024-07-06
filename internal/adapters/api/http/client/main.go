@@ -7,8 +7,8 @@ import (
 	"net/http"
 	"net/url"
 
-	models "github.com/k0st1a/metrics/internal/adapters/api/http/model"
-	"github.com/k0st1a/metrics/internal/agent/model"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/model"
+	"github.com/k0st1a/metrics/internal/pkg/rawmetric"
 	"github.com/rs/zerolog/log"
 )
 
@@ -26,7 +26,7 @@ func New(a string, t http.RoundTripper) *client {
 	}
 }
 
-func (c *client) Do(r model.MetricInfoRaw) error {
+func (c *client) Do(r rawmetric.MetricInfoRaw) error {
 	m, err := Raw2Metric(r)
 	if err != nil {
 		return fmt.Errorf("Raw2Metric error:%w", err)
@@ -37,7 +37,7 @@ func (c *client) Do(r model.MetricInfoRaw) error {
 		return fmt.Errorf("url join error:%w", err)
 	}
 
-	data, err := models.Serialize(m)
+	data, err := model.Serialize(m)
 	if err != nil {
 		return fmt.Errorf("models serialize error:%w", err)
 	}
@@ -64,7 +64,7 @@ func (c *client) Do(r model.MetricInfoRaw) error {
 	return nil
 }
 
-func (c *client) DoBatch(r []model.MetricInfoRaw) error {
+func (c *client) DoBatch(r []rawmetric.MetricInfoRaw) error {
 	m := Raw2MetricList(r)
 
 	address, err := url.JoinPath("http://", c.address, "/updates/")
@@ -72,7 +72,7 @@ func (c *client) DoBatch(r []model.MetricInfoRaw) error {
 		return fmt.Errorf("url join error:%w", err)
 	}
 
-	data, err := models.SerializeList(m)
+	data, err := model.SerializeList(m)
 	if err != nil {
 		return fmt.Errorf("models serialize list error:%w", err)
 	}
@@ -101,8 +101,8 @@ func (c *client) DoBatch(r []model.MetricInfoRaw) error {
 
 // Raw2MetricList - преобразование списка метрики из "сырого" формата в "окончательный" формат
 // для отправки на сервер.
-func Raw2MetricList(r []model.MetricInfoRaw) []models.Metrics {
-	l := make([]models.Metrics, len(r))
+func Raw2MetricList(r []rawmetric.MetricInfoRaw) []model.Metrics {
+	l := make([]model.Metrics, len(r))
 	i := 0
 	for _, v := range r {
 		m, err := Raw2Metric(v)
@@ -119,27 +119,27 @@ func Raw2MetricList(r []model.MetricInfoRaw) []models.Metrics {
 
 // Raw2Metric - преобразование метрики из "сырого" формате в "окончательный" формат
 // для отправки на сервер.
-func Raw2Metric(r model.MetricInfoRaw) (*models.Metrics, error) {
-	if r.Type == model.Gauge {
+func Raw2Metric(r rawmetric.MetricInfoRaw) (*model.Metrics, error) {
+	if r.Type == rawmetric.Gauge {
 		v, ok := r.Value.(float64)
 		if !ok {
 			return nil, fmt.Errorf("for gauge(%+v) value type not float64", r)
 		}
 
-		return &models.Metrics{
+		return &model.Metrics{
 			ID:    r.Name,
 			MType: "gauge",
 			Value: &v,
 		}, nil
 	}
 
-	if r.Type == model.Counter {
+	if r.Type == rawmetric.Counter {
 		v, ok := r.Value.(int64)
 		if !ok {
 			return nil, fmt.Errorf("for counter(%+v) value type not int64", r)
 		}
 
-		return &models.Metrics{
+		return &model.Metrics{
 			ID:    r.Name,
 			MType: "counter",
 			Delta: &v,

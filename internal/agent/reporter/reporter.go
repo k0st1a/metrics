@@ -6,8 +6,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/k0st1a/metrics/internal/agent/model"
 	"github.com/k0st1a/metrics/internal/agent/report/json"
+	"github.com/k0st1a/metrics/internal/pkg/rawmetric"
 	"github.com/k0st1a/metrics/internal/ports"
 	"github.com/rs/zerolog/log"
 )
@@ -41,9 +41,9 @@ func NewReporter(serverAddr string, reportInterval int, rateLimit int, client po
 // Do - запуск репортера, где:
 //   - ctx - контекст отмены репортера;
 //   - reportCh - канал получения метрик.
-func (s *state) Do(ctx context.Context, reportCh <-chan map[string]model.MetricInfoRaw) {
+func (s *state) Do(ctx context.Context, reportCh <-chan map[string]rawmetric.MetricInfoRaw) {
 	var wg sync.WaitGroup
-	agentCh := make(chan map[string]model.MetricInfoRaw)
+	agentCh := make(chan map[string]rawmetric.MetricInfoRaw)
 	for i := 0; i < s.rateLimit; i++ {
 		wg.Add(1)
 		go func() {
