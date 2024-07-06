@@ -15,10 +15,12 @@ type state struct {
 	reportInterval int
 }
 
-// NewReporter - создание репортера, который отправляет метрики на сервер, где:
+// New - создание репортера, который отправляет метрики на сервер, где:
 //   - reportInterval - интервал между отправками на сервер, в секундах;
-//   - clientCh - канал, который слушает(ют) клиенты для отправки на сервер.
-func NewReporter(reportInterval int) (*state, <-chan struct{}, <-chan map[string]rawmetric.Info) {
+//   - pollerCh - канал через который сообщаем poller-у, о том, чтобы он отправил
+//     метрики в канал reportCh (см. функцид Do);
+//   - clientCh - канал через который отправляем метрики на клиента(ов).
+func New(reportInterval int) (*state, <-chan struct{}, <-chan map[string]rawmetric.Info) {
 	pollerCh := make(chan struct{})
 	clientCh := make(chan map[string]rawmetric.Info)
 
