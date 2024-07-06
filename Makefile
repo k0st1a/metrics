@@ -111,7 +111,7 @@ test-analyzer:
 	go test -v -race -count=1 ./internal/pkg/analyzer/...
 
 .PHONY: miter7
-miter7: build statictest
+miter7: build test
 	METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration7" ; \
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
@@ -122,7 +122,7 @@ miter7: build statictest
 				-server-port=$$SERVER_PORT ;
 
 .PHONY: miter8
-miter8: build statictest
+miter8: build test
 	METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration8" ; \
 	ADDRESS="localhost:8080" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -133,7 +133,7 @@ miter8: build statictest
 				-file-storage-path=$$TEMP_FILE ;
 
 .PHONY: miter9
-miter9: build statictest
+miter9: build test
 	METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration9" ; \
 			ADDRESS="localhost:8080" ;\
 			TEMP_FILE="/tmp/metrics-db.json" ; \
@@ -144,7 +144,7 @@ miter9: build statictest
 						-file-storage-path=$$TEMP_FILE ;
 
 .PHONY: miter10
-miter10: build statictest db-up
+miter10: build test db-up
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -156,7 +156,7 @@ miter10: build statictest db-up
 				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: miter11
-miter11: build statictest db-up
+miter11: build test db-up
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -168,7 +168,7 @@ miter11: build statictest db-up
 				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: miter12
-miter12: build statictest db-up
+miter12: build test db-up
 	#SERVER_PORT=$$(random unused-port) ;
 	SERVER_PORT=8081 ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
@@ -181,7 +181,7 @@ miter12: build statictest db-up
 				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: miter13
-miter13: build statictest db-up
+miter13: build test db-up
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -193,7 +193,7 @@ miter13: build statictest db-up
 				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: ${ITERS}
-${ITERS}: iter%: build statictest db-up;
+${ITERS}: iter%: build test db-up;
 	for i in $(shell seq 1 $*) ; do \
 		METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration$$i[AB]?$$" ; \
 		if [ $$i -eq 1 ]; then \
@@ -240,9 +240,8 @@ ${ITERS}: iter%: build statictest db-up;
 						-binary-path=cmd/server/server \
 						-agent-binary-path=cmd/agent/agent \
 						-server-port=$$SERVER_PORT \
-						-database-dsn=${PG_DATABASE_DSN} ; \
-						-key="$$TEMP_FILE" ; \
-			go test -v -race ./... ; \
+						-database-dsn=${PG_DATABASE_DSN} \
+						-key="$${TEMP_FILE}" ; \
 		fi ; \
 		if [ $$? -eq 1 ]; then \
 			break ; \
@@ -250,7 +249,7 @@ ${ITERS}: iter%: build statictest db-up;
     done
 
 .PHONY: miter14
-miter14: build statictest db-up
+miter14: build test db-up
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -260,8 +259,7 @@ miter14: build statictest db-up
 		-database-dsn=${PG_DATABASE_DSN} \
 		-server-port="$$SERVER_PORT" \
 		-key=$${TEMP_FILE} \
-		-source-path=. ; \
-	go test -v -race ./... ;
+		-source-path=.
 
 CRYPTO_DIR := ./crypto-key
 CRYPTO_PRIVATE := ${CRYPTO_DIR}/private.pem
