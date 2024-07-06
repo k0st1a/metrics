@@ -1,30 +1,21 @@
-// Package agent - пакет HTTP-клиента для сбора рантайм-метрик и
-// их последующей отправки на сервер по протоколу HTTP.
+// Package agent - пакет для сбора рантайм-метрик их последующей отправки на сервер.
 package agent
 
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"os/signal"
 	"sync"
 	"syscall"
 
-	"github.com/k0st1a/metrics/internal/adapters/api/http/client/json"
-	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/encrypt"
-	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/realip"
-	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/roundtrip"
-	"github.com/k0st1a/metrics/internal/adapters/api/http/middleware/sign"
+	"github.com/k0st1a/metrics/internal/adapters/api/http/client"
 	"github.com/k0st1a/metrics/internal/application/agent/config"
 	"github.com/k0st1a/metrics/internal/pkg/agent"
-	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
-	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/pkg/metric/gopsutil"
 	"github.com/k0st1a/metrics/internal/pkg/metric/runtime"
 	"github.com/k0st1a/metrics/internal/pkg/poller"
 	"github.com/k0st1a/metrics/internal/pkg/ratelimit"
 	"github.com/k0st1a/metrics/internal/pkg/reporter"
-	"github.com/k0st1a/metrics/internal/pkg/routing"
 	"github.com/rs/zerolog/log"
 )
 
@@ -40,42 +31,10 @@ func Run() error {
 	ctx, cancelFunc := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	defer cancelFunc()
 
-	var middlewares []roundtrip.Middleware
-
-	if cfg.HashKey != "" {
-		h := hash.New(cfg.HashKey)
-		middlewares = append(middlewares, sign.New(h))
-	}
-
-	if cfg.CryptoKey != "" {
-		pbl, err := rsa.NewPublicFromFile(cfg.CryptoKey)
-		if err != nil {
-			return fmt.Errorf("rsa new public from file error:%w", err)
-		}
-
-		middlewares = append(middlewares, encrypt.New(pbl))
-	}
-
-	host, err := routing.ParseHost(cfg.ServerAddr)
+	c, err := client.New(cfg)
 	if err != nil {
-		return fmt.Errorf("parse server address error:%w", err)
+		return fmt.Errorf("make client error:%w", err)
 	}
-
-	router, err := routing.New()
-	if err != nil {
-		return fmt.Errorf("create router error:%w", err)
-	}
-
-	src, err := router.Route(host)
-	if err != nil {
-		return fmt.Errorf("route to server address error:%w", err)
-	}
-
-	middlewares = append(middlewares, realip.New(src.String()))
-
-	rt := roundtrip.New(http.DefaultTransport, middlewares...)
-
-	c := json.New(cfg.ServerAddr, rt)
 
 	rl := ratelimit.New(cfg.RateLimit)
 
