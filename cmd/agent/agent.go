@@ -3,7 +3,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/k0st1a/metrics/internal/agent"
+	"github.com/k0st1a/metrics/internal/application/agent"
 	"github.com/rs/zerolog/log"
 )
 
