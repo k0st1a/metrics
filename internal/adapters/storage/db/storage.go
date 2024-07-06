@@ -31,7 +31,8 @@ func (s *DBStorage) StoreGauge(ctx context.Context, name string, value float64) 
 	s.m.Lock()
 	defer s.m.Unlock()
 
-	_, err := s.c.Exec(ctx, "INSERT INTO gauges (name,value) VALUES($1, $2)", name, value)
+	_, err := s.c.Exec(ctx, "INSERT INTO gauges (name,value) VALUES($1, $2)"+
+		" ON CONFLICT (name) DO UPDATE SET value = $2", name, value)
 	if err != nil {
 		return fmt.Errorf("store gauge query error:%w", err)
 	}
