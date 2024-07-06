@@ -6,7 +6,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/k0st1a/metrics/internal/agent/collector"
+	"github.com/k0st1a/metrics/internal/pkg/collector"
 	"github.com/k0st1a/metrics/internal/pkg/rawmetric"
 	"github.com/k0st1a/metrics/internal/ports"
 	"github.com/rs/zerolog/log"
