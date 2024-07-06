@@ -37,13 +37,13 @@ func (s *state) mem2MetricInfoRaw() []model.MetricInfoRaw {
 	return []model.MetricInfoRaw{
 		model.MetricInfoRaw{
 			Name:  "TotalMemory",
-			Type:  "gauge",
-			Value: mem.Total,
+			Type:  model.Gauge,
+			Value: float64(mem.Total),
 		},
 		model.MetricInfoRaw{
 			Name:  "FreeMemory",
-			Type:  "gauge",
-			Value: mem.Free,
+			Type:  model.Gauge,
+			Value: float64(mem.Free),
 		},
 	}
 }
@@ -62,8 +62,8 @@ func (s *state) cpu2MetricInfoRaw() []model.MetricInfoRaw {
 	for i, v := range cpu {
 		mi[i] = model.MetricInfoRaw{
 			Name:  "CPUutilization" + strconv.Itoa(i),
-			Type:  "gauge",
-			Value: v,
+			Type:  model.Gauge,
+			Value: float64(v),
 		}
 	}
 
