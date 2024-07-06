@@ -3,9 +3,9 @@ package ports
 import "github.com/k0st1a/metrics/internal/pkg/rawmetric"
 
 type DoBatcher interface {
-	DoBatch([]rawmetric.MetricInfoRaw) error
+	DoBatch([]rawmetric.Info) error
 }
 
 type Doer interface {
-	Do(rawmetric.MetricInfoRaw) error
+	Do(rawmetric.Info) error
 }

@@ -11,7 +11,7 @@ import (
 
 type report struct {
 	client  ports.DoBatcher
-	channel <-chan map[string]rawmetric.MetricInfoRaw
+	channel <-chan map[string]rawmetric.Info
 	address string
 }
 
@@ -19,7 +19,7 @@ type report struct {
 //   - a - адрем сервера;
 //   - с - HTTP клиент;
 //   - ch - через данный канал получаем метрики для отправки на сервер.
-func NewReport(a string, c ports.DoBatcher, ch <-chan map[string]rawmetric.MetricInfoRaw) *report {
+func NewReport(a string, c ports.DoBatcher, ch <-chan map[string]rawmetric.Info) *report {
 	return &report{
 		address: a,
 		client:  c,

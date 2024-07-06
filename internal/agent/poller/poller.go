@@ -11,15 +11,15 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-// MetricInfoRawer - интерфейс формирования метрик.
-type MetricInfoRawer interface {
-	MetricInfoRaw() []rawmetric.MetricInfoRaw
+// Infoer - интерфейс формирования метрик.
+type Infoer interface {
+	Info() []rawmetric.Info
 }
 
 type state struct {
-	runtimeMetrics  MetricInfoRawer
-	gopsutilMetrics MetricInfoRawer
-	reportCh        chan<- map[string]rawmetric.MetricInfoRaw
+	runtimeMetrics  Infoer
+	gopsutilMetrics Infoer
+	reportCh        chan<- map[string]rawmetric.Info
 	pollInterval    int
 }
 
@@ -27,8 +27,8 @@ type state struct {
 //   - i - через заданное количество секунд запускать сбор метрик;
 //   - rm - функция формирования runtime метрик;
 //   - gm - функция формирования gopsutil метрик.
-func NewPoller(i int, rm MetricInfoRawer, gm MetricInfoRawer) (*state, <-chan map[string]rawmetric.MetricInfoRaw) {
-	reportCh := make(chan map[string]rawmetric.MetricInfoRaw)
+func NewPoller(i int, rm Infoer, gm Infoer) (*state, <-chan map[string]rawmetric.Info) {
+	reportCh := make(chan map[string]rawmetric.Info)
 	return &state{
 		pollInterval:    i,
 		runtimeMetrics:  rm,
@@ -62,7 +62,7 @@ func (s *state) Do(ctx context.Context, reporterCh <-chan struct{}) {
 		gcl.Do(ctx)
 	}()
 
-	acc := make(map[string]rawmetric.MetricInfoRaw)
+	acc := make(map[string]rawmetric.Info)
 
 	for {
 		select {
@@ -86,7 +86,7 @@ func (s *state) Do(ctx context.Context, reporterCh <-chan struct{}) {
 		case <-reporterCh:
 			log.Printf("<-reportCh, acc:%v\n", acc)
 			s.reportCh <- acc
-			acc = map[string]rawmetric.MetricInfoRaw{}
+			acc = map[string]rawmetric.Info{}
 		case <-ctx.Done():
 			log.Printf("Poller closed with cause:%s\n", ctx.Err())
 			pollTicker.Stop()

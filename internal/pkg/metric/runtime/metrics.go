@@ -14,15 +14,15 @@ type state struct {
 	memStats    runtime.MemStats
 }
 
-// NewMetric - создание сущности по упаковки метрик из пакета runtime в формат rawmetric.MetricInfoRaw.
+// NewMetric - создание сущности по упаковки метрик из пакета runtime в формат rawmetric.Info.
 func NewMetric() *state {
 	return &state{}
 }
 
-// MetricInfoRaw - упаковка метрик из пакета runtime в формат rawmetric.MetricInfoRaw.
-func (s *state) MetricInfoRaw() []rawmetric.MetricInfoRaw {
+// Info - упаковка метрик из пакета runtime в формат rawmetric.Info.
+func (s *state) Info() []rawmetric.Info {
 	s.update()
-	return s.mem2MetricInfoRaw()
+	return s.mem2Info()
 }
 
 // update - вычитывание метрик из пакета runtime + обновление поля randomValue и pollCount.
@@ -32,150 +32,150 @@ func (s *state) update() {
 	s.pollCount++
 }
 
-// mem2MetricInfoRaw - упаковка метрик из пакета runtime в формат rawmetric.MetricInfoRaw.
-func (s *state) mem2MetricInfoRaw() []rawmetric.MetricInfoRaw {
-	return []rawmetric.MetricInfoRaw{
-		rawmetric.MetricInfoRaw{
+// mem2Info - упаковка метрик из пакета runtime в формат rawmetric.Info.
+func (s *state) mem2Info() []rawmetric.Info {
+	return []rawmetric.Info{
+		rawmetric.Info{
 			Name:  "Alloc",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.Alloc),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "BuckHashSys",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.BuckHashSys),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "Frees",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.Frees),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "GCSys",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.GCSys),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "HeapAlloc",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.HeapAlloc),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "HeapIdle",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.HeapIdle),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "HeapInuse",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.HeapInuse),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "HeapObjects",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.HeapObjects),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "HeapReleased",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.HeapReleased),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "HeapSys",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.HeapSys),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "LastGC",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.LastGC),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "Lookups",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.Lookups),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "MCacheInuse",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.MCacheInuse),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "MCacheSys",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.MCacheSys),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "MSpanInuse",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.MSpanInuse),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "MSpanSys",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.MSpanSys),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "Mallocs",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.Mallocs),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "NextGC",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.NextGC),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "OtherSys",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.OtherSys),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "PauseTotalNs",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.PauseTotalNs),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "StackInuse",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.StackInuse),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "StackSys",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.StackSys),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "Sys",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.Sys),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "TotalAlloc",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.TotalAlloc),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "NumForcedGC",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.NumForcedGC),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "NumGC",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.NumGC),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "GCCPUFraction",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.memStats.GCCPUFraction),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "PollCount",
 			Type:  rawmetric.Counter,
 			Value: int64(s.pollCount),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "RandomValue",
 			Type:  rawmetric.Gauge,
 			Value: float64(s.randomValue),

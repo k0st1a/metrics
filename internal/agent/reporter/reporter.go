@@ -41,9 +41,9 @@ func NewReporter(serverAddr string, reportInterval int, rateLimit int, client po
 // Do - запуск репортера, где:
 //   - ctx - контекст отмены репортера;
 //   - reportCh - канал получения метрик.
-func (s *state) Do(ctx context.Context, reportCh <-chan map[string]rawmetric.MetricInfoRaw) {
+func (s *state) Do(ctx context.Context, reportCh <-chan map[string]rawmetric.Info) {
 	var wg sync.WaitGroup
-	agentCh := make(chan map[string]rawmetric.MetricInfoRaw)
+	agentCh := make(chan map[string]rawmetric.Info)
 	for i := 0; i < s.rateLimit; i++ {
 		wg.Add(1)
 		go func() {

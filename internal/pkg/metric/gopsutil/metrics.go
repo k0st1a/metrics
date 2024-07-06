@@ -13,34 +13,34 @@ import (
 type state struct {
 }
 
-// NewMetric - создание сущности по упаковки метрик из пакета gopsutil в формат rawmetric.MetricInfoRaw.
+// NewMetric - создание сущности по упаковки метрик из пакета gopsutil в формат rawmetric.Info.
 func NewMetric() *state {
 	return &state{}
 }
 
-// MetricInfoRaw - упаковка метрик из пакета gopsutil в формат rawmetric.MetricInfoRaw.
-func (s *state) MetricInfoRaw() []rawmetric.MetricInfoRaw {
-	mi := s.mem2MetricInfoRaw()
-	ci := s.cpu2MetricInfoRaw()
+// Info - упаковка метрик из пакета gopsutil в формат rawmetric.Info.
+func (s *state) Info() []rawmetric.Info {
+	mi := s.mem2Info()
+	ci := s.cpu2Info()
 	return append(mi, ci...)
 }
 
-// mem2MetricInfoRaw - упаковка метрик `TotalMemory`, `FreeMemory` из пакета `github.com/shirou/gopsutil/v3/mem`
-// в формат rawmetric.MetricInfoRaw.
-func (s *state) mem2MetricInfoRaw() []rawmetric.MetricInfoRaw {
+// mem2Info - упаковка метрик `TotalMemory`, `FreeMemory` из пакета `github.com/shirou/gopsutil/v3/mem`
+// в формат rawmetric.Info.
+func (s *state) mem2Info() []rawmetric.Info {
 	mem, err := mem.VirtualMemory()
 	if err != nil {
 		log.Error().Err(err).Msg("get memory information error")
-		return []rawmetric.MetricInfoRaw{}
+		return []rawmetric.Info{}
 	}
 
-	return []rawmetric.MetricInfoRaw{
-		rawmetric.MetricInfoRaw{
+	return []rawmetric.Info{
+		rawmetric.Info{
 			Name:  "TotalMemory",
 			Type:  rawmetric.Gauge,
 			Value: float64(mem.Total),
 		},
-		rawmetric.MetricInfoRaw{
+		rawmetric.Info{
 			Name:  "FreeMemory",
 			Type:  rawmetric.Gauge,
 			Value: float64(mem.Free),
@@ -48,19 +48,19 @@ func (s *state) mem2MetricInfoRaw() []rawmetric.MetricInfoRaw {
 	}
 }
 
-// cpu2MetricInfoRaw - упаковка метрики `CPUutilization` из пакета `github.com/shirou/gopsutil/v3/cpu`
-// в формат rawmetric.MetricInfoRaw.
-func (s *state) cpu2MetricInfoRaw() []rawmetric.MetricInfoRaw {
+// cpu2Info - упаковка метрики `CPUutilization` из пакета `github.com/shirou/gopsutil/v3/cpu`
+// в формат rawmetric.Info.
+func (s *state) cpu2Info() []rawmetric.Info {
 	cpu, err := cpu.Percent(0, true)
 	if err != nil {
 		log.Error().Err(err).Msg("get cpu percent usage information error")
-		return []rawmetric.MetricInfoRaw{}
+		return []rawmetric.Info{}
 	}
 
-	mi := make([]rawmetric.MetricInfoRaw, len(cpu))
+	mi := make([]rawmetric.Info, len(cpu))
 
 	for i, v := range cpu {
-		mi[i] = rawmetric.MetricInfoRaw{
+		mi[i] = rawmetric.Info{
 			Name:  "CPUutilization" + strconv.Itoa(i),
 			Type:  rawmetric.Gauge,
 			Value: float64(v),

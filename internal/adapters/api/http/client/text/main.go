@@ -26,7 +26,7 @@ func New(a string, t http.RoundTripper) *client {
 	}
 }
 
-func (c *client) Do(r rawmetric.MetricInfoRaw) error {
+func (c *client) Do(r rawmetric.Info) error {
 	var (
 		value string
 		mtype string

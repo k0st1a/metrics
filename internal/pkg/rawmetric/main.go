@@ -8,17 +8,17 @@ const (
 	Counter
 )
 
-// MetricInfoRaw - структура для хранения "сырых" метрик.
-type MetricInfoRaw struct {
+// Info - структура для хранения "сырых" метрик.
+type Info struct {
 	Value any
 	Name  string
 	Type  Type
 }
 
 // Append - добавление метрики в мапу.
-func Append(acc map[string]MetricInfoRaw, adding []MetricInfoRaw) map[string]MetricInfoRaw {
+func Append(acc map[string]Info, adding []Info) map[string]Info {
 	for _, v := range adding {
-		acc[v.Name] = MetricInfoRaw{
+		acc[v.Name] = Info{
 			Name:  v.Name,
 			Type:  v.Type,
 			Value: v.Value,
@@ -29,8 +29,8 @@ func Append(acc map[string]MetricInfoRaw, adding []MetricInfoRaw) map[string]Met
 }
 
 // Map2List  - преобразование из map в list.
-func Map2List(m map[string]MetricInfoRaw) []MetricInfoRaw {
-	l := make([]MetricInfoRaw, len(m))
+func Map2List(m map[string]Info) []Info {
+	l := make([]Info, len(m))
 	i := 0
 	for _, v := range m {
 		l[i] = v

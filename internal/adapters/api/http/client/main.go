@@ -26,7 +26,7 @@ func New(a string, t http.RoundTripper) *client {
 	}
 }
 
-func (c *client) Do(r rawmetric.MetricInfoRaw) error {
+func (c *client) Do(r rawmetric.Info) error {
 	m, err := Raw2Metric(r)
 	if err != nil {
 		return fmt.Errorf("Raw2Metric error:%w", err)
@@ -64,7 +64,7 @@ func (c *client) Do(r rawmetric.MetricInfoRaw) error {
 	return nil
 }
 
-func (c *client) DoBatch(r []rawmetric.MetricInfoRaw) error {
+func (c *client) DoBatch(r []rawmetric.Info) error {
 	m := Raw2MetricList(r)
 
 	address, err := url.JoinPath("http://", c.address, "/updates/")
@@ -101,7 +101,7 @@ func (c *client) DoBatch(r []rawmetric.MetricInfoRaw) error {
 
 // Raw2MetricList - преобразование списка метрики из "сырого" формата в "окончательный" формат
 // для отправки на сервер.
-func Raw2MetricList(r []rawmetric.MetricInfoRaw) []model.Metrics {
+func Raw2MetricList(r []rawmetric.Info) []model.Metrics {
 	l := make([]model.Metrics, len(r))
 	i := 0
 	for _, v := range r {
@@ -119,7 +119,7 @@ func Raw2MetricList(r []rawmetric.MetricInfoRaw) []model.Metrics {
 
 // Raw2Metric - преобразование метрики из "сырого" формате в "окончательный" формат
 // для отправки на сервер.
-func Raw2Metric(r rawmetric.MetricInfoRaw) (*model.Metrics, error) {
+func Raw2Metric(r rawmetric.Info) (*model.Metrics, error) {
 	if r.Type == rawmetric.Gauge {
 		v, ok := r.Value.(float64)
 		if !ok {
