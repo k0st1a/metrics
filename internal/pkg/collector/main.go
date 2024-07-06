@@ -1,4 +1,4 @@
-// Package collector for collect metrics.
+// Package collector to make raw metrics and send in channel on demand.
 package collector
 
 import (
