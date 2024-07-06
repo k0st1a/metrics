@@ -19,10 +19,10 @@ func NewMetric() *state {
 	return &state{}
 }
 
-// Info - упаковка метрик из пакета runtime в формат rawmetric.Info.
-func (s *state) Info() []rawmetric.Info {
+// RawMetricInfo - упаковка метрик из пакета runtime в формат rawmetric.Info.
+func (s *state) RawMetricInfo() []rawmetric.Info {
 	s.update()
-	return s.mem2Info()
+	return s.mem2RawMetricInfo()
 }
 
 // update - вычитывание метрик из пакета runtime + обновление поля randomValue и pollCount.
@@ -32,8 +32,8 @@ func (s *state) update() {
 	s.pollCount++
 }
 
-// mem2Info - упаковка метрик из пакета runtime в формат rawmetric.Info.
-func (s *state) mem2Info() []rawmetric.Info {
+// mem2RawMetricInfo - упаковка метрик из пакета runtime в формат rawmetric.Info.
+func (s *state) mem2RawMetricInfo() []rawmetric.Info {
 	return []rawmetric.Info{
 		rawmetric.Info{
 			Name:  "Alloc",

@@ -8,17 +8,13 @@ import (
 
 	"github.com/k0st1a/metrics/internal/agent/collector"
 	"github.com/k0st1a/metrics/internal/pkg/rawmetric"
+	"github.com/k0st1a/metrics/internal/ports"
 	"github.com/rs/zerolog/log"
 )
 
-// Infoer - интерфейс формирования метрик.
-type Infoer interface {
-	Info() []rawmetric.Info
-}
-
 type state struct {
-	runtimeMetrics  Infoer
-	gopsutilMetrics Infoer
+	runtimeMetrics  ports.RawMetricInfoer
+	gopsutilMetrics ports.RawMetricInfoer
 	reportCh        chan<- map[string]rawmetric.Info
 	pollInterval    int
 }
@@ -27,7 +23,7 @@ type state struct {
 //   - i - через заданное количество секунд запускать сбор метрик;
 //   - rm - функция формирования runtime метрик;
 //   - gm - функция формирования gopsutil метрик.
-func NewPoller(i int, rm Infoer, gm Infoer) (*state, <-chan map[string]rawmetric.Info) {
+func NewPoller(i int, rm ports.RawMetricInfoer, gm ports.RawMetricInfoer) (*state, <-chan map[string]rawmetric.Info) {
 	reportCh := make(chan map[string]rawmetric.Info)
 	return &state{
 		pollInterval:    i,

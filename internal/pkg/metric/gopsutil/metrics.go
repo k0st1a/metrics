@@ -18,16 +18,16 @@ func NewMetric() *state {
 	return &state{}
 }
 
-// Info - упаковка метрик из пакета gopsutil в формат rawmetric.Info.
-func (s *state) Info() []rawmetric.Info {
-	mi := s.mem2Info()
-	ci := s.cpu2Info()
+// RawMetricInfo - упаковка метрик из пакета gopsutil в формат rawmetric.Info.
+func (s *state) RawMetricInfo() []rawmetric.Info {
+	mi := s.mem2RawMetricInfo()
+	ci := s.cpu2RawMetricInfo()
 	return append(mi, ci...)
 }
 
-// mem2Info - упаковка метрик `TotalMemory`, `FreeMemory` из пакета `github.com/shirou/gopsutil/v3/mem`
+// mem2RawMetricInfo - упаковка метрик `TotalMemory`, `FreeMemory` из пакета `github.com/shirou/gopsutil/v3/mem`
 // в формат rawmetric.Info.
-func (s *state) mem2Info() []rawmetric.Info {
+func (s *state) mem2RawMetricInfo() []rawmetric.Info {
 	mem, err := mem.VirtualMemory()
 	if err != nil {
 		log.Error().Err(err).Msg("get memory information error")
@@ -48,9 +48,9 @@ func (s *state) mem2Info() []rawmetric.Info {
 	}
 }
 
-// cpu2Info - упаковка метрики `CPUutilization` из пакета `github.com/shirou/gopsutil/v3/cpu`
+// cpu2RawMetricInfo - упаковка метрики `CPUutilization` из пакета `github.com/shirou/gopsutil/v3/cpu`
 // в формат rawmetric.Info.
-func (s *state) cpu2Info() []rawmetric.Info {
+func (s *state) cpu2RawMetricInfo() []rawmetric.Info {
 	cpu, err := cpu.Percent(0, true)
 	if err != nil {
 		log.Error().Err(err).Msg("get cpu percent usage information error")
