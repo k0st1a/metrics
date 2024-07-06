@@ -38,6 +38,10 @@ func ParseHost(a string) (net.IP, error) {
 		return nil, fmt.Errorf("split address error:%w", err)
 	}
 
+	if host == "localhost" {
+		host = "127.0.0.1"
+	}
+
 	ip := net.ParseIP(host)
 	if ip == nil {
 		return nil, fmt.Errorf("bad host address:%v", host)

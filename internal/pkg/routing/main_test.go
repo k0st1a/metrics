@@ -17,12 +17,12 @@ func TestParseHost(t *testing.T) {
 	}{
 		{
 			name: "check error of split host port",
-			dst:  "localhost",
+			dst:  "badhost",
 			err:  "split address error",
 		},
 		{
 			name: "check error of parse ip",
-			dst:  "localhost:9090",
+			dst:  "badhost:9090",
 			err:  "bad host address",
 		},
 		{

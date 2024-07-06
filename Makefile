@@ -193,7 +193,7 @@ miter13: build statictest db-up
 				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: ${ITERS}
-${ITERS}: iter%: build statictest db-run;
+${ITERS}: iter%: build statictest db-up;
 	for i in $(shell seq 1 $*) ; do \
 		METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration$$i[AB]?$$" ; \
 		if [ $$i -eq 1 ]; then \
