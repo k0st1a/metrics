@@ -186,7 +186,7 @@ func (h *handler) PostUpdateHandler(rw http.ResponseWriter, r *http.Request) {
 	rw.WriteHeader(http.StatusOK)
 }
 
-// PostUpdateHandler - обработчик получения метрики в формате JSON.
+// PostValueHandler - обработчик получения метрики в формате JSON.
 func (h *handler) PostValueHandler(rw http.ResponseWriter, r *http.Request) {
 	log.Info().
 		Str("uri", r.RequestURI).
