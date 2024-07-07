@@ -21,7 +21,6 @@ message GetMetricRequest {
 
 message GetMetricResponse {
   Metric metric = 1;
-  string error = 2;
 }
 
 message StoreMetricRequest {
@@ -29,7 +28,6 @@ message StoreMetricRequest {
 }
 
 message StoreMetricResponse {
-  string error = 1;
 }
 
 message StoreMetricListRequest {
@@ -37,7 +35,6 @@ message StoreMetricListRequest {
 }
 
 message StoreMetricListResponse {
-    string error = 1;
 }
 
 service Metrics {
