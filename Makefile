@@ -297,6 +297,28 @@ agent-run-with-args: build statictest db-up
 			-k ${HASH_KEY} \
 			-crypto-key ${CRYPTO_PUBLIC}
 
+.PHONY: grpc-server-run-with-args
+grpc-server-run-with-args: build statictest db-up
+	chmod +x ./cmd/server/server && \
+	./cmd/server/server \
+		-a ${SERVER_HOST}:${SERVER_PORT} \
+		-d ${PG_DATABASE_DSN} \
+		-p ${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT} \
+		-k ${HASH_KEY} \
+		-t ${SERVER_TRUSTED_SUBNET} \
+		-crypto-key ${CRYPTO_PRIVATE} \
+		-api-type grpc
+
+.PHONY: grpc-agent-run-with-args
+grpc-agent-run-with-args: build statictest db-up
+	chmod +x ./cmd/agent/agent && \
+	./cmd/agent/agent \
+		-a ${SERVER_HOST}:${SERVER_PORT} \
+		-k ${HASH_KEY} \
+		-crypto-key ${CRYPTO_PUBLIC} \
+		-api-type grpc
+
+
 .PHONY: pprof-mem-http
 pprof-mem-http:
 	go tool pprof -http=":9090" -seconds=30 http://${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT}/debug/pprof/heap
