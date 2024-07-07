@@ -24,7 +24,7 @@ import (
 	"github.com/k0st1a/metrics/internal/ports"
 )
 
-func New(ctx context.Context, cfg *config.Config, s ports.Storage, p ports.Pinger) (ports.Server, error) {
+func New(ctx context.Context, cfg *config.Config, s ports.Storage, p ports.Pinger) (*server.Server, error) {
 	rt := retry.New()
 	th := text.NewHandler(s, rt)
 	jh := json.NewHandler(s, rt)
