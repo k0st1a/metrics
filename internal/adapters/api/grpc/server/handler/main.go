@@ -70,6 +70,8 @@ func (s *MetricsServer) GetMetric(ctx context.Context, r *pb.GetMetricRequest) (
 	}
 }
 func (s *MetricsServer) StoreMetric(ctx context.Context, r *pb.StoreMetricRequest) (*pb.StoreMetricResponse, error) {
+	log.Printf("StoreMetric: %+v", r.Metric)
+
 	switch r.Metric.Type {
 	case pb.Type_GAUGE:
 		log.Printf("Store gauge, name(%v), value(%v)", r.Metric.Id, r.Metric.Value)
@@ -97,5 +99,31 @@ func (s *MetricsServer) StoreMetric(ctx context.Context, r *pb.StoreMetricReques
 	return &pb.StoreMetricResponse{}, nil
 }
 func (s *MetricsServer) StoreMetricList(ctx context.Context, r *pb.StoreMetricListRequest) (*pb.StoreMetricListResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method StoreMetricList not implemented")
+	log.Printf("StoreMetricList: %+v", r.Metrics)
+
+	g := make(map[string]float64)
+	c := make(map[string]int64)
+
+	for _, v := range r.Metrics {
+		switch v.Type {
+		case pb.Type_GAUGE:
+			g[v.Id] = v.Value
+		case pb.Type_COUNTER:
+			c[v.Id] += v.Delta
+		default:
+			log.Error().Msgf("Unknown metric type of:%+v", v)
+		}
+	}
+
+	log.Printf("Store\nCounters:%+v\nGauges:%+v\n", c, g)
+
+	err := s.Retry.Retry(ctx, retry.IsConnectionException, func() error {
+		return s.Storage.StoreAll(ctx, c, g)
+	})
+	if err != nil {
+		log.Error().Err(err).Msg("s.StoreAll error")
+		return nil, status.Errorf(codes.Internal, "store metrics error:%v", err)
+	}
+
+	return &pb.StoreMetricListResponse{}, nil
 }
