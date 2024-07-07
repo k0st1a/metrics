@@ -290,7 +290,7 @@ server-run-with-args: build statictest db-up
 			-crypto-key ${CRYPTO_PRIVATE}
 
 .PHONY: agent-run-with-args
-agent-run-with-args: build statictest db-up
+agent-run-with-args: build statictest
 	chmod +x ./cmd/agent/agent && \
 		./cmd/agent/agent \
 			-a ${SERVER_HOST}:${SERVER_PORT} \
@@ -310,7 +310,7 @@ grpc-server-run-with-args: build statictest db-up
 		-api-type grpc
 
 .PHONY: grpc-agent-run-with-args
-grpc-agent-run-with-args: build statictest db-up
+grpc-agent-run-with-args: build statictest
 	chmod +x ./cmd/agent/agent && \
 	./cmd/agent/agent \
 		-a ${SERVER_HOST}:${SERVER_PORT} \
