@@ -8,7 +8,8 @@ import (
 	"sync"
 	"syscall"
 
-	"github.com/k0st1a/metrics/internal/adapters/api/http/client"
+	grpcclient "github.com/k0st1a/metrics/internal/adapters/api/grpc/client"
+	httpclient "github.com/k0st1a/metrics/internal/adapters/api/http/client"
 	"github.com/k0st1a/metrics/internal/application/agent/config"
 	"github.com/k0st1a/metrics/internal/pkg/agent"
 	"github.com/k0st1a/metrics/internal/pkg/metric/gopsutil"
@@ -16,6 +17,7 @@ import (
 	"github.com/k0st1a/metrics/internal/pkg/poller"
 	"github.com/k0st1a/metrics/internal/pkg/ratelimit"
 	"github.com/k0st1a/metrics/internal/pkg/reporter"
+	"github.com/k0st1a/metrics/internal/ports"
 	"github.com/rs/zerolog/log"
 )
 
@@ -31,9 +33,21 @@ func Run() error {
 	ctx, cancelFunc := signal.NotifyContext(context.Background(), syscall.SIGTERM, syscall.SIGINT, syscall.SIGQUIT)
 	defer cancelFunc()
 
-	c, err := client.New(cfg)
-	if err != nil {
-		return fmt.Errorf("make client error:%w", err)
+	var c ports.DoBatcher
+
+	switch cfg.APIType {
+	case "http":
+		c, err = httpclient.New(cfg)
+		if err != nil {
+			return fmt.Errorf("make client error:%w", err)
+		}
+	case "grpc":
+		c, err = grpcclient.New(cfg)
+		if err != nil {
+			return fmt.Errorf("make client error:%w", err)
+		}
+	default:
+		return fmt.Errorf("bad api type:%v", cfg.APIType)
 	}
 
 	rl := ratelimit.New(cfg.RateLimit)
