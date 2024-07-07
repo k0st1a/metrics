@@ -2,5 +2,6 @@
     "address": "localhost:8090",
     "report_interval": "600s",
     "poll_interval": "700s",
-    "crypto_key": "CRYPTO_KEY_FROM_FILE"
+    "crypto_key": "CRYPTO_KEY_FROM_FILE",
+    "api_type": "API_TYPE_FROM_FILE"
 }

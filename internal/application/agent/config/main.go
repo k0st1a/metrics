@@ -20,6 +20,7 @@ const (
 	defaultCryptoKey      = ""
 	defaultRateLimit      = 1
 	defaultConfig         = ""
+	defaultAPIType        = "http"
 )
 
 // Config - структура с конфигурационными параметрами агента.
@@ -37,6 +38,9 @@ type Config struct {
 	// Config - путь до файла конфигурации сервера (по умолчанию пустая строка).
 	// Задается через флаг `-c=<ЗНАЧЕНИЕ>` или переменную окружения `CONFIG=<ЗНАЧЕНИЕ>`
 	Config string
+	// Тип запускаемого сервером API (по умолчанию http). Возможные значения http и grpc.
+	// "Задается через флаг `-api-type=<ЗНАЧЕНИЕ>` или переменную окружения `API_TYPE=<ЗНАЧЕНИЕ>")
+	APIType string
 	// PollInterval - частота опроса метрик из пакета `runtime` (по умолчанию 2 секунды).
 	// Задается через флаг `-p=<ЗНАЧЕНИЕ>` или переменную окружения `POLL_INTERVAL=<ЗНАЧЕНИЕ>`
 	PollInterval int
@@ -87,6 +91,7 @@ func newDefaultConfig() *Config {
 		PollInterval:   defaultPollInterval,
 		ReportInterval: defaultReportInterval,
 		RateLimit:      defaultRateLimit,
+		APIType:        defaultAPIType,
 	}
 }
 
@@ -108,6 +113,9 @@ func (c *Config) applyFromArgsAndEnv() error {
 		"Путь до файла с открытым ключом (по умолчанию пустая строка). Если путь задан, то "+
 			"с помощью открытого ключа будут шифровываться сообщения, отправляемые агентом.")
 	flag.IntVar(&(c.RateLimit), "l", c.RateLimit, "number of simultaneously outgoing requests to the server")
+	flag.StringVar(&c.APIType, "api-type", c.APIType,
+		"Тип запускаемого сервером API (по умолчанию http). Возможные значения http и grpc.\n"+
+			"Задается через флаг `-api-type=<ЗНАЧЕНИЕ>` или переменную окружения `API_TYPE=<ЗНАЧЕНИЕ>")
 
 	flag.Parse()
 
@@ -162,6 +170,11 @@ func (c *Config) applyFromArgsAndEnv() error {
 		c.RateLimit = rlInt
 	}
 
+	at, ok := os.LookupEnv("API_TYPE")
+	if ok {
+		c.APIType = at
+	}
+
 	return nil
 }
 
@@ -173,6 +186,7 @@ type JSONConfig struct {
 	ReportInterval string `json:"report_interval"`
 	PollInterval   string `json:"poll_interval"`
 	CryptoKey      string `json:"crypto_key"`
+	APIType        string `json:"api_type"`
 }
 
 func (c *Config) applyFromFile(path string) error {
@@ -211,6 +225,10 @@ func (c *Config) applyFromFile(path string) error {
 
 	if cfg.CryptoKey != "" {
 		c.CryptoKey = cfg.CryptoKey
+	}
+
+	if cfg.APIType != "" {
+		c.APIType = cfg.APIType
 	}
 
 	return nil

@@ -41,7 +41,10 @@ func TestConfigFromFile(t *testing.T) {
 				ServerAddr:     "localhost:8090",
 				ReportInterval: 600,
 				PollInterval:   700,
+				Config:         "./config_test.json",
+				RateLimit:      1,
 				CryptoKey:      "CRYPTO_KEY_FROM_FILE",
+				APIType:        "API_TYPE_FROM_FILE",
 			},
 		},
 	}
@@ -61,10 +64,7 @@ func TestConfigFromFile(t *testing.T) {
 			cfg, err := New()
 			assert.NoError(t, err)
 
-			assert.Equal(t, test.cfg.ServerAddr, cfg.ServerAddr)
-			assert.Equal(t, test.cfg.ReportInterval, cfg.ReportInterval)
-			assert.Equal(t, test.cfg.PollInterval, cfg.PollInterval)
-			assert.Equal(t, test.cfg.CryptoKey, cfg.CryptoKey)
+			assert.Equal(t, test.cfg, *cfg)
 			origStateFun()
 		})
 	}
@@ -98,6 +98,7 @@ func TestConfigFromEnv(t *testing.T) {
 				"POLL_INTERVAL":   "100",
 				"REPORT_INTERVAL": "200",
 				"RATE_LIMIT":      "300",
+				"API_TYPE":        "API_TYPE_FROM_ENV",
 			},
 			cfg: Config{
 				ServerAddr:     "ADDRESS_FROM_ENV",
@@ -106,6 +107,7 @@ func TestConfigFromEnv(t *testing.T) {
 				PollInterval:   100,
 				ReportInterval: 200,
 				RateLimit:      300,
+				APIType:        "API_TYPE_FROM_ENV",
 			},
 		},
 	}
@@ -156,6 +158,7 @@ func TestConfigFromFlags(t *testing.T) {
 				"-k", "KEY_FROM_FLAG",
 				"-crypto-key", "CRYPTO_KEY_FROM_FLAG",
 				"-l", "300",
+				"-api-type", "API_TYPE_FROM_FLAG",
 			},
 			cfg: Config{
 				ServerAddr:     "localhost:8081",
@@ -164,6 +167,7 @@ func TestConfigFromFlags(t *testing.T) {
 				HashKey:        "KEY_FROM_FLAG",
 				CryptoKey:      "CRYPTO_KEY_FROM_FLAG",
 				RateLimit:      300,
+				APIType:        "API_TYPE_FROM_FLAG",
 			},
 		},
 	}
@@ -213,6 +217,7 @@ func TestConfig(t *testing.T) {
 				"POLL_INTERVAL":   "100",
 				"REPORT_INTERVAL": "200",
 				"RATE_LIMIT":      "300",
+				"API_TYPE":        "API_TYPE_FROM_ENV",
 			},
 			args: []string{
 				"cmd",
@@ -222,6 +227,7 @@ func TestConfig(t *testing.T) {
 				"-k", "KEY_FROM_FLAG",
 				"-crypto-key", "CRYPTO_KEY_FROM_FLAG",
 				"-l", "300",
+				"-api-type", "API_TYPE_FROM_FLAG",
 			},
 			cfg: Config{
 				ServerAddr:     "ADDRESS_FROM_ENV",
@@ -230,6 +236,7 @@ func TestConfig(t *testing.T) {
 				PollInterval:   100,
 				ReportInterval: 200,
 				RateLimit:      300,
+				APIType:        "API_TYPE_FROM_ENV",
 			},
 		},
 	}
