@@ -24,7 +24,6 @@ func New(cfg *config.Config) (*Client, error) {
 	if err != nil {
 		return nil, fmt.Errorf("create grpc client error:%w", err)
 	}
-	defer conn.Close()
 
 	// получаем переменную интерфейсного типа UsersClient,
 	// через которую будем отправлять сообщения
