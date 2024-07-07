@@ -176,8 +176,9 @@ func (s *state) mem2RawMetricInfo() []rawmetric.Info {
 			Value: int64(s.pollCount),
 		},
 		rawmetric.Info{
-			Name:  "RandomValue",
-			Type:  rawmetric.Gauge,
+			Name: "RandomValue",
+			Type: rawmetric.Gauge,
+			//nolint:unconvert // better it will be explicit
 			Value: float64(s.randomValue),
 		},
 	}
