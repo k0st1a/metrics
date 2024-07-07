@@ -9,7 +9,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 
 	pb "github.com/k0st1a/metrics/internal/adapters/api/grpc/protobuf"
-	"github.com/k0st1a/metrics/internal/application/server/config"
+	"github.com/k0st1a/metrics/internal/application/agent/config"
 	"github.com/k0st1a/metrics/internal/pkg/rawmetric"
 	"github.com/rs/zerolog/log"
 )
@@ -18,7 +18,7 @@ type Client struct {
 	Client pb.MetricsClient
 }
 
-func New(cfg config.Config) (*Client, error) {
+func New(cfg *config.Config) (*Client, error) {
 	// устанавливаем соединение с сервером
 	conn, err := grpc.NewClient(cfg.ServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
