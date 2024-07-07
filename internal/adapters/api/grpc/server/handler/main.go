@@ -67,7 +67,31 @@ func (s *MetricsServer) GetMetric(ctx context.Context, r *pb.GetMetricRequest) (
 	}
 }
 func (s *MetricsServer) StoreMetric(ctx context.Context, r *pb.StoreMetricRequest) (*pb.StoreMetricResponse, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method StoreMetric not implemented")
+	switch r.Metric.Type {
+	case pb.Type_GAUGE:
+		log.Printf("Store gauge, name(%v), value(%v)", r.Metric.Id, r.Metric.Value)
+		err = h.retry.Retry(ctx, retry.IsConnectionException, func() error {
+			return h.storage.StoreGauge(ctx, m.Metric.Id, r.Metric.Value)
+		})
+		if err != nil {
+			log.Error().Err(err).Msg("h.storage.StorageGauge error")
+			return nil, status.Errorf(codes.Internal, "for gauge %v error:%v", r.Metric.Id, err)
+		}
+	case pb.Type_COUNTER:
+		log.Printf("Store counter, name(%v), value(%v)", r.Metric.Id, r.Metric.Delta)
+		err = h.retry.Retry(ctx, retry.IsConnectionException, func() error {
+			//nolint // Не за чем оборачивать ошибку
+			return h.storage.StoreCounter(ctx, m.ID, *m.Delta)
+		})
+		if err != nil {
+			log.Error().Err(err).Msg("h.storage.StoreCounter error")
+			return nil, status.Errorf(codes.Internal, "for counter %v error:%v", r.Metric.Id, err)
+		}
+	default:
+		return nil, status.Errorf(codes.InvalidArgument, "unknown metric type:%v", r.Type)
+	}
+
+	return &pb.StoreMetricResponse{}, nil
 }
 func (s *MetricsServer) StoreMetricList(ctx context.Context, r *pb.StoreMetricListRequest) (*pb.StoreMetricListResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method StoreMetricList not implemented")
