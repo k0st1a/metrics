@@ -43,6 +43,9 @@ func TestConfigFromFile(t *testing.T) {
 				FileStoragePath: "FILE_STORAGE_PATH_FROM_FILE",
 				CryptoKey:       "CRYPTO_KEY_FROM_FILE",
 				TrustedSubnet:   "TRUSTED_SUBNET_FROM_FILE",
+				APIType:         "API_TYPE_FROM_FILE",
+				PprofServerAddr: "localhost:8086",
+				Config:          "./config_test.json",
 				StoreInterval:   500,
 				Restore:         false,
 			},
@@ -64,12 +67,7 @@ func TestConfigFromFile(t *testing.T) {
 			cfg, err := New()
 			assert.NoError(t, err)
 
-			assert.Equal(t, test.cfg.DatabaseDSN, cfg.DatabaseDSN)
-			assert.Equal(t, test.cfg.ServerAddr, cfg.ServerAddr)
-			assert.Equal(t, test.cfg.FileStoragePath, cfg.FileStoragePath)
-			assert.Equal(t, test.cfg.CryptoKey, cfg.CryptoKey)
-			assert.Equal(t, test.cfg.StoreInterval, cfg.StoreInterval)
-			assert.Equal(t, test.cfg.Restore, cfg.Restore)
+			assert.Equal(t, test.cfg, *cfg)
 			origStateFun()
 		})
 	}
@@ -106,6 +104,7 @@ func TestConfigFromEnv(t *testing.T) {
 				"RESTORE":           "true",
 				"PPROF_ADDRESS":     "localhost:9090",
 				"TRUSTED_SUBNET":    "TRUSTED_SUBNET_FROM_ENV",
+				"API_TYPE":          "API_TYPE_FROM_ENV",
 			},
 			cfg: Config{
 				DatabaseDSN:     "DATABASE_DSN_FROM_ENV",
@@ -117,6 +116,7 @@ func TestConfigFromEnv(t *testing.T) {
 				Restore:         true,
 				PprofServerAddr: "localhost:9090",
 				TrustedSubnet:   "TRUSTED_SUBNET_FROM_ENV",
+				APIType:         "API_TYPE_FROM_ENV",
 			},
 		},
 	}
@@ -170,6 +170,7 @@ func TestConfigFromFlags(t *testing.T) {
 				"-r=false",
 				"-p", "localhost:9091",
 				"-t", "TRUSTED_SUBNET_FROM_FLAG",
+				"-api-type", "API_TYPE_FROM_FLAG",
 			},
 			cfg: Config{
 				DatabaseDSN:     "DATABASE_DSN_FROM_FLAG",
@@ -181,6 +182,7 @@ func TestConfigFromFlags(t *testing.T) {
 				Restore:         false,
 				PprofServerAddr: "localhost:9091",
 				TrustedSubnet:   "TRUSTED_SUBNET_FROM_FLAG",
+				APIType:         "API_TYPE_FROM_FLAG",
 			},
 		},
 	}
@@ -233,6 +235,7 @@ func TestConfig(t *testing.T) {
 				"RESTORE":           "true",
 				"PPROF_ADDRESS":     "localhost:9090",
 				"TRUSTED_SUBNET":    "TRUSTED_SUBNET_FROM_ENV",
+				"API_TYPE":          "API_TYPE_FROM_ENV",
 			},
 			args: []string{
 				"cmd",
@@ -244,6 +247,7 @@ func TestConfig(t *testing.T) {
 				"-r=false",
 				"-p", "localhost:9091",
 				"-t", "TRUSTED_SUBNET_FROM_FLAG",
+				"-api-type", "API_TYPE_FROM_FLAG",
 			},
 			cfg: Config{
 				DatabaseDSN:     "DATABASE_DSN_FROM_ENV",
@@ -255,6 +259,7 @@ func TestConfig(t *testing.T) {
 				Restore:         true,
 				PprofServerAddr: "localhost:9090",
 				TrustedSubnet:   "TRUSTED_SUBNET_FROM_ENV",
+				APIType:         "API_TYPE_FROM_ENV",
 			},
 		},
 	}

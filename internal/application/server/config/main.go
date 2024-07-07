@@ -43,6 +43,9 @@ type Config struct {
 	// входит в доверенную подсеть, в противном случае возвращать статус ответа 403 Forbidden.
 	// Задается через флаг `-t=<ЗНАЧЕНИЕ>` или переменную окружения `TRUSTED_SUBNET=<ЗНАЧЕНИЕ>`
 	TrustedSubnet string
+	// Type - cтрока с 
+	// Задается через флаг `-t=<ЗНАЧЕНИЕ>` или переменную окружения `API_TYPE=<ЗНАЧЕНИЕ>`
+	APIType string
 	// StoreInterval - интервал времени в секундах, по истечении которого текущие показания сервера сохраняются на
 	// диск (по умолчанию 300 секунд, значение `0` делает запись синхронной).
 	// Задается через флаг `-i=<ЗНАЧЕНИЕ>` или переменную окружения `STORE_INTERVAL=<ЗНАЧЕНИЕ>`
@@ -64,6 +67,7 @@ const (
 	defaultPprofServerAddr = "localhost:8086"
 	defaultConfig          = ""
 	defaultTrustedSubnet   = ""
+	defaultAPIType         = "http"
 )
 
 // New - создать конфигурацию сервера из файла конфигурации, аргументов командой строки и переменных окружения.
@@ -109,6 +113,7 @@ func newDefaultConfig() *Config {
 		Config:          defaultConfig,
 		StoreInterval:   defaultStoreInterval,
 		Restore:         defaultRestore,
+		APIType:         defaultAPIType,
 	}
 }
 
@@ -147,6 +152,10 @@ func (c *Config) applyFromArgsAndEnv() error {
 			"X-Real-IP IP-адрес клиента входит в доверенную подсеть, в противном случае возвращать\n"+
 			"статус ответа 403 Forbidden.\n"+
 			"Задается через флаг `-t=<ЗНАЧЕНИЕ>` или переменную окружения `TRUSTED_SUBNET=<ЗНАЧЕНИЕ>")
+	flag.StringVar(&c.APIType, "api-type", c.APIType,
+		"Тип запускаемого сервером API (по умолчанию http). Возможные значения http и grpc.\n"+
+			"Cтроковое представление бесклассовой адресации (CIDR) (по умолчанию пуcтая строка).\n"+
+			"Задается через флаг `-api-type=<ЗНАЧЕНИЕ>` или переменную окружения `API_TYPE=<ЗНАЧЕНИЕ>")
 
 	flag.Parse()
 
@@ -210,6 +219,11 @@ func (c *Config) applyFromArgsAndEnv() error {
 		c.TrustedSubnet = ts
 	}
 
+	at, ok := os.LookupEnv("API_TYPE")
+	if ok {
+		c.APIType = at
+	}
+
 	return nil
 }
 
@@ -223,6 +237,7 @@ type JSONConfig struct {
 	CryptoKey       string `json:"crypto_key"`
 	TrustedSubnet   string `json:"trusted_subnet"`
 	StoreInterval   string `json:"store_interval"`
+	APIType         string `json:"api_type"`
 	Restore         bool   `json:"restore"`
 }
 
@@ -267,6 +282,10 @@ func (c *Config) applyFromFile(path string) error {
 
 	if cfg.TrustedSubnet != "" {
 		c.TrustedSubnet = cfg.TrustedSubnet
+	}
+
+	if cfg.APIType != "" {
+		c.APIType = cfg.APIType
 	}
 
 	return nil
