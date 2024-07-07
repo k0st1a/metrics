@@ -14,10 +14,9 @@ import (
 	"github.com/k0st1a/metrics/internal/pkg/crypto/rsa"
 	"github.com/k0st1a/metrics/internal/pkg/hash"
 	"github.com/k0st1a/metrics/internal/pkg/routing"
-	"github.com/k0st1a/metrics/internal/ports"
 )
 
-func New(cfg *config.Config) (ports.DoBatcher, error) {
+func New(cfg *config.Config) (*json.Client, error) {
 	var middlewares []roundtrip.Middleware
 
 	if cfg.HashKey != "" {

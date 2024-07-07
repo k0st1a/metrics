@@ -12,13 +12,13 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
-type client struct {
+type Client struct {
 	client  *http.Client
 	address string
 }
 
-func New(a string, t http.RoundTripper) *client {
-	return &client{
+func New(a string, t http.RoundTripper) *Client {
+	return &Client{
 		address: a,
 		client: &http.Client{
 			Transport: t,
@@ -26,7 +26,7 @@ func New(a string, t http.RoundTripper) *client {
 	}
 }
 
-func (c *client) Do(r rawmetric.Info) error {
+func (c *Client) Do(r rawmetric.Info) error {
 	m, err := Raw2Metric(r)
 	if err != nil {
 		return fmt.Errorf("Raw2Metric error:%w", err)
@@ -64,7 +64,7 @@ func (c *client) Do(r rawmetric.Info) error {
 	return nil
 }
 
-func (c *client) DoBatch(r []rawmetric.Info) error {
+func (c *Client) DoBatch(r []rawmetric.Info) error {
 	m := Raw2MetricList(r)
 
 	address, err := url.JoinPath("http://", c.address, "/updates/")
