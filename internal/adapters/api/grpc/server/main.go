@@ -10,12 +10,16 @@ import (
 	"github.com/k0st1a/metrics/internal/adapters/api/grpc/server/handler"
 	"github.com/k0st1a/metrics/internal/application/server/config"
 	"github.com/k0st1a/metrics/internal/pkg/grpcserver"
+	"github.com/k0st1a/metrics/internal/pkg/retry"
 	"github.com/k0st1a/metrics/internal/ports"
 )
 
 func New(cfg *config.Config, storage ports.Storage) (*grpcserver.Server, error) {
+	rt := retry.New()
+
 	h := &handler.MetricsServer{
 		Storage: storage,
+		Retry:   rt,
 	}
 
 	// создаём gRPC-сервер без зарегистрированной службы
