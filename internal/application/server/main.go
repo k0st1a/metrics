@@ -14,7 +14,8 @@ import (
 	dbping "github.com/k0st1a/metrics/internal/adapters/storage/db/ping"
 
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/k0st1a/metrics/internal/adapters/api/http/server"
+	grpcserver "github.com/k0st1a/metrics/internal/adapters/api/grpc/server"
+	httpserver "github.com/k0st1a/metrics/internal/adapters/api/http/server"
 	"github.com/k0st1a/metrics/internal/adapters/storage/file"
 	"github.com/k0st1a/metrics/internal/adapters/storage/inmemory"
 	"github.com/k0st1a/metrics/internal/application/server/config"
@@ -65,9 +66,21 @@ func Run() error {
 		s = inmemory.NewStorage()
 	}
 
-	srv, err := server.New(ctx, cfg, s, p)
-	if err != nil {
-		return fmt.Errorf("make server error:%w", err)
+	var srv ports.Server
+
+	switch cfg.APIType {
+	case "http":
+		srv, err = httpserver.New(ctx, cfg, s, p)
+		if err != nil {
+			return fmt.Errorf("make http server error:%w", err)
+		}
+	case "grpc":
+		srv, err = grpcserver.New(cfg, s)
+		if err != nil {
+			return fmt.Errorf("make grpc server error:%w", err)
+		}
+	default:
+		return fmt.Errorf("bad api type:%v", cfg.APIType)
 	}
 
 	go func() {
