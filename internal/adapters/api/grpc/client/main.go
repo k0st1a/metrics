@@ -40,10 +40,12 @@ func (c *Client) DoBatch(r []rawmetric.Info) error {
 
 	m := Raw2MetricList(r)
 
-	_, err := c.Client.StoreMetricList(context.Background(), &pb.StoreMetricListRequest{Metrics: m})
+	resp, err := c.Client.StoreMetricList(context.Background(), &pb.StoreMetricListRequest{Metrics: m})
 	if err != nil {
 		return fmt.Errorf("store metric list error:%w", err)
 	}
+
+	log.Printf("resp:%v", resp)
 
 	return nil
 }

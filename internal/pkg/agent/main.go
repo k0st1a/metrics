@@ -29,7 +29,11 @@ func (s *state) Do(ctx context.Context, ch <-chan map[string]rawmetric.Info) {
 	for {
 		select {
 		case m := <-ch:
-			s.client.DoBatch(rawmetric.Map2List(m))
+			log.Printf("recieve metrics for DoBatch")
+			err := s.client.DoBatch(rawmetric.Map2List(m))
+			if err != nil {
+				log.Error().Err(err).Msg("do batch error")
+			}
 		case <-ctx.Done():
 			log.Printf("Reporter closed with cause:%s\n", ctx.Err())
 			return
