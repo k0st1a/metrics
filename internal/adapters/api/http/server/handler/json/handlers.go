@@ -2,7 +2,6 @@
 package json
 
 import (
-	"context"
 	"errors"
 	"io"
 	"net/http"
@@ -22,19 +21,14 @@ const (
 	nilMetricDelta = "metric delta is nil"
 )
 
-// Retryer - интерфейс повторного обращения к хранилищу.
-type Retryer interface {
-	Retry(ctx context.Context, check func(error) bool, fnc func() error) error
-}
-
 type handler struct {
 	storage ports.Storage
-	retry   Retryer
+	retry   ports.Retryer
 }
 
 // NewHandler - создание HTTP обработчика взаимодействия с хранилищем метрик.
 // Обработчик работает с запросами/ответами в формате JSON.
-func NewHandler(s ports.Storage, r Retryer) *handler {
+func NewHandler(s ports.Storage, r ports.Retryer) *handler {
 	return &handler{
 		storage: s,
 		retry:   r,
