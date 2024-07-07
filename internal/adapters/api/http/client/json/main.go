@@ -27,6 +27,8 @@ func New(a string, t http.RoundTripper) *Client {
 }
 
 func (c *Client) Do(r rawmetric.Info) error {
+	log.Printf("Do:%+v", r)
+
 	m, err := Raw2Metric(r)
 	if err != nil {
 		return fmt.Errorf("Raw2Metric error:%w", err)
@@ -65,6 +67,8 @@ func (c *Client) Do(r rawmetric.Info) error {
 }
 
 func (c *Client) DoBatch(r []rawmetric.Info) error {
+	log.Printf("DoBatch:%+v", r)
+
 	m := Raw2MetricList(r)
 
 	address, err := url.JoinPath("http://", c.address, "/updates/")
