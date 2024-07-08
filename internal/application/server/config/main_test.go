@@ -48,6 +48,7 @@ func TestConfigFromFile(t *testing.T) {
 				Config:          "./config_test.json",
 				StoreInterval:   500,
 				Restore:         false,
+				LogLevel:        "LOG_LEVEL_FROM_FILE",
 			},
 		},
 	}
@@ -105,6 +106,7 @@ func TestConfigFromEnv(t *testing.T) {
 				"PPROF_ADDRESS":     "localhost:9090",
 				"TRUSTED_SUBNET":    "TRUSTED_SUBNET_FROM_ENV",
 				"API_TYPE":          "API_TYPE_FROM_ENV",
+				"LOG_LEVEL":         "LOG_LEVEL_FROM_ENV",
 			},
 			cfg: Config{
 				DatabaseDSN:     "DATABASE_DSN_FROM_ENV",
@@ -117,6 +119,7 @@ func TestConfigFromEnv(t *testing.T) {
 				PprofServerAddr: "localhost:9090",
 				TrustedSubnet:   "TRUSTED_SUBNET_FROM_ENV",
 				APIType:         "API_TYPE_FROM_ENV",
+				LogLevel:        "LOG_LEVEL_FROM_ENV",
 			},
 		},
 	}
@@ -171,6 +174,7 @@ func TestConfigFromFlags(t *testing.T) {
 				"-p", "localhost:9091",
 				"-t", "TRUSTED_SUBNET_FROM_FLAG",
 				"-api-type", "API_TYPE_FROM_FLAG",
+				"-log-level", "LOG_LEVEL_FROM_FLAG",
 			},
 			cfg: Config{
 				DatabaseDSN:     "DATABASE_DSN_FROM_FLAG",
@@ -183,6 +187,7 @@ func TestConfigFromFlags(t *testing.T) {
 				PprofServerAddr: "localhost:9091",
 				TrustedSubnet:   "TRUSTED_SUBNET_FROM_FLAG",
 				APIType:         "API_TYPE_FROM_FLAG",
+				LogLevel:        "LOG_LEVEL_FROM_FLAG",
 			},
 		},
 	}
@@ -236,6 +241,7 @@ func TestConfig(t *testing.T) {
 				"PPROF_ADDRESS":     "localhost:9090",
 				"TRUSTED_SUBNET":    "TRUSTED_SUBNET_FROM_ENV",
 				"API_TYPE":          "API_TYPE_FROM_ENV",
+				"LOG_LEVEL":         "LOG_LEVEL_FROM_ENV",
 			},
 			args: []string{
 				"cmd",
@@ -260,6 +266,7 @@ func TestConfig(t *testing.T) {
 				PprofServerAddr: "localhost:9090",
 				TrustedSubnet:   "TRUSTED_SUBNET_FROM_ENV",
 				APIType:         "API_TYPE_FROM_ENV",
+				LogLevel:        "LOG_LEVEL_FROM_ENV",
 			},
 		},
 	}

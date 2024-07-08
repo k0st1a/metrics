@@ -12,6 +12,7 @@ import (
 	httpclient "github.com/k0st1a/metrics/internal/adapters/api/http/client"
 	"github.com/k0st1a/metrics/internal/application/agent/config"
 	"github.com/k0st1a/metrics/internal/pkg/agent"
+	"github.com/k0st1a/metrics/internal/pkg/logwrap"
 	"github.com/k0st1a/metrics/internal/pkg/metric/gopsutil"
 	"github.com/k0st1a/metrics/internal/pkg/metric/runtime"
 	"github.com/k0st1a/metrics/internal/pkg/poller"
@@ -26,6 +27,11 @@ func Run() error {
 	cfg, err := config.New()
 	if err != nil {
 		return fmt.Errorf("make config error:%w", err)
+	}
+
+	err = logwrap.New(cfg.LogLevel)
+	if err != nil {
+		return fmt.Errorf("logwrap create error:%w", err)
 	}
 
 	log.Printf("Cfg:%+v", cfg)

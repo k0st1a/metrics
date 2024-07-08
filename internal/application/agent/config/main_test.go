@@ -45,6 +45,7 @@ func TestConfigFromFile(t *testing.T) {
 				RateLimit:      1,
 				CryptoKey:      "CRYPTO_KEY_FROM_FILE",
 				APIType:        "API_TYPE_FROM_FILE",
+				LogLevel:       "LOG_LEVEL_FROM_FILE",
 			},
 		},
 	}
@@ -99,6 +100,7 @@ func TestConfigFromEnv(t *testing.T) {
 				"REPORT_INTERVAL": "200",
 				"RATE_LIMIT":      "300",
 				"API_TYPE":        "API_TYPE_FROM_ENV",
+				"LOG_LEVEL":       "LOG_LEVEL_FROM_ENV",
 			},
 			cfg: Config{
 				ServerAddr:     "ADDRESS_FROM_ENV",
@@ -108,6 +110,7 @@ func TestConfigFromEnv(t *testing.T) {
 				ReportInterval: 200,
 				RateLimit:      300,
 				APIType:        "API_TYPE_FROM_ENV",
+				LogLevel:       "LOG_LEVEL_FROM_ENV",
 			},
 		},
 	}
@@ -159,6 +162,7 @@ func TestConfigFromFlags(t *testing.T) {
 				"-crypto-key", "CRYPTO_KEY_FROM_FLAG",
 				"-l", "300",
 				"-api-type", "API_TYPE_FROM_FLAG",
+				"-log-level", "LOG_LEVEL_FROM_FLAG",
 			},
 			cfg: Config{
 				ServerAddr:     "localhost:8081",
@@ -168,6 +172,7 @@ func TestConfigFromFlags(t *testing.T) {
 				CryptoKey:      "CRYPTO_KEY_FROM_FLAG",
 				RateLimit:      300,
 				APIType:        "API_TYPE_FROM_FLAG",
+				LogLevel:       "LOG_LEVEL_FROM_FLAG",
 			},
 		},
 	}
@@ -218,6 +223,7 @@ func TestConfig(t *testing.T) {
 				"REPORT_INTERVAL": "200",
 				"RATE_LIMIT":      "300",
 				"API_TYPE":        "API_TYPE_FROM_ENV",
+				"LOG_LEVEL":       "LOG_LEVEL_FROM_ENV",
 			},
 			args: []string{
 				"cmd",
@@ -228,6 +234,7 @@ func TestConfig(t *testing.T) {
 				"-crypto-key", "CRYPTO_KEY_FROM_FLAG",
 				"-l", "300",
 				"-api-type", "API_TYPE_FROM_FLAG",
+				"-log-level", "LOG_LEVEL_FROM_FLAG",
 			},
 			cfg: Config{
 				ServerAddr:     "ADDRESS_FROM_ENV",
@@ -237,6 +244,7 @@ func TestConfig(t *testing.T) {
 				ReportInterval: 200,
 				RateLimit:      300,
 				APIType:        "API_TYPE_FROM_ENV",
+				LogLevel:       "LOG_LEVEL_FROM_ENV",
 			},
 		},
 	}

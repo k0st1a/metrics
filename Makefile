@@ -277,6 +277,7 @@ crypto-key-clean:
 	rm -d -f  ${CRYPTO_DIR}
 
 HASH_KEY := "hash key"
+APPLICATION_LOG_LEVEL := "debug"
 
 .PHONY: server-run-with-args
 server-run-with-args: build statictest db-up
@@ -287,6 +288,7 @@ server-run-with-args: build statictest db-up
 			-p ${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT} \
 			-k ${HASH_KEY} \
 			-t ${SERVER_TRUSTED_SUBNET} \
+			-log-level ${APPLICATION_LOG_LEVEL} \
 			-crypto-key ${CRYPTO_PRIVATE}
 
 .PHONY: agent-run-with-args
@@ -295,6 +297,7 @@ agent-run-with-args: build statictest
 		./cmd/agent/agent \
 			-a ${SERVER_HOST}:${SERVER_PORT} \
 			-k ${HASH_KEY} \
+			-log-level ${APPLICATION_LOG_LEVEL} \
 			-crypto-key ${CRYPTO_PUBLIC}
 
 .PHONY: grpc-server-run-with-args
@@ -307,6 +310,7 @@ grpc-server-run-with-args: build statictest db-up
 		-k ${HASH_KEY} \
 		-t ${SERVER_TRUSTED_SUBNET} \
 		-crypto-key ${CRYPTO_PRIVATE} \
+		-log-level ${APPLICATION_LOG_LEVEL} \
 		-api-type grpc
 
 .PHONY: grpc-agent-run-with-args
@@ -316,6 +320,7 @@ grpc-agent-run-with-args: build statictest
 		-a ${SERVER_HOST}:${SERVER_PORT} \
 		-k ${HASH_KEY} \
 		-crypto-key ${CRYPTO_PUBLIC} \
+		-log-level ${APPLICATION_LOG_LEVEL} \
 		-api-type grpc
 
 

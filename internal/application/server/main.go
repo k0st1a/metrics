@@ -19,17 +19,21 @@ import (
 	"github.com/k0st1a/metrics/internal/adapters/storage/file"
 	"github.com/k0st1a/metrics/internal/adapters/storage/inmemory"
 	"github.com/k0st1a/metrics/internal/application/server/config"
+	"github.com/k0st1a/metrics/internal/pkg/logwrap"
 	"github.com/k0st1a/metrics/internal/pkg/profiler"
 	"github.com/k0st1a/metrics/internal/ports"
 	"github.com/rs/zerolog/log"
 )
 
 func Run() error {
-	log.Debug().Msg("Run server")
-
 	cfg, err := config.New()
 	if err != nil {
 		return fmt.Errorf("config create error:%w", err)
+	}
+
+	err = logwrap.New(cfg.LogLevel)
+	if err != nil {
+		return fmt.Errorf("logwrap create error:%w", err)
 	}
 
 	log.Printf("Cfg:%+v", cfg)

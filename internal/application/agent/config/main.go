@@ -21,6 +21,7 @@ const (
 	defaultRateLimit      = 1
 	defaultConfig         = ""
 	defaultAPIType        = "http"
+	defaultLogLevel       = "info"
 )
 
 // Config - структура с конфигурационными параметрами агента.
@@ -41,6 +42,9 @@ type Config struct {
 	// Тип запускаемого сервером API (по умолчанию http). Возможные значения http и grpc.
 	// "Задается через флаг `-api-type=<ЗНАЧЕНИЕ>` или переменную окружения `API_TYPE=<ЗНАЧЕНИЕ>")
 	APIType string
+	// LogLevel - уровень логирования. Возможные значения: debug, info, warn, error (по умолчанию info).
+	// Задается через флаг `-log-level=<ЗНАЧЕНИЕ>` или переменную окружения `LOG_LEVEL=<ЗНАЧЕНИЕ>`
+	LogLevel string
 	// PollInterval - частота опроса метрик из пакета `runtime` (по умолчанию 2 секунды).
 	// Задается через флаг `-p=<ЗНАЧЕНИЕ>` или переменную окружения `POLL_INTERVAL=<ЗНАЧЕНИЕ>`
 	PollInterval int
@@ -92,6 +96,7 @@ func newDefaultConfig() *Config {
 		ReportInterval: defaultReportInterval,
 		RateLimit:      defaultRateLimit,
 		APIType:        defaultAPIType,
+		LogLevel:       defaultLogLevel,
 	}
 }
 
@@ -116,6 +121,9 @@ func (c *Config) applyFromArgsAndEnv() error {
 	flag.StringVar(&c.APIType, "api-type", c.APIType,
 		"Тип запускаемого сервером API (по умолчанию http). Возможные значения http и grpc.\n"+
 			"Задается через флаг `-api-type=<ЗНАЧЕНИЕ>` или переменную окружения `API_TYPE=<ЗНАЧЕНИЕ>")
+	flag.StringVar(&c.LogLevel, "log-level", c.LogLevel,
+		"Уровень логирования. Задается через флаг `-log-level=<ЗНАЧЕНИЕ>` или переменную окружения "+
+			"`LOG_LEVEL=<ЗНАЧЕНИЕ>.\nВозможные значения: debug, info, warn, error.")
 
 	flag.Parse()
 
@@ -175,6 +183,11 @@ func (c *Config) applyFromArgsAndEnv() error {
 		c.APIType = at
 	}
 
+	ll, ok := os.LookupEnv("LOG_LEVEL")
+	if ok {
+		c.LogLevel = ll
+	}
+
 	return nil
 }
 
@@ -187,6 +200,7 @@ type JSONConfig struct {
 	PollInterval   string `json:"poll_interval"`
 	CryptoKey      string `json:"crypto_key"`
 	APIType        string `json:"api_type"`
+	LogLevel       string `json:"log_level"`
 }
 
 func (c *Config) applyFromFile(path string) error {
@@ -229,6 +243,10 @@ func (c *Config) applyFromFile(path string) error {
 
 	if cfg.APIType != "" {
 		c.APIType = cfg.APIType
+	}
+
+	if cfg.LogLevel != "" {
+		c.LogLevel = cfg.LogLevel
 	}
 
 	return nil

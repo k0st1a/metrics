@@ -6,5 +6,6 @@
     "database_dsn": "DATABASE_DSN_FROM_FILE",
     "crypto_key": "CRYPTO_KEY_FROM_FILE",
     "trusted_subnet": "TRUSTED_SUBNET_FROM_FILE",
-    "api_type": "API_TYPE_FROM_FILE"
+    "api_type": "API_TYPE_FROM_FILE",
+    "log_level": "LOG_LEVEL_FROM_FILE"
 }

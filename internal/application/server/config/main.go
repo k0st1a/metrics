@@ -46,6 +46,9 @@ type Config struct {
 	// Тип запускаемого сервером API (по умолчанию http). Возможные значения http и grpc.
 	// "Задается через флаг `-api-type=<ЗНАЧЕНИЕ>` или переменную окружения `API_TYPE=<ЗНАЧЕНИЕ>")
 	APIType string
+	// LogLevel - уровень логирования. Возможные значения: debug, info, warn, error (по умолчанию info).
+	// Задается через флаг `-log-level=<ЗНАЧЕНИЕ>` или переменную окружения `LOG_LEVEL=<ЗНАЧЕНИЕ>`
+	LogLevel string
 	// StoreInterval - интервал времени в секундах, по истечении которого текущие показания сервера сохраняются на
 	// диск (по умолчанию 300 секунд, значение `0` делает запись синхронной).
 	// Задается через флаг `-i=<ЗНАЧЕНИЕ>` или переменную окружения `STORE_INTERVAL=<ЗНАЧЕНИЕ>`
@@ -68,6 +71,7 @@ const (
 	defaultConfig          = ""
 	defaultTrustedSubnet   = ""
 	defaultAPIType         = "http"
+	defaultLogLevel        = "info"
 )
 
 // New - создать конфигурацию сервера из файла конфигурации, аргументов командой строки и переменных окружения.
@@ -114,6 +118,7 @@ func newDefaultConfig() *Config {
 		StoreInterval:   defaultStoreInterval,
 		Restore:         defaultRestore,
 		APIType:         defaultAPIType,
+		LogLevel:        defaultLogLevel,
 	}
 }
 
@@ -155,6 +160,9 @@ func (c *Config) applyFromArgsAndEnv() error {
 	flag.StringVar(&c.APIType, "api-type", c.APIType,
 		"Тип запускаемого сервером API (по умолчанию http). Возможные значения http и grpc.\n"+
 			"Задается через флаг `-api-type=<ЗНАЧЕНИЕ>` или переменную окружения `API_TYPE=<ЗНАЧЕНИЕ>")
+	flag.StringVar(&c.LogLevel, "log-level", c.LogLevel,
+		"Уровень логирования. Задается через флаг `-log-level=<ЗНАЧЕНИЕ>` или переменную окружения "+
+			"`LOG_LEVEL=<ЗНАЧЕНИЕ>.\nВозможные значения: debug, info, warn, error.")
 
 	flag.Parse()
 
@@ -223,6 +231,11 @@ func (c *Config) applyFromArgsAndEnv() error {
 		c.APIType = at
 	}
 
+	ll, ok := os.LookupEnv("LOG_LEVEL")
+	if ok {
+		c.LogLevel = ll
+	}
+
 	return nil
 }
 
@@ -237,6 +250,7 @@ type JSONConfig struct {
 	TrustedSubnet   string `json:"trusted_subnet"`
 	StoreInterval   string `json:"store_interval"`
 	APIType         string `json:"api_type"`
+	LogLevel        string `json:"log_level"`
 	Restore         bool   `json:"restore"`
 }
 
@@ -285,6 +299,10 @@ func (c *Config) applyFromFile(path string) error {
 
 	if cfg.APIType != "" {
 		c.APIType = cfg.APIType
+	}
+
+	if cfg.LogLevel != "" {
+		c.LogLevel = cfg.LogLevel
 	}
 
 	return nil
