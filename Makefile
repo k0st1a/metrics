@@ -22,7 +22,9 @@ PG_IMAGE = "postgres:13.13-bullseye"
 PG_DOCKER_CONTEINER_NAME = "metrics-pg-13.3"
 
 SERVER_PORT="8080"
-SERVER_HOST="localhost"
+SERVER_HOST="127.0.0.1"
+SERVER_TRUSTED_SUBNET="127.0.0.1/32"
+#SERVER_TRUSTED_SUBNET="192.168.1.1/32"
 PPROF_SERVER_PORT="8086"
 PPROF_SERVER_HOST="0.0.0.0"
 
@@ -34,6 +36,26 @@ METRICSTEST_ARGS = -test.v -source-path=.
 BUILD_VERSION := 0.0.1
 BUILD_DATE := $(shell date -u +"%Y-%m-%d %H:%M:%S:%N %Z")
 BUILD_COMMIT := $(shell git rev-parse HEAD)
+
+.PHONY:protobuf-install
+protobuf-install:
+	# from https://grpc.io/docs/protoc-installation/#:~:text=Linux%2C%20using%20apt%20or%20apt%2Dget
+	sudo apt install -y protobuf-compiler
+	# from https://practicum.yandex.ru/learn/go-advanced/courses/65ce3d44-da98-4684-9499-465ff6cc6c64/sprints/226895/topics/30311053-9716-4af0-9a23-f4fa0725f918/lessons/fa184729-fbbd-4a1c-ae11-4e12f66b7f64/#:~:text=%D0%A3%D1%81%D1%82%D0%B0%D0%BD%D0%BE%D0%B2%D0%BA%D0%B0%20%D1%83%D1%82%D0%B8%D0%BB%D0%B8%D1%82%20gRPC
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@latest
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@latest
+	export PATH="${PATH}:$(go env GOPATH)/bin"
+
+PROTOBUF_PATH := "./internal/adapters/api/grpc/protobuf"
+
+.PHONY:protobuf-generate
+protobuf-generate:
+	protoc \
+		--go_out=. \
+		--go_opt=paths=source_relative \
+		--go-grpc_out=. \
+		--go-grpc_opt=paths=source_relative \
+		${PROTOBUF_PATH}/model.proto
 
 GOLANG_LDFLAGS := -ldflags "-X 'main.buildVersion=${BUILD_VERSION}' \
                             -X 'main.buildDate=${BUILD_DATE}' \
@@ -70,7 +92,11 @@ test: build statictest staticlint
 cover:
 	mkdir -pv ./cover && \
 	go test -v -coverpkg=./... -coverprofile=./cover/cover.profile.tmp ./... && \
-	cat ./cover/cover.profile.tmp | grep -v "_easyjson.go" | grep -v "model.go" > ./cover/cover.profile && \
+	cat ./cover/cover.profile.tmp \
+		| grep -v "_easyjson.go" \
+		| grep -v "model.go" \
+		| grep -v "${PROTOBUF_PATH}" \
+		> ./cover/cover.profile && \
 	rm ./cover/cover.profile.tmp && \
 	go tool cover -func ./cover/cover.profile && \
 	go tool cover -html ./cover/cover.profile -o ./cover/cover.html
@@ -85,7 +111,7 @@ test-analyzer:
 	go test -v -race -count=1 ./internal/pkg/analyzer/...
 
 .PHONY: miter7
-miter7: build statictest
+miter7: build test
 	METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration7" ; \
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
@@ -96,7 +122,7 @@ miter7: build statictest
 				-server-port=$$SERVER_PORT ;
 
 .PHONY: miter8
-miter8: build statictest
+miter8: build test
 	METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration8" ; \
 	ADDRESS="localhost:8080" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -107,7 +133,7 @@ miter8: build statictest
 				-file-storage-path=$$TEMP_FILE ;
 
 .PHONY: miter9
-miter9: build statictest
+miter9: build test
 	METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration9" ; \
 			ADDRESS="localhost:8080" ;\
 			TEMP_FILE="/tmp/metrics-db.json" ; \
@@ -118,7 +144,7 @@ miter9: build statictest
 						-file-storage-path=$$TEMP_FILE ;
 
 .PHONY: miter10
-miter10: build statictest db-up
+miter10: build test db-up
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -130,7 +156,7 @@ miter10: build statictest db-up
 				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: miter11
-miter11: build statictest db-up
+miter11: build test db-up
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -142,7 +168,7 @@ miter11: build statictest db-up
 				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: miter12
-miter12: build statictest db-up
+miter12: build test db-up
 	#SERVER_PORT=$$(random unused-port) ;
 	SERVER_PORT=8081 ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
@@ -155,7 +181,7 @@ miter12: build statictest db-up
 				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: miter13
-miter13: build statictest db-up
+miter13: build test db-up
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -167,7 +193,7 @@ miter13: build statictest db-up
 				-database-dsn=${PG_DATABASE_DSN} ;
 
 .PHONY: ${ITERS}
-${ITERS}: iter%: build statictest db-run;
+${ITERS}: iter%: build test db-up;
 	for i in $(shell seq 1 $*) ; do \
 		METRICSTEST_ARGS="${METRICSTEST_ARGS} -test.run=TestIteration$$i[AB]?$$" ; \
 		if [ $$i -eq 1 ]; then \
@@ -214,9 +240,8 @@ ${ITERS}: iter%: build statictest db-run;
 						-binary-path=cmd/server/server \
 						-agent-binary-path=cmd/agent/agent \
 						-server-port=$$SERVER_PORT \
-						-database-dsn=${PG_DATABASE_DSN} ; \
-						-key="$$TEMP_FILE" ; \
-			go test -v -race ./... ; \
+						-database-dsn=${PG_DATABASE_DSN} \
+						-key="$${TEMP_FILE}" ; \
 		fi ; \
 		if [ $$? -eq 1 ]; then \
 			break ; \
@@ -224,7 +249,7 @@ ${ITERS}: iter%: build statictest db-run;
     done
 
 .PHONY: miter14
-miter14: build statictest db-up
+miter14: build test db-up
 	SERVER_PORT=$$(random unused-port) ; \
 	ADDRESS="localhost:$${SERVER_PORT}" ; \
 	TEMP_FILE=$$(random tempfile) ; \
@@ -234,8 +259,7 @@ miter14: build statictest db-up
 		-database-dsn=${PG_DATABASE_DSN} \
 		-server-port="$$SERVER_PORT" \
 		-key=$${TEMP_FILE} \
-		-source-path=. ; \
-	go test -v -race ./... ;
+		-source-path=.
 
 CRYPTO_DIR := ./crypto-key
 CRYPTO_PRIVATE := ${CRYPTO_DIR}/private.pem
@@ -253,6 +277,7 @@ crypto-key-clean:
 	rm -d -f  ${CRYPTO_DIR}
 
 HASH_KEY := "hash key"
+APPLICATION_LOG_LEVEL := "debug"
 
 .PHONY: server-run-with-args
 server-run-with-args: build statictest db-up
@@ -262,15 +287,42 @@ server-run-with-args: build statictest db-up
 			-d ${PG_DATABASE_DSN} \
 			-p ${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT} \
 			-k ${HASH_KEY} \
+			-t ${SERVER_TRUSTED_SUBNET} \
+			-log-level ${APPLICATION_LOG_LEVEL} \
 			-crypto-key ${CRYPTO_PRIVATE}
 
 .PHONY: agent-run-with-args
-agent-run-with-args: build statictest db-up
+agent-run-with-args: build statictest
 	chmod +x ./cmd/agent/agent && \
 		./cmd/agent/agent \
 			-a ${SERVER_HOST}:${SERVER_PORT} \
 			-k ${HASH_KEY} \
+			-log-level ${APPLICATION_LOG_LEVEL} \
 			-crypto-key ${CRYPTO_PUBLIC}
+
+.PHONY: grpc-server-run-with-args
+grpc-server-run-with-args: build statictest db-up
+	chmod +x ./cmd/server/server && \
+	./cmd/server/server \
+		-a ${SERVER_HOST}:${SERVER_PORT} \
+		-d ${PG_DATABASE_DSN} \
+		-p ${PPROF_SERVER_HOST}:${PPROF_SERVER_PORT} \
+		-k ${HASH_KEY} \
+		-t ${SERVER_TRUSTED_SUBNET} \
+		-crypto-key ${CRYPTO_PRIVATE} \
+		-log-level ${APPLICATION_LOG_LEVEL} \
+		-api-type grpc
+
+.PHONY: grpc-agent-run-with-args
+grpc-agent-run-with-args: build statictest
+	chmod +x ./cmd/agent/agent && \
+	./cmd/agent/agent \
+		-a ${SERVER_HOST}:${SERVER_PORT} \
+		-k ${HASH_KEY} \
+		-crypto-key ${CRYPTO_PUBLIC} \
+		-log-level ${APPLICATION_LOG_LEVEL} \
+		-api-type grpc
+
 
 .PHONY: pprof-mem-http
 pprof-mem-http:

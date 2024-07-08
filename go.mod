@@ -5,7 +5,9 @@ go 1.21
 toolchain go1.21.11
 
 require (
+	github.com/3th1nk/cidr v0.2.0
 	github.com/go-chi/chi/v5 v5.0.10
+	github.com/google/gopacket v1.1.20-0.20220810144506-32ee38206866
 	github.com/jackc/pgerrcode v0.0.0-20220416144525-469b46aa5efa
 	github.com/jackc/pgx/v5 v5.5.3
 	github.com/mailru/easyjson v0.7.7
@@ -14,6 +16,8 @@ require (
 	github.com/shirou/gopsutil/v3 v3.24.2
 	github.com/stretchr/testify v1.8.4
 	golang.org/x/tools v0.18.0
+	google.golang.org/grpc v1.64.0
+	google.golang.org/protobuf v1.33.0
 	honnef.co/go/tools v0.4.7
 )
 
@@ -36,11 +40,13 @@ require (
 	github.com/tklauser/go-sysconf v0.3.12 // indirect
 	github.com/tklauser/numcpus v0.6.1 // indirect
 	github.com/yusufpapurcu/wmi v1.2.4 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
 	golang.org/x/exp/typeparams v0.0.0-20240213143201-ec583247a57a // indirect
 	golang.org/x/mod v0.15.0 // indirect
+	golang.org/x/net v0.22.0 // indirect
 	golang.org/x/sync v0.6.0 // indirect
-	golang.org/x/sys v0.17.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
+	google.golang.org/genproto/googleapis/rpc v0.0.0-20240318140521-94a12d6c2237 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
