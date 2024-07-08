@@ -195,12 +195,12 @@ func (c *Config) applyFromArgsAndEnv() error {
 // Использользуется для Unmarshal-инга файла в формате JSON в данную структуру.
 // Далее данные данной структуры будут использованы для формирования структуры Config.
 type JSONConfig struct {
-	Address        string `json:"address"`
-	ReportInterval string `json:"report_interval"`
-	PollInterval   string `json:"poll_interval"`
-	CryptoKey      string `json:"crypto_key"`
-	APIType        string `json:"api_type"`
-	LogLevel       string `json:"log_level"`
+	Address        *string `json:"address"`
+	ReportInterval *string `json:"report_interval"`
+	PollInterval   *string `json:"poll_interval"`
+	CryptoKey      *string `json:"crypto_key"`
+	APIType        *string `json:"api_type"`
+	LogLevel       *string `json:"log_level"`
 }
 
 func (c *Config) applyFromFile(path string) error {
@@ -215,12 +215,12 @@ func (c *Config) applyFromFile(path string) error {
 		return fmt.Errorf("json unmarshal error:%w", err)
 	}
 
-	if cfg.Address != "" {
-		c.ServerAddr = cfg.Address
+	if cfg.Address != nil {
+		c.ServerAddr = *cfg.Address
 	}
 
-	if cfg.ReportInterval != "" {
-		ri, err := time.ParseDuration(cfg.ReportInterval)
+	if cfg.ReportInterval != nil {
+		ri, err := time.ParseDuration(*cfg.ReportInterval)
 		if err != nil {
 			return fmt.Errorf("report interval parse error:%w", err)
 		}
@@ -228,8 +228,8 @@ func (c *Config) applyFromFile(path string) error {
 		c.ReportInterval = int(ri.Seconds())
 	}
 
-	if cfg.PollInterval != "" {
-		pi, err := time.ParseDuration(cfg.PollInterval)
+	if cfg.PollInterval != nil {
+		pi, err := time.ParseDuration(*cfg.PollInterval)
 		if err != nil {
 			return fmt.Errorf("report interval parse error:%w", err)
 		}
@@ -237,16 +237,16 @@ func (c *Config) applyFromFile(path string) error {
 		c.PollInterval = int(pi.Seconds())
 	}
 
-	if cfg.CryptoKey != "" {
-		c.CryptoKey = cfg.CryptoKey
+	if cfg.CryptoKey != nil {
+		c.CryptoKey = *cfg.CryptoKey
 	}
 
-	if cfg.APIType != "" {
-		c.APIType = cfg.APIType
+	if cfg.APIType != nil {
+		c.APIType = *cfg.APIType
 	}
 
-	if cfg.LogLevel != "" {
-		c.LogLevel = cfg.LogLevel
+	if cfg.LogLevel != nil {
+		c.LogLevel = *cfg.LogLevel
 	}
 
 	return nil

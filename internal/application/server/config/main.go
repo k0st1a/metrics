@@ -243,15 +243,15 @@ func (c *Config) applyFromArgsAndEnv() error {
 // Использользуется для Unmarshal-инга файла в формате JSON в данную структуру.
 // Далее данные данной структуры будут использованы для формирования структуры Config.
 type JSONConfig struct {
-	Address         string `json:"address"`
-	DatabaseDSN     string `json:"database_dsn"`
-	FileStoragePath string `json:"file_storage_path"`
-	CryptoKey       string `json:"crypto_key"`
-	TrustedSubnet   string `json:"trusted_subnet"`
-	StoreInterval   string `json:"store_interval"`
-	APIType         string `json:"api_type"`
-	LogLevel        string `json:"log_level"`
-	Restore         bool   `json:"restore"`
+	Address         *string `json:"address"`
+	DatabaseDSN     *string `json:"database_dsn"`
+	FileStoragePath *string `json:"file_storage_path"`
+	CryptoKey       *string `json:"crypto_key"`
+	TrustedSubnet   *string `json:"trusted_subnet"`
+	StoreInterval   *string `json:"store_interval"`
+	APIType         *string `json:"api_type"`
+	LogLevel        *string `json:"log_level"`
+	Restore         *bool   `json:"restore"`
 }
 
 func (c *Config) applyFromFile(path string) error {
@@ -266,14 +266,16 @@ func (c *Config) applyFromFile(path string) error {
 		return fmt.Errorf("json unmarshal error:%w", err)
 	}
 
-	if cfg.Address != "" {
-		c.ServerAddr = cfg.Address
+	if cfg.Address != nil {
+		c.ServerAddr = *cfg.Address
 	}
 
-	c.Restore = cfg.Restore
+	if cfg.Restore != nil {
+		c.Restore = *cfg.Restore
+	}
 
-	if cfg.StoreInterval != "" {
-		i, err := time.ParseDuration(cfg.StoreInterval)
+	if cfg.StoreInterval != nil {
+		i, err := time.ParseDuration(*cfg.StoreInterval)
 		if err != nil {
 			return fmt.Errorf("store interval parse error:%w", err)
 		}
@@ -281,28 +283,28 @@ func (c *Config) applyFromFile(path string) error {
 		c.StoreInterval = int(i.Seconds())
 	}
 
-	if cfg.FileStoragePath != "" {
-		c.FileStoragePath = cfg.FileStoragePath
+	if cfg.FileStoragePath != nil {
+		c.FileStoragePath = *cfg.FileStoragePath
 	}
 
-	if cfg.DatabaseDSN != "" {
-		c.DatabaseDSN = cfg.DatabaseDSN
+	if cfg.DatabaseDSN != nil {
+		c.DatabaseDSN = *cfg.DatabaseDSN
 	}
 
-	if cfg.CryptoKey != "" {
-		c.CryptoKey = cfg.CryptoKey
+	if cfg.CryptoKey != nil {
+		c.CryptoKey = *cfg.CryptoKey
 	}
 
-	if cfg.TrustedSubnet != "" {
-		c.TrustedSubnet = cfg.TrustedSubnet
+	if cfg.TrustedSubnet != nil {
+		c.TrustedSubnet = *cfg.TrustedSubnet
 	}
 
-	if cfg.APIType != "" {
-		c.APIType = cfg.APIType
+	if cfg.APIType != nil {
+		c.APIType = *cfg.APIType
 	}
 
-	if cfg.LogLevel != "" {
-		c.LogLevel = cfg.LogLevel
+	if cfg.LogLevel != nil {
+		c.LogLevel = *cfg.LogLevel
 	}
 
 	return nil
